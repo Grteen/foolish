@@ -1,0 +1,32 @@
+syntax = "proto3";
+package user;
+option go_package = ".;userdemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message CreateUserRequest {
+    string userName = 1;
+    string passWord = 2;
+    string email = 3;
+}
+
+message CreateUserResponse {
+    Resp resp = 1;
+}
+
+message CheckUserRequest {
+    string userNameOrEmail = 1;
+    string passWord = 2;
+}
+
+message CheckUserResponse {
+    Resp resp = 1;
+}
+
+service UserService {
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse){}
+    rpc CheckUser (CheckUserRequest) returns (CheckUserResponse){}
+}
