@@ -45,3 +45,55 @@ func CheckUser(ctx context.Context, req *userdemo.CheckUserRequest) error {
 
 	return nil
 }
+
+func UpdateUserInfo(ctx context.Context, req *userdemo.UpdateUserInfoRequest) error {
+	resp, err := client.UpdateUserInfo(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func QueryUserInfo(ctx context.Context, req *userdemo.QueryUserInfoRequest) (*userdemo.UserInfo, error) {
+	resp, err := client.QueryUserInfo(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.UserInfo, nil
+}
+
+func SetAuthCookie(ctx context.Context, req *userdemo.SetAuthCookieRequest) error {
+	resp, err := client.SetAuthCookie(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func QueryAuthCookie(ctx context.Context, req *userdemo.QueryAuthCookieRequest) (string, error) {
+	resp, err := client.QueryAuthCookie(ctx, req)
+	if err != nil {
+		return "", err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return "", errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.Value, nil
+}

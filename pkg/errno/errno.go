@@ -6,15 +6,16 @@ import (
 )
 
 const (
-	SuccessCode              = 0
-	ServiceErrCode           = 10001
-	ServiceFaultCode         = 10002
-	ParamErrCode             = 10003
-	UserAlreadyExistErrCode  = 10004
-	EmailAlreadyExistErrCode = 10005
-	UserNotRegisterErrCode   = 10006
-	EmailNotRegisterErrCode  = 10007
-	AuthenticationErrCode    = 10008
+	SuccessCode                           = 0
+	ServiceErrCode                        = 10001
+	ServiceFaultCode                      = 10002
+	ParamErrCode                          = 10003
+	UserAlreadyExistErrCode               = 10004
+	EmailAlreadyExistErrCode              = 10005
+	UserNotRegisterErrCode                = 10006
+	EmailNotRegisterErrCode               = 10007
+	AuthenticationErrCode                 = 10008
+	AuthenticationCookieExpirationErrCode = 10009
 )
 
 type Errno struct {
@@ -48,13 +49,14 @@ func ConvertErr(err error) Errno {
 }
 
 var (
-	Success              = NewErrNo(SuccessCode, "Success")
-	ServiceErr           = NewErrNo(ServiceErrCode, "Service is unable to start successfully")
-	ServiceFault         = NewErrNo(ServiceFaultCode, "Service can't process")
-	ParamErr             = NewErrNo(ParamErrCode, "Wrong Parameter has been given")
-	UserAlreadyExistErr  = NewErrNo(UserAlreadyExistErrCode, "User already exists")
-	EmailAlreadyExistErr = NewErrNo(EmailAlreadyExistErrCode, "Email is already in use")
-	UserNotRegisterErr   = NewErrNo(UserNotRegisterErrCode, "User not registered")
-	EmailNotRegisterErr  = NewErrNo(EmailNotRegisterErrCode, "Email not registered")
-	AuthenticationErr    = NewErrNo(AuthenticationErrCode, "Authentication failed")
+	Success                           = NewErrNo(SuccessCode, "Success")
+	ServiceErr                        = NewErrNo(ServiceErrCode, "Service is unable to start successfully")
+	ServiceFault                      = NewErrNo(ServiceFaultCode, "Service can't process")
+	ParamErr                          = NewErrNo(ParamErrCode, "Wrong Parameter has been given")
+	UserAlreadyExistErr               = NewErrNo(UserAlreadyExistErrCode, "User already exists")
+	EmailAlreadyExistErr              = NewErrNo(EmailAlreadyExistErrCode, "Email is already in use")
+	UserNotRegisterErr                = NewErrNo(UserNotRegisterErrCode, "User not registered")
+	EmailNotRegisterErr               = NewErrNo(EmailNotRegisterErrCode, "Email not registered")
+	AuthenticationErr                 = NewErrNo(AuthenticationErrCode, "Authentication failed")
+	AuthenticationCookieExpirationErr = NewErrNo(AuthenticationCookieExpirationErrCode, "Authentication Cookie expired")
 )

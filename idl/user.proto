@@ -26,7 +26,59 @@ message CheckUserResponse {
     Resp resp = 1;
 }
 
+message UpdateUserInfoRequest {
+    string userName = 1;
+    string nickName = 2;
+    string description = 3;
+    string userAvator = 4;
+}
+
+message UpdateUserInfoResponse {
+    Resp resp = 1;
+}
+
+message UserInfo {
+    string userName = 1;
+    string nickName = 2;
+    string description = 3;
+    string userAvator = 4;
+}
+
+message QueryUserInfoRequest {
+    string userName = 1;
+}
+
+message QueryUserInfoResponse {
+    Resp resp = 1;
+    UserInfo userInfo = 2;
+}
+
+message SetAuthCookieRequest {
+    string key = 1;
+    string value = 2;
+    int64 maxAge = 3;
+}
+
+message SetAuthCookieResponse {
+    Resp resp = 1;
+}
+
+message QueryAuthCookieRequest {
+    string key = 1;
+}
+
+message QueryAuthCookieResponse {
+    Resp resp = 1;
+    string value = 2;
+}
+
 service UserService {
     rpc CreateUser (CreateUserRequest) returns (CreateUserResponse){}
     rpc CheckUser (CheckUserRequest) returns (CheckUserResponse){}
+
+    rpc UpdateUserInfo (UpdateUserInfoRequest) returns (UpdateUserInfoResponse){}
+    rpc QueryUserInfo (QueryUserInfoRequest) returns (QueryUserInfoResponse){}
+
+    rpc SetAuthCookie(SetAuthCookieRequest) returns (SetAuthCookieResponse){}
+    rpc QueryAuthCookie(QueryAuthCookieRequest) returns (QueryAuthCookieResponse){}
 }

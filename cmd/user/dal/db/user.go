@@ -11,9 +11,10 @@ type User struct {
 	ID        uint `gorm:"primarykey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserName  string `json:"username" gorm:"column:username; not null; unique"`
-	Email     string `json:"email" gorm:"column:email; unique"`
-	PassWord  string `json:"password" gorm:"column:pw"`
+	UserName  string    `json:"username" gorm:"column:username; not null; unique"`
+	Email     string    `json:"email" gorm:"column:email; unique"`
+	PassWord  string    `json:"password" gorm:"column:pw"`
+	UserInfo  *UserInfo `gorm:"foreignKey:UserName; references:UserName"`
 }
 
 func (u *User) TableName() string {

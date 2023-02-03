@@ -50,6 +50,9 @@ func (s *UserService) CreateUser(req *userdemo.CreateUserRequest) error {
 			UserName: req.UserName,
 			PassWord: passWord,
 			Email:    req.Email,
+			UserInfo: &db.UserInfo{
+				UserName: req.UserName,
+			},
 		},
 	})
 }
@@ -90,14 +93,7 @@ func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) error {
 		return errno.ParamErr
 	}
 
-	// 加密密码
-	h := md5.New()
-	if _, err := io.WriteString(h, req.PassWord); err != nil {
-		return err
-	}
-	passWord := fmt.Sprintf("%x", h.Sum(nil))
-
-	if passWord != u.PassWord {
+	if req.PassWord != u.PassWord {
 		// 密码错误
 		return errno.AuthenticationErr
 	}

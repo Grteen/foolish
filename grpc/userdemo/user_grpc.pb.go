@@ -24,6 +24,10 @@ const _ = grpc.SupportPackageIsVersion7
 type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	CheckUser(ctx context.Context, in *CheckUserRequest, opts ...grpc.CallOption) (*CheckUserResponse, error)
+	UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...grpc.CallOption) (*UpdateUserInfoResponse, error)
+	QueryUserInfo(ctx context.Context, in *QueryUserInfoRequest, opts ...grpc.CallOption) (*QueryUserInfoResponse, error)
+	SetAuthCookie(ctx context.Context, in *SetAuthCookieRequest, opts ...grpc.CallOption) (*SetAuthCookieResponse, error)
+	QueryAuthCookie(ctx context.Context, in *QueryAuthCookieRequest, opts ...grpc.CallOption) (*QueryAuthCookieResponse, error)
 }
 
 type userServiceClient struct {
@@ -52,12 +56,52 @@ func (c *userServiceClient) CheckUser(ctx context.Context, in *CheckUserRequest,
 	return out, nil
 }
 
+func (c *userServiceClient) UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...grpc.CallOption) (*UpdateUserInfoResponse, error) {
+	out := new(UpdateUserInfoResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/UpdateUserInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) QueryUserInfo(ctx context.Context, in *QueryUserInfoRequest, opts ...grpc.CallOption) (*QueryUserInfoResponse, error) {
+	out := new(QueryUserInfoResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/QueryUserInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) SetAuthCookie(ctx context.Context, in *SetAuthCookieRequest, opts ...grpc.CallOption) (*SetAuthCookieResponse, error) {
+	out := new(SetAuthCookieResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/SetAuthCookie", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) QueryAuthCookie(ctx context.Context, in *QueryAuthCookieRequest, opts ...grpc.CallOption) (*QueryAuthCookieResponse, error) {
+	out := new(QueryAuthCookieResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/QueryAuthCookie", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	CheckUser(context.Context, *CheckUserRequest) (*CheckUserResponse, error)
+	UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*UpdateUserInfoResponse, error)
+	QueryUserInfo(context.Context, *QueryUserInfoRequest) (*QueryUserInfoResponse, error)
+	SetAuthCookie(context.Context, *SetAuthCookieRequest) (*SetAuthCookieResponse, error)
+	QueryAuthCookie(context.Context, *QueryAuthCookieRequest) (*QueryAuthCookieResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -70,6 +114,18 @@ func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserReq
 }
 func (UnimplementedUserServiceServer) CheckUser(context.Context, *CheckUserRequest) (*CheckUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUser not implemented")
+}
+func (UnimplementedUserServiceServer) UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*UpdateUserInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserInfo not implemented")
+}
+func (UnimplementedUserServiceServer) QueryUserInfo(context.Context, *QueryUserInfoRequest) (*QueryUserInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryUserInfo not implemented")
+}
+func (UnimplementedUserServiceServer) SetAuthCookie(context.Context, *SetAuthCookieRequest) (*SetAuthCookieResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetAuthCookie not implemented")
+}
+func (UnimplementedUserServiceServer) QueryAuthCookie(context.Context, *QueryAuthCookieRequest) (*QueryAuthCookieResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAuthCookie not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -120,6 +176,78 @@ func _UserService_CheckUser_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_UpdateUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUserInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).UpdateUserInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/UpdateUserInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).UpdateUserInfo(ctx, req.(*UpdateUserInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_QueryUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryUserInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).QueryUserInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/QueryUserInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).QueryUserInfo(ctx, req.(*QueryUserInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_SetAuthCookie_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetAuthCookieRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).SetAuthCookie(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/SetAuthCookie",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).SetAuthCookie(ctx, req.(*SetAuthCookieRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_QueryAuthCookie_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAuthCookieRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).QueryAuthCookie(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/QueryAuthCookie",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).QueryAuthCookie(ctx, req.(*QueryAuthCookieRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +262,22 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckUser",
 			Handler:    _UserService_CheckUser_Handler,
+		},
+		{
+			MethodName: "UpdateUserInfo",
+			Handler:    _UserService_UpdateUserInfo_Handler,
+		},
+		{
+			MethodName: "QueryUserInfo",
+			Handler:    _UserService_QueryUserInfo_Handler,
+		},
+		{
+			MethodName: "SetAuthCookie",
+			Handler:    _UserService_SetAuthCookie_Handler,
+		},
+		{
+			MethodName: "QueryAuthCookie",
+			Handler:    _UserService_QueryAuthCookie_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
