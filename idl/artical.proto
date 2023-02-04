@@ -1,0 +1,22 @@
+syntax = "proto3";
+package articaldemo;
+option go_package = ".;articaldemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message CreateArticalRequest {
+    string author = 1;
+    string title = 2;
+    string text = 3;
+}
+
+message CreateArticalResponse {
+    Resp resp = 1;
+}
+
+service ArticalService {
+    rpc CreateArtical (CreateArticalRequest) returns (CreateArticalResponse){}
+}

@@ -15,6 +15,7 @@ func Init() {
 func main() {
 	Init()
 	ginServer := gin.Default()
+	ginServer.Use(middleware.AccessMidWare)
 
 	ginServer.POST("/register", handlers.Register)
 	ginServer.GET("/login", handlers.Login)

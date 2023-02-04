@@ -11,6 +11,7 @@ ErrorCode:
 	10007   "Email not registered"      // 邮箱没有注册
 	10008   "Authentication failed"         // 登录失败 密码错误
     10009   "Authentication Cookie expired"     // 登录 Cookie 过期
+    10010   "Permission denied"   // 没有权限
 
 
 // 注册用户
@@ -33,6 +34,25 @@ GET /api/login  uri
         code:   0 02 03 06 07 08
         message:
     }
+    设置 Cookie "frostAuth"
+
+// 获取当前登录用户的 用户名
+GET /api/userSelfName
+    无参数
+    返回值:
+        如果发生错误: 
+        json {
+            code:   02 09
+            message:
+        }
+        如果没有错误:
+        json {
+            code:  0
+            message:
+            data: {
+                username:
+            }
+        }
 
 // 获取用户主页信息
 GET /api/userinfo  uri
@@ -51,7 +71,7 @@ GET /api/userinfo  uri
                 userName    用户名
                 nickName    昵称
                 description     个人简介
-                userAvator      头像 (头像是一个http地址 暂时不支持)
+                userAvator      头像
             }
         }
 
@@ -64,6 +84,28 @@ PUT /api/userinfo  form-data
         description     个人简介
         acator      头像
     返回值 : json {
-        code: 0 02 03 06 09
+        code: 0 02 03 06 09 10
         message:
     }
+
+// 上传图片
+POST /api/uploadPic  form-data
+    参数 : 
+        username    用户名
+        picname     图片名称  (时间戳 or UUID)
+        pic         二进制图片
+    返回值 : 
+        如果发生错误 :
+        json {
+            code: 02 03 09 10
+            message:
+        }
+        如果没有错误 :
+        json {
+            code: 0
+            message:
+            data: {
+                uri:    // 正常情况下为 http://124.70.111.92/image/username/picname.webp
+            }
+        }
+

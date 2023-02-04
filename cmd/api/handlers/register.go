@@ -25,14 +25,26 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	// 检查参数
-	userPwReg := regexp.MustCompile("[0-9A-Za-z_\\-]{3,18}")
-	if !userPwReg.MatchString(u.Name) || !userPwReg.MatchString(u.PassWord) {
+	// 密码 3-18  用户名 3-18
+	if len(u.PassWord) < 3 || len(u.PassWord) > 18 || len(u.Name) < 3 || len(u.Name) > 18 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
 
-	emailReg := regexp.MustCompile("[0-9A-Za-z]+@qq.com")
+	// 检查参数
+	userPwReg := regexp.MustCompile("[^0-9a-zA-Z\\-_]")
+	if userPwReg.MatchString(u.Name) || userPwReg.MatchString(u.PassWord) {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	emailReg := regexp.MustCompile("[^0-9a-zA-Z@.]")
+	if emailReg.MatchString(u.Email) {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	emailReg = regexp.MustCompile(".+(@qq.com)$")
 	if !emailReg.MatchString(u.Email) {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
@@ -46,7 +58,7 @@ func Register(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		pack.SendResponse(ctx, errno.ServiceFault)
+		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
 

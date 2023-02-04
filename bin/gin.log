@@ -4,14 +4,20 @@
  - using env:	export GIN_MODE=release
  - using code:	gin.SetMode(gin.ReleaseMode)
 
-[GIN-debug] POST   /register                 --> be/cmd/api/handlers.Register (3 handlers)
-[GIN-debug] GET    /login                    --> be/cmd/api/handlers.Login (3 handlers)
-[GIN-debug] GET    /userSelfName             --> be/cmd/api/handlers.QueryUserSelf (3 handlers)
-[GIN-debug] PUT    /userinfo                 --> be/cmd/api/handlers.UpdateUserInfo (4 handlers)
-[GIN-debug] GET    /userinfo                 --> be/cmd/api/handlers.QueryUserInfo (4 handlers)
-[GIN-debug] POST   /uploadPic                --> be/cmd/api/handlers.UploadPic (4 handlers)
+[GIN-debug] POST   /register                 --> be/cmd/api/handlers.Register (4 handlers)
+[GIN-debug] GET    /login                    --> be/cmd/api/handlers.Login (4 handlers)
+[GIN-debug] GET    /userSelfName             --> be/cmd/api/handlers.QueryUserSelf (4 handlers)
+[GIN-debug] PUT    /userinfo                 --> be/cmd/api/handlers.UpdateUserInfo (5 handlers)
+[GIN-debug] GET    /userinfo                 --> be/cmd/api/handlers.QueryUserInfo (5 handlers)
+[GIN-debug] POST   /uploadPic                --> be/cmd/api/handlers.UploadPic (5 handlers)
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :9877
-[GIN] 2023/02/04 - 10:37:03 | 200 |   15.140827ms |   124.70.111.92 | POST     "/uploadPic"
-[GIN] 2023/02/04 - 10:37:06 | 200 |    10.14888ms |   124.70.111.92 | POST     "/uploadPic"
+[GIN] 2023/02/04 - 17:55:30 | 200 |    9.180923ms |       127.0.0.1 | GET      "/login?account=AutumnFrost&password=c4fc401ec53b4e0d76bcb5428bf0a076"
+[GIN] 2023/02/04 - 17:55:34 | 200 |    2.410313ms |       127.0.0.1 | GET      "/login?account=AutumnFrost&password=c4fc401ec53b4e0d76bcb5428bf0a076"
+[GIN] 2023/02/04 - 17:55:35 | 200 |    1.992835ms |       127.0.0.1 | GET      "/login?account=AutumnFrost&password=c4fc401ec53b4e0d76bcb5428bf0a076"
+[GIN] 2023/02/04 - 17:55:35 | 200 |    2.065873ms |       127.0.0.1 | GET      "/login?account=AutumnFrost&password=c4fc401ec53b4e0d76bcb5428bf0a076"
+[GIN] 2023/02/04 - 17:55:35 | 200 |    1.917474ms |       127.0.0.1 | GET      "/login?account=AutumnFrost&password=c4fc401ec53b4e0d76bcb5428bf0a076"
+[GIN] 2023/02/04 - 17:55:36 | 200 |    2.206382ms |       127.0.0.1 | GET      "/login?account=AutumnFrost&password=c4fc401ec53b4e0d76bcb5428bf0a076"
+[GIN] 2023/02/04 - 17:55:36 | 200 |    2.015249ms |       127.0.0.1 | GET      "/login?account=AutumnFrost&password=c4fc401ec53b4e0d76bcb5428bf0a076"
+[GIN] 2023/02/04 - 17:55:36 | 200 |    2.059544ms |       127.0.0.1 | GET      "/login?account=AutumnFrost&password=c4fc401ec53b4e0d76bcb5428bf0a076"
