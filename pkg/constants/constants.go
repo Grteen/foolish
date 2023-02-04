@@ -7,4 +7,6 @@ const (
 	MySQLDefaultDSN   = "grteen:GrteenFL@tcp(127.0.0.1:3306)/db?parseTime=True"
 	UserTableName     = "user"
 	UserInfoTableName = "userinfo"
+	PicUploadDir      = "/root/nginx/image"
+	PicHttpUri        = "http://124.70.111.92/image"
 )

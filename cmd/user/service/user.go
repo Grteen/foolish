@@ -3,11 +3,13 @@ package service
 import (
 	"be/cmd/user/dal/db"
 	"be/grpc/userdemo"
+	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
 	"crypto/md5"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 )
 
@@ -44,6 +46,13 @@ func (s *UserService) CreateUser(req *userdemo.CreateUserRequest) error {
 		return err
 	}
 	passWord := fmt.Sprintf("%x", h.Sum(nil))
+
+	// 创建 对应用户的 img 文件夹
+	dir := constants.PicUploadDir + "/" + req.UserName
+	err = os.Mkdir(dir, 0777)
+	if err != nil {
+		return errno.ServiceFault
+	}
 
 	return db.CreateUser(s.ctx, []*db.User{
 		{

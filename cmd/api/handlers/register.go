@@ -46,7 +46,7 @@ func Register(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
+		pack.SendResponse(ctx, errno.ServiceFault)
 		return
 	}
 

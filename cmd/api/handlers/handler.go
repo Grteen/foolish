@@ -21,3 +21,8 @@ type UpdateUserInfoParma struct {
 type QueryUserInfoParma struct {
 	UserName string `form:"username"`
 }
+
+type UploadPicParma struct {
+	UserName string `form:"username"`
+	PicName  string `form:"picname"`
+}

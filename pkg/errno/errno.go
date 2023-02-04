@@ -16,6 +16,7 @@ const (
 	EmailNotRegisterErrCode               = 10007
 	AuthenticationErrCode                 = 10008
 	AuthenticationCookieExpirationErrCode = 10009
+	PermissionDeniedErrCode               = 10010
 )
 
 type Errno struct {
@@ -59,4 +60,5 @@ var (
 	EmailNotRegisterErr               = NewErrNo(EmailNotRegisterErrCode, "Email not registered")
 	AuthenticationErr                 = NewErrNo(AuthenticationErrCode, "Authentication failed")
 	AuthenticationCookieExpirationErr = NewErrNo(AuthenticationCookieExpirationErrCode, "Authentication Cookie expired")
+	PermissionDeniedErr               = NewErrNo(PermissionDeniedErrCode, "Permission denied")
 )

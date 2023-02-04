@@ -18,8 +18,11 @@ func main() {
 
 	ginServer.POST("/register", handlers.Register)
 	ginServer.GET("/login", handlers.Login)
+	ginServer.GET("/userSelfName", handlers.QueryUserSelf)
 	ginServer.PUT("/userinfo", middleware.AuthMidWare, handlers.UpdateUserInfo)
 	ginServer.GET("/userinfo", middleware.AuthMidWare, handlers.QueryUserInfo)
+
+	ginServer.POST("/uploadPic", middleware.AuthMidWare, handlers.UploadPic)
 
 	ginServer.Run(":9877")
 }

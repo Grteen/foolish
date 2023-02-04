@@ -6,11 +6,12 @@
 
 [GIN-debug] POST   /register                 --> be/cmd/api/handlers.Register (3 handlers)
 [GIN-debug] GET    /login                    --> be/cmd/api/handlers.Login (3 handlers)
+[GIN-debug] GET    /userSelfName             --> be/cmd/api/handlers.QueryUserSelf (3 handlers)
 [GIN-debug] PUT    /userinfo                 --> be/cmd/api/handlers.UpdateUserInfo (4 handlers)
 [GIN-debug] GET    /userinfo                 --> be/cmd/api/handlers.QueryUserInfo (4 handlers)
+[GIN-debug] POST   /uploadPic                --> be/cmd/api/handlers.UploadPic (4 handlers)
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :9877
-[GIN] 2023/02/03 - 15:51:52 | 200 |   22.833315ms |   124.70.111.92 | GET      "/userinfo?username=Grteen3"
-[GIN] 2023/02/03 - 15:52:02 | 200 |    1.948272ms |   124.70.111.92 | GET      "/login?account=Grteen&password=e0d49ff77bbb4f82483aa05cb6dddb51"
-[GIN] 2023/02/03 - 15:52:06 | 200 |      57.218µs |   124.70.111.92 | GET      "/login?account=Grteen"
+[GIN] 2023/02/04 - 10:37:03 | 200 |   15.140827ms |   124.70.111.92 | POST     "/uploadPic"
+[GIN] 2023/02/04 - 10:37:06 | 200 |    10.14888ms |   124.70.111.92 | POST     "/uploadPic"
