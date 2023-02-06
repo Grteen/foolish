@@ -29,6 +29,8 @@ func main() {
 	ginServer.GET("/artical", handlers.GetArtical)
 	ginServer.POST("/like", middleware.AuthMidWare, handlers.GiveLike)
 	ginServer.DELETE("/like", middleware.AuthMidWare, handlers.DeleteLike)
+	ginServer.POST("/star", middleware.AuthMidWare, handlers.GiveStar)
+	ginServer.DELETE("/star", middleware.AuthMidWare, handlers.DeleteStar)
 
 	ginServer.Run(":9877")
 }

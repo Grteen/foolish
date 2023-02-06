@@ -11,6 +11,14 @@ ErrorCode:
 	10007   "Email not registered"      // 邮箱没有注册
 	10008   "Authentication failed"         // 登录失败 密码错误
     10009   "Authentication Cookie expired"     // 登录 Cookie 过期
+    10010   "Permission denied"   // 没有权限
+	10011   "No such artical"       // 没有 该文章
+	10012   "No Like or Star"       // 你不可能遇见这个错误
+	10013   "No Likes yet"          // 并没有点赞
+	10014   "No Stars yet"          // 并没有收藏
+	10015   "Already been LikeStared"       // 你不可能遇见这个错误
+	10016   "Already been liked"        // 已经点赞过了
+	10017   "Already been stared"       // 已经收藏了
 
 
 // 注册用户
@@ -33,6 +41,25 @@ GET /api/login  uri
         code:   0 02 03 06 07 08
         message:
     }
+    设置 Cookie "frostAuth"
+
+// 获取当前登录用户的 用户名
+GET /api/userSelfName
+    无参数
+    返回值:
+        如果发生错误: 
+        json {
+            code:   02 09
+            message:
+        }
+        如果没有错误:
+        json {
+            code:  0
+            message:
+            data: {
+                username:
+            }
+        }
 
 // 获取用户主页信息
 GET /api/userinfo  uri
@@ -51,7 +78,7 @@ GET /api/userinfo  uri
                 userName    用户名
                 nickName    昵称
                 description     个人简介
-                userAvator      头像 (头像是一个http地址 暂时不支持)
+                userAvator      头像
             }
         }
 
@@ -64,6 +91,101 @@ PUT /api/userinfo  form-data
         description     个人简介
         acator      头像
     返回值 : json {
-        code: 0 02 03 06 09
+        code: 0 02 03 06 09 10
         message:
     }
+
+// 上传图片
+POST /api/uploadPic  form-data
+    参数 : 
+        username    用户名
+        picname     图片名称  (时间戳 or UUID)
+        pic         二进制图片
+    返回值 : 
+        如果发生错误 :
+        json {
+            code: 02 03 09 10
+            message:
+        }
+        如果没有错误 :
+        json {
+            code: 0
+            message:
+            data: {
+                uri:    // 正常情况下为 http://124.70.111.92/image/username/picname.webp
+            }
+        }
+
+// 上传文章
+POST /api/publish   form-data
+    参数 :
+        author      作者
+        title       标题    (3<=  <= 100)
+        text        文本    (0<=  <= 5W)
+    返回值 : json {
+        code:   02 03 09 10
+        message: 
+    }
+
+// 查询文章
+GET /api/artical   uri
+    参数 :
+        ID        文章ID
+    返回值 : 
+    如果失败 :
+        json {
+            code:   02 03 09 11
+            message:
+        }
+    如果成功 :
+        json {
+            code: 0
+            message:
+            data: {
+                ID:     // 文章ID
+                title:      // 文章标题
+                author:     // 文章作者
+                text:       // 文章内容
+            }
+        }
+
+// 点赞
+POST /api/like   form-data or uri
+    参数:
+        username        点赞的人
+        articalID       点赞的文章ID
+    返回值: json {
+        code: 02 03 09 10 11 16
+        message:
+    }  
+
+// 取消点赞
+DELETE  /api/like   form-data or uri
+    参数:
+        username        取消点赞的人
+        articalID       取消点赞的文章ID
+    返回值: json {
+        code: 02 03 09 10 11 13
+        message:
+    }
+
+// 收藏
+POST /api/star      form-data or uri
+    参数:
+        username        收藏的人
+        articalID       收藏的文章ID
+    返回值: json {
+        code: 02 03 09 10 11 17
+        message:
+    }
+
+// 取消收藏
+DELETE  /api/star   form-data or uri
+    参数: 
+        username        取消收藏的人
+        articalID       取消收藏的文章ID
+    返回值: json {
+        code: 02 03 09 10 11 14
+        message:
+    }
+    

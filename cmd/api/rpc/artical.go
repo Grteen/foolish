@@ -46,8 +46,8 @@ func QueryArtical(ctx context.Context, req *articaldemo.QueryArticalRequest) (*a
 	return resp.Artical, err
 }
 
-func CreateLike(ctx context.Context, req *articaldemo.CreateLikeRequest) error {
-	resp, err := articalClient.CreateLike(ctx, req)
+func CreateLikeStar(ctx context.Context, req *articaldemo.CreateLikeStarRequest) error {
+	resp, err := articalClient.CreateLikeStar(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -59,8 +59,8 @@ func CreateLike(ctx context.Context, req *articaldemo.CreateLikeRequest) error {
 	return nil
 }
 
-func DeleteLike(ctx context.Context, req *articaldemo.DeleteLikeRequest) error {
-	resp, err := articalClient.DeleteLike(ctx, req)
+func DeleteLikeStar(ctx context.Context, req *articaldemo.DeleteLikeStarRequest) error {
+	resp, err := articalClient.DeleteLikeStar(ctx, req)
 	if err != nil {
 		return err
 	}

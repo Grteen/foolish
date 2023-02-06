@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"be/cmd/artical/dal/db"
 	"be/cmd/artical/pack"
 	"be/cmd/artical/service"
 	"be/grpc/articaldemo"
+	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
 )
@@ -58,8 +60,8 @@ func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.
 	return resp, nil
 }
 
-func (s *ArticalServiceImpl) CreateLike(ctx context.Context, req *articaldemo.CreateLikeRequest) (*articaldemo.CreateLikeResponse, error) {
-	resp := new(articaldemo.CreateLikeResponse)
+func (s *ArticalServiceImpl) CreateLikeStar(ctx context.Context, req *articaldemo.CreateLikeStarRequest) (*articaldemo.CreateLikeStarResponse, error) {
+	resp := new(articaldemo.CreateLikeStarResponse)
 
 	// username 为空 ID 不合法
 	if len(req.UserName) == 0 || req.ArticalID <= 0 {
@@ -67,24 +69,43 @@ func (s *ArticalServiceImpl) CreateLike(ctx context.Context, req *articaldemo.Cr
 		return resp, nil
 	}
 
-	// 查询是否有该用户对于该文章的点赞
-	res, err := service.NewArticalService(ctx).QueryLike(&articaldemo.QueryLikeRequest{
+	if req.Type == 0 {
+		// Like 请求
+		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Like{})
+	} else if req.Type == 1 {
+		// Star 请求
+		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Star{})
+	} else {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	// 查询是否有该用户对于该文章的点赞 (收藏)
+	res, err := service.NewArticalService(ctx).QueryLikeStar(&articaldemo.QueryLikeStarRequest{
 		UserName:  req.UserName,
 		ArticalID: req.ArticalID,
 	})
 
-	if err != nil && err != errno.NoLikesErr {
+	if err != nil && err != errno.NoLikeStarErr {
 		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
 		return resp, nil
 	}
 
-	// 已经有点赞了
-	if len(res) != 0 {
-		resp.Resp = pack.BuildResp(errno.AlreadyLikesErr)
+	// 已经有点赞了 (收藏)
+	if len(res) != 0 && err != errno.NoLikeStarErr {
+		if req.Type == 0 {
+			// like 请求
+			resp.Resp = pack.BuildResp(errno.AlreadyLikesErr)
+		} else if req.Type == 1 {
+			// Star 请求
+			resp.Resp = pack.BuildResp(errno.AlreadyStarErr)
+		} else {
+			resp.Resp = pack.BuildResp(errno.ServiceFault)
+		}
 		return resp, nil
 	}
 
-	err = service.NewArticalService(ctx).CreateLike(req)
+	err = service.NewArticalService(ctx).CreateLikeStar(req)
 	if err != nil {
 		resp.Resp = pack.BuildResp(err)
 		return resp, nil
@@ -94,8 +115,8 @@ func (s *ArticalServiceImpl) CreateLike(ctx context.Context, req *articaldemo.Cr
 	return resp, nil
 }
 
-func (s *ArticalServiceImpl) DeleteLike(ctx context.Context, req *articaldemo.DeleteLikeRequest) (*articaldemo.DeleteLikeResponse, error) {
-	resp := new(articaldemo.DeleteLikeResponse)
+func (s *ArticalServiceImpl) DeleteLikeStar(ctx context.Context, req *articaldemo.DeleteLikeStarRequest) (*articaldemo.DeleteLikeStarResponse, error) {
+	resp := new(articaldemo.DeleteLikeStarResponse)
 
 	// username 为空 ID 不合法
 	if len(req.UserName) == 0 || req.ArticalID <= 0 {
@@ -103,18 +124,41 @@ func (s *ArticalServiceImpl) DeleteLike(ctx context.Context, req *articaldemo.De
 		return resp, nil
 	}
 
-	// 查询是否有该用户对于该文章的点赞
-	_, err := service.NewArticalService(ctx).QueryLike(&articaldemo.QueryLikeRequest{
+	if req.Type == 0 {
+		// Like 请求
+		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Like{})
+	} else if req.Type == 1 {
+		// Star 请求
+		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Star{})
+	} else {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	// 查询是否有该用户对于该文章的点赞 (收藏)
+	_, err := service.NewArticalService(ctx).QueryLikeStar(&articaldemo.QueryLikeStarRequest{
 		UserName:  req.UserName,
 		ArticalID: req.ArticalID,
 	})
 
 	if err != nil {
-		resp.Resp = pack.BuildResp(err)
+		if err == errno.NoLikeStarErr {
+			if req.Type == 0 {
+				// like 请求
+				resp.Resp = pack.BuildResp(errno.NoLikesErr)
+			} else if req.Type == 1 {
+				// Star 请求
+				resp.Resp = pack.BuildResp(errno.NoStarErr)
+			} else {
+				resp.Resp = pack.BuildResp(errno.ServiceFault)
+			}
+		} else {
+			resp.Resp = pack.BuildResp(err)
+		}
 		return resp, nil
 	}
 
-	err = service.NewArticalService(ctx).DeleteLike(req)
+	err = service.NewArticalService(ctx).DeleteLikeStar(req)
 	if err != nil {
 		resp.Resp = pack.BuildResp(err)
 		return resp, nil
@@ -124,8 +168,8 @@ func (s *ArticalServiceImpl) DeleteLike(ctx context.Context, req *articaldemo.De
 	return resp, nil
 }
 
-func (s *ArticalServiceImpl) QueryLike(ctx context.Context, req *articaldemo.QueryLikeRequest) (*articaldemo.QueryLikeResponse, error) {
-	resp := new(articaldemo.QueryLikeResponse)
+func (s *ArticalServiceImpl) QueryLikeStar(ctx context.Context, req *articaldemo.QueryLikeStarRequest) (*articaldemo.QueryLikeStarResponse, error) {
+	resp := new(articaldemo.QueryLikeStarResponse)
 
 	// username 为空 ID 不合法
 	if len(req.UserName) == 0 || req.ArticalID <= 0 {
@@ -133,14 +177,25 @@ func (s *ArticalServiceImpl) QueryLike(ctx context.Context, req *articaldemo.Que
 		return resp, nil
 	}
 
-	res, err := service.NewArticalService(ctx).QueryLike(req)
+	if req.Type == 0 {
+		// Like 请求
+		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Like{})
+	} else if req.Type == 1 {
+		// Star 请求
+		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Star{})
+	} else {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	res, err := service.NewArticalService(ctx).QueryLikeStar(req)
 	if err != nil {
 		resp.Resp = pack.BuildResp(err)
 		return resp, nil
 	}
 
 	resp.Resp = pack.BuildResp(errno.Success)
-	resp.Like = &articaldemo.Like{
+	resp.LikeStar = &articaldemo.LikeStar{
 		UserName:  res[0].UserName,
 		ArticalID: int64(res[0].ArticalID),
 	}

@@ -33,44 +33,47 @@ message QueryArticalResponse {
     Artical artical = 2;
 }
 
-message CreateLikeRequest {
+message CreateLikeStarRequest {
     string userName = 1;
     int64 ArticalID = 2;
+    int64 Type = 3;
 }
 
-message CreateLikeResponse {
+message CreateLikeStarResponse {
     Resp resp = 1;
 }
 
-message DeleteLikeRequest {
+message DeleteLikeStarRequest {
     string userName = 1;
     int64 ArticalID = 2;
+    int64 Type = 3;
 }
 
-message DeleteLikeResponse {
+message DeleteLikeStarResponse {
     Resp resp = 1;
 }
 
-message Like {
+message LikeStar {
     string userName = 1;
     int64 ArticalID = 2;
 }
 
-message QueryLikeRequest {
+message QueryLikeStarRequest {
     string userName = 1;
     int64 ArticalID = 2;
+    int64 Type = 3;
 }
 
-message QueryLikeResponse {
+message QueryLikeStarResponse {
     Resp resp = 1;
-    Like like = 2;
+    LikeStar LikeStar = 2;
 }
 
 service ArticalService {
     rpc CreateArtical (CreateArticalRequest) returns (CreateArticalResponse){}
     rpc QueryArtical (QueryArticalRequest) returns (QueryArticalResponse){}
 
-    rpc CreateLike (CreateLikeRequest) returns (CreateLikeResponse){}
-    rpc DeleteLike (DeleteLikeRequest) returns (DeleteLikeResponse){}
-    rpc QueryLike (QueryLikeRequest) returns (QueryLikeResponse){}
+    rpc CreateLikeStar (CreateLikeStarRequest) returns (CreateLikeStarResponse){}
+    rpc DeleteLikeStar (DeleteLikeStarRequest) returns (DeleteLikeStarResponse){}
+    rpc QueryLikeStar (QueryLikeStarRequest) returns (QueryLikeStarResponse){}
 }

@@ -24,9 +24,9 @@ const _ = grpc.SupportPackageIsVersion7
 type ArticalServiceClient interface {
 	CreateArtical(ctx context.Context, in *CreateArticalRequest, opts ...grpc.CallOption) (*CreateArticalResponse, error)
 	QueryArtical(ctx context.Context, in *QueryArticalRequest, opts ...grpc.CallOption) (*QueryArticalResponse, error)
-	CreateLike(ctx context.Context, in *CreateLikeRequest, opts ...grpc.CallOption) (*CreateLikeResponse, error)
-	DeleteLike(ctx context.Context, in *DeleteLikeRequest, opts ...grpc.CallOption) (*DeleteLikeResponse, error)
-	QueryLike(ctx context.Context, in *QueryLikeRequest, opts ...grpc.CallOption) (*QueryLikeResponse, error)
+	CreateLikeStar(ctx context.Context, in *CreateLikeStarRequest, opts ...grpc.CallOption) (*CreateLikeStarResponse, error)
+	DeleteLikeStar(ctx context.Context, in *DeleteLikeStarRequest, opts ...grpc.CallOption) (*DeleteLikeStarResponse, error)
+	QueryLikeStar(ctx context.Context, in *QueryLikeStarRequest, opts ...grpc.CallOption) (*QueryLikeStarResponse, error)
 }
 
 type articalServiceClient struct {
@@ -55,27 +55,27 @@ func (c *articalServiceClient) QueryArtical(ctx context.Context, in *QueryArtica
 	return out, nil
 }
 
-func (c *articalServiceClient) CreateLike(ctx context.Context, in *CreateLikeRequest, opts ...grpc.CallOption) (*CreateLikeResponse, error) {
-	out := new(CreateLikeResponse)
-	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/CreateLike", in, out, opts...)
+func (c *articalServiceClient) CreateLikeStar(ctx context.Context, in *CreateLikeStarRequest, opts ...grpc.CallOption) (*CreateLikeStarResponse, error) {
+	out := new(CreateLikeStarResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/CreateLikeStar", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *articalServiceClient) DeleteLike(ctx context.Context, in *DeleteLikeRequest, opts ...grpc.CallOption) (*DeleteLikeResponse, error) {
-	out := new(DeleteLikeResponse)
-	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/DeleteLike", in, out, opts...)
+func (c *articalServiceClient) DeleteLikeStar(ctx context.Context, in *DeleteLikeStarRequest, opts ...grpc.CallOption) (*DeleteLikeStarResponse, error) {
+	out := new(DeleteLikeStarResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/DeleteLikeStar", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *articalServiceClient) QueryLike(ctx context.Context, in *QueryLikeRequest, opts ...grpc.CallOption) (*QueryLikeResponse, error) {
-	out := new(QueryLikeResponse)
-	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/QueryLike", in, out, opts...)
+func (c *articalServiceClient) QueryLikeStar(ctx context.Context, in *QueryLikeStarRequest, opts ...grpc.CallOption) (*QueryLikeStarResponse, error) {
+	out := new(QueryLikeStarResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/QueryLikeStar", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,9 +88,9 @@ func (c *articalServiceClient) QueryLike(ctx context.Context, in *QueryLikeReque
 type ArticalServiceServer interface {
 	CreateArtical(context.Context, *CreateArticalRequest) (*CreateArticalResponse, error)
 	QueryArtical(context.Context, *QueryArticalRequest) (*QueryArticalResponse, error)
-	CreateLike(context.Context, *CreateLikeRequest) (*CreateLikeResponse, error)
-	DeleteLike(context.Context, *DeleteLikeRequest) (*DeleteLikeResponse, error)
-	QueryLike(context.Context, *QueryLikeRequest) (*QueryLikeResponse, error)
+	CreateLikeStar(context.Context, *CreateLikeStarRequest) (*CreateLikeStarResponse, error)
+	DeleteLikeStar(context.Context, *DeleteLikeStarRequest) (*DeleteLikeStarResponse, error)
+	QueryLikeStar(context.Context, *QueryLikeStarRequest) (*QueryLikeStarResponse, error)
 	mustEmbedUnimplementedArticalServiceServer()
 }
 
@@ -104,14 +104,14 @@ func (UnimplementedArticalServiceServer) CreateArtical(context.Context, *CreateA
 func (UnimplementedArticalServiceServer) QueryArtical(context.Context, *QueryArticalRequest) (*QueryArticalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryArtical not implemented")
 }
-func (UnimplementedArticalServiceServer) CreateLike(context.Context, *CreateLikeRequest) (*CreateLikeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateLike not implemented")
+func (UnimplementedArticalServiceServer) CreateLikeStar(context.Context, *CreateLikeStarRequest) (*CreateLikeStarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateLikeStar not implemented")
 }
-func (UnimplementedArticalServiceServer) DeleteLike(context.Context, *DeleteLikeRequest) (*DeleteLikeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteLike not implemented")
+func (UnimplementedArticalServiceServer) DeleteLikeStar(context.Context, *DeleteLikeStarRequest) (*DeleteLikeStarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteLikeStar not implemented")
 }
-func (UnimplementedArticalServiceServer) QueryLike(context.Context, *QueryLikeRequest) (*QueryLikeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryLike not implemented")
+func (UnimplementedArticalServiceServer) QueryLikeStar(context.Context, *QueryLikeStarRequest) (*QueryLikeStarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryLikeStar not implemented")
 }
 func (UnimplementedArticalServiceServer) mustEmbedUnimplementedArticalServiceServer() {}
 
@@ -162,56 +162,56 @@ func _ArticalService_QueryArtical_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ArticalService_CreateLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateLikeRequest)
+func _ArticalService_CreateLikeStar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateLikeStarRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArticalServiceServer).CreateLike(ctx, in)
+		return srv.(ArticalServiceServer).CreateLikeStar(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/articaldemo.ArticalService/CreateLike",
+		FullMethod: "/articaldemo.ArticalService/CreateLikeStar",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArticalServiceServer).CreateLike(ctx, req.(*CreateLikeRequest))
+		return srv.(ArticalServiceServer).CreateLikeStar(ctx, req.(*CreateLikeStarRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ArticalService_DeleteLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteLikeRequest)
+func _ArticalService_DeleteLikeStar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteLikeStarRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArticalServiceServer).DeleteLike(ctx, in)
+		return srv.(ArticalServiceServer).DeleteLikeStar(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/articaldemo.ArticalService/DeleteLike",
+		FullMethod: "/articaldemo.ArticalService/DeleteLikeStar",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArticalServiceServer).DeleteLike(ctx, req.(*DeleteLikeRequest))
+		return srv.(ArticalServiceServer).DeleteLikeStar(ctx, req.(*DeleteLikeStarRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ArticalService_QueryLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryLikeRequest)
+func _ArticalService_QueryLikeStar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryLikeStarRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArticalServiceServer).QueryLike(ctx, in)
+		return srv.(ArticalServiceServer).QueryLikeStar(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/articaldemo.ArticalService/QueryLike",
+		FullMethod: "/articaldemo.ArticalService/QueryLikeStar",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArticalServiceServer).QueryLike(ctx, req.(*QueryLikeRequest))
+		return srv.(ArticalServiceServer).QueryLikeStar(ctx, req.(*QueryLikeStarRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,16 +232,16 @@ var ArticalService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ArticalService_QueryArtical_Handler,
 		},
 		{
-			MethodName: "CreateLike",
-			Handler:    _ArticalService_CreateLike_Handler,
+			MethodName: "CreateLikeStar",
+			Handler:    _ArticalService_CreateLikeStar_Handler,
 		},
 		{
-			MethodName: "DeleteLike",
-			Handler:    _ArticalService_DeleteLike_Handler,
+			MethodName: "DeleteLikeStar",
+			Handler:    _ArticalService_DeleteLikeStar_Handler,
 		},
 		{
-			MethodName: "QueryLike",
-			Handler:    _ArticalService_QueryLike_Handler,
+			MethodName: "QueryLikeStar",
+			Handler:    _ArticalService_QueryLikeStar_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

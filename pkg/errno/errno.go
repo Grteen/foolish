@@ -18,8 +18,12 @@ const (
 	AuthenticationCookieExpirationErrCode = 10009
 	PermissionDeniedErrCode               = 10010
 	NoSuchArticalErrCode                  = 10011
-	NoLikesErrCode                        = 10012
-	AlreadyLikesErrCode                   = 10013
+	NoLikeStarErrCode                     = 10012
+	NoLikesErrCode                        = 10013
+	NoStarErrCode                         = 10014
+	AlreadyLikeStarErrCode                = 10015
+	AlreadyLikesErrCode                   = 10016
+	AlreadyStarErrCode                    = 10017
 )
 
 type Errno struct {
@@ -65,6 +69,10 @@ var (
 	AuthenticationCookieExpirationErr = NewErrNo(AuthenticationCookieExpirationErrCode, "Authentication Cookie expired")
 	PermissionDeniedErr               = NewErrNo(PermissionDeniedErrCode, "Permission denied")
 	NoSuchArticalErr                  = NewErrNo(NoSuchArticalErrCode, "No such artical")
+	NoLikeStarErr                     = NewErrNo(NoLikeStarErrCode, "No Like or Star")
 	NoLikesErr                        = NewErrNo(NoLikesErrCode, "No Likes yet")
+	NoStarErr                         = NewErrNo(NoStarErrCode, "No Stars yet")
+	AlreadyLikeStarErr                = NewErrNo(AlreadyLikeStarErrCode, "Already been LikeStared")
 	AlreadyLikesErr                   = NewErrNo(AlreadyLikesErrCode, "Already been liked")
+	AlreadyStarErr                    = NewErrNo(AlreadyStarErrCode, "Already been stared")
 )
