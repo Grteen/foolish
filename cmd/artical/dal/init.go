@@ -1,6 +1,6 @@
 package dal
 
-import "be/cmd/user/dal/db"
+import "be/cmd/artical/dal/db"
 
 // init MySQL and Redis
 func Init() {

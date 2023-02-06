@@ -8,8 +8,10 @@ import (
 
 func TestArtical(t *testing.T) {
 	MySQLInit()
-	DB.AutoMigrate(&Artical{})
 	DB.AutoMigrate(&ArticalStar{})
+	DB.AutoMigrate(&Like{})
+	DB.AutoMigrate(&Comment{})
+	DB.AutoMigrate(&Artical{})
 	err := CreateArtical(context.Background(), []*Artical{
 		{Title: "title1", Author: "Grteen", Text: "this is a good text"},
 	})
@@ -18,7 +20,7 @@ func TestArtical(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := QueryArtical(context.Background(), 4)
+	res, err := QueryArtical(context.Background(), 1)
 	if err != nil {
 		t.Error(err)
 	}

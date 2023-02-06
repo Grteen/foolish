@@ -66,7 +66,7 @@ func (s *UserService) CreateUser(req *userdemo.CreateUserRequest) error {
 	})
 }
 
-func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) error {
+func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) (string, error) {
 	emailReg := regexp.MustCompile("[0-9A-Za-z]+@qq.com")
 	userPwReg := regexp.MustCompile("[0-9A-Za-z_\\-]{3,18}")
 	var u db.User
@@ -75,12 +75,12 @@ func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) error {
 		// 匹配成功 账户为邮箱
 		e_users, err := db.QueryUserByEmail(s.ctx, req.UserNameOrEmail)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		// 该邮箱没有注册
 		if len(e_users) == 0 {
-			return errno.EmailNotRegisterErr
+			return "", errno.EmailNotRegisterErr
 		}
 
 		u = *e_users[0]
@@ -88,24 +88,24 @@ func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) error {
 		// 匹配成功 账户为用户名
 		users, err := db.QueryUser(s.ctx, req.UserNameOrEmail)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		// 该用户名没有注册
 		if len(users) == 0 {
-			return errno.UserNotRegisterErr
+			return "", errno.UserNotRegisterErr
 		}
 
 		u = *users[0]
 	} else {
 		// 不匹配
-		return errno.ParamErr
+		return "", errno.ParamErr
 	}
 
 	if req.PassWord != u.PassWord {
 		// 密码错误
-		return errno.AuthenticationErr
+		return "", errno.AuthenticationErr
 	}
 
-	return nil
+	return u.UserName, nil
 }

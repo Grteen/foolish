@@ -9,6 +9,8 @@ const (
 	UserInfoTableName    = "userinfo"
 	ArticalTableName     = "artical"
 	ArticalStarTableName = "articalStar"
+	CommentTableName     = "articalComment"
+	LikeTableName        = "articalLike"
 	PicUploadDir         = "/root/nginx/image"
 	PicHttpUri           = "http://124.70.111.92/image"
 )

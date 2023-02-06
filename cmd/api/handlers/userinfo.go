@@ -38,6 +38,7 @@ func UpdateUserInfo(ctx *gin.Context) {
 		return
 	}
 
+	// 检测参数
 	if len(u.Description) != 0 {
 		descReg := regexp.MustCompile("[^\u4e00-\u9fa5a-z0-9A-Z_\\-]")
 		if descReg.MatchString(u.Description) {

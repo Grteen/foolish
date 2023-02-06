@@ -17,6 +17,60 @@ message CreateArticalResponse {
     Resp resp = 1;
 }
 
+message Artical {
+    int64 ID = 1;
+    string author = 2;
+    string title = 3;
+    string text = 4;
+}
+
+message QueryArticalRequest {
+    int64 ID = 1;
+}
+
+message QueryArticalResponse {
+    Resp resp = 1;
+    Artical artical = 2;
+}
+
+message CreateLikeRequest {
+    string userName = 1;
+    int64 ArticalID = 2;
+}
+
+message CreateLikeResponse {
+    Resp resp = 1;
+}
+
+message DeleteLikeRequest {
+    string userName = 1;
+    int64 ArticalID = 2;
+}
+
+message DeleteLikeResponse {
+    Resp resp = 1;
+}
+
+message Like {
+    string userName = 1;
+    int64 ArticalID = 2;
+}
+
+message QueryLikeRequest {
+    string userName = 1;
+    int64 ArticalID = 2;
+}
+
+message QueryLikeResponse {
+    Resp resp = 1;
+    Like like = 2;
+}
+
 service ArticalService {
     rpc CreateArtical (CreateArticalRequest) returns (CreateArticalResponse){}
+    rpc QueryArtical (QueryArticalRequest) returns (QueryArticalResponse){}
+
+    rpc CreateLike (CreateLikeRequest) returns (CreateLikeResponse){}
+    rpc DeleteLike (DeleteLikeRequest) returns (DeleteLikeResponse){}
+    rpc QueryLike (QueryLikeRequest) returns (QueryLikeResponse){}
 }

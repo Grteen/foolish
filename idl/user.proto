@@ -24,6 +24,7 @@ message CheckUserRequest {
 
 message CheckUserResponse {
     Resp resp = 1;
+    string userName = 2;
 }
 
 message UpdateUserInfoRequest {

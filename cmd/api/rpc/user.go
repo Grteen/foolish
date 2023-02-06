@@ -33,17 +33,17 @@ func CreateUser(ctx context.Context, req *userdemo.CreateUserRequest) error {
 	return nil
 }
 
-func CheckUser(ctx context.Context, req *userdemo.CheckUserRequest) error {
+func CheckUser(ctx context.Context, req *userdemo.CheckUserRequest) (string, error) {
 	resp, err := client.CheckUser(ctx, req)
 	if err != nil {
-		return err
+		return resp.UserName, err
 	}
 
 	if resp.Resp.StatusCode != 0 {
-		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+		return resp.UserName, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
 	}
 
-	return nil
+	return resp.UserName, err
 }
 
 func UpdateUserInfo(ctx context.Context, req *userdemo.UpdateUserInfoRequest) error {

@@ -8,6 +8,7 @@ import (
 	"be/pkg/errno"
 	"be/pkg/uuid"
 	"context"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,10 +26,11 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	err := rpc.CheckUser(context.Background(), &userdemo.CheckUserRequest{
+	username, err := rpc.CheckUser(context.Background(), &userdemo.CheckUserRequest{
 		UserNameOrEmail: u.NameOrEmail,
 		PassWord:        u.PassWord,
 	})
+	fmt.Println(username)
 
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
@@ -37,7 +39,7 @@ func Login(ctx *gin.Context) {
 
 	uuid := uuid.GetUUid()
 	// 设置 Cookie 和 Seesion
-	setAuthCookie(ctx, uuid, u.NameOrEmail, constants.LoginCookieTime)
+	setAuthCookie(ctx, uuid, username, constants.LoginCookieTime)
 	pack.SendResponse(ctx, errno.Success)
 }
 

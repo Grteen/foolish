@@ -23,3 +23,7 @@ func (s *ArticalService) CreateArtical(req *articaldemo.CreateArticalRequest) er
 		},
 	})
 }
+
+func (s *ArticalService) QueryArtical(req *articaldemo.QueryArticalRequest) (*db.Artical, error) {
+	return db.QueryArtical(s.ctx, uint(req.ID))
+}

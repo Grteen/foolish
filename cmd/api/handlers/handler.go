@@ -26,3 +26,18 @@ type UploadPicParma struct {
 	UserName string `form:"username"`
 	PicName  string `form:"picname"`
 }
+
+type PublishArticalParma struct {
+	Author string `form:"author"`
+	Title  string `form:"title"`
+	Text   string `form:"text"`
+}
+
+type GetArticalParma struct {
+	ID int64 `form:"ID"`
+}
+
+type LikeParma struct {
+	UserName  string `form:"username"`
+	ArticalID int64  `form:"articalID"`
+}

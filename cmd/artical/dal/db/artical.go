@@ -17,15 +17,31 @@ func (as *ArticalStar) TableName() string {
 	return constants.ArticalStarTableName
 }
 
+type Comment struct {
+	ID          uint `gorm:"primarykey"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	UserName    string `gorm:"username"`
+	ArticalID   uint   `gorm:"articalID"`
+	CommentText string `gorm:"comment"`
+}
+
+func (c *Comment) TableName() string {
+	return constants.CommentTableName
+}
+
 type Artical struct {
 	ID        uint `gorm:"primarykey"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	Title  string         `json:"title" gorm:"column:title; not null"`
-	Author string         `json:"author" gorm:"column:author; not null"`
-	Text   string         `json:"text" gorm:"column:text; type:text"`
-	Stared []*ArticalStar `gorm:"foreignKey:ArticalID"`
+	Title  string `json:"title" gorm:"column:title; not null"`
+	Author string `json:"author" gorm:"column:author; not null"`
+	Text   string `json:"text" gorm:"column:text; type:text"`
+
+	Liked   []*Like        `gorm:"foreignKey:ArticalID"`
+	Stared  []*ArticalStar `gorm:"foreignKey:ArticalID"`
+	Comment []*Comment     `gorm:"foreignKey:ArticalID"`
 }
 
 func (art *Artical) TableName() string {

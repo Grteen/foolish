@@ -75,13 +75,14 @@ func (s *UserServiceImpl) CheckUser(ctx context.Context, req *userdemo.CheckUser
 		return resp, nil
 	}
 
-	err := service.NewUserService(ctx).CheckUser(req)
+	username, err := service.NewUserService(ctx).CheckUser(req)
 	if err != nil {
 		resp.Resp = pack.BuildResp(err)
 		return resp, nil
 	}
 
 	resp.Resp = pack.BuildResp(errno.Success)
+	resp.UserName = username
 	return resp, nil
 }
 
