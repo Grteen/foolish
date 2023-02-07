@@ -33,7 +33,7 @@ func CreateArtical(ctx context.Context, req *articaldemo.CreateArticalRequest) e
 	return nil
 }
 
-func QueryArtical(ctx context.Context, req *articaldemo.QueryArticalRequest) (*articaldemo.Artical, error) {
+func QueryArtical(ctx context.Context, req *articaldemo.QueryArticalRequest) ([]*articaldemo.Artical, error) {
 	resp, err := articalClient.QueryArtical(ctx, req)
 	if err != nil {
 		return nil, err
@@ -61,6 +61,57 @@ func CreateLikeStar(ctx context.Context, req *articaldemo.CreateLikeStarRequest)
 
 func DeleteLikeStar(ctx context.Context, req *articaldemo.DeleteLikeStarRequest) error {
 	resp, err := articalClient.DeleteLikeStar(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func QueryAllLikeStar(ctx context.Context, req *articaldemo.QueryAllLikeStarRequest) ([]uint32, error) {
+	resp, err := articalClient.QueryAllLikeStar(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.ArticalIDs, nil
+}
+
+func CreateComment(ctx context.Context, req *articaldemo.CreateCommentRequest) error {
+	resp, err := articalClient.CreateComment(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func QueryComment(ctx context.Context, req *articaldemo.QueryCommentRequest) ([]*articaldemo.Comment, error) {
+	resp, err := articalClient.QueryComment(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.Comment, nil
+}
+
+func DeleteComment(ctx context.Context, req *articaldemo.DeleteCommentRequest) error {
+	resp, err := articalClient.DeleteComment(ctx, req)
 	if err != nil {
 		return err
 	}

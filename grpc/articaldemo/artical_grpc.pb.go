@@ -27,6 +27,10 @@ type ArticalServiceClient interface {
 	CreateLikeStar(ctx context.Context, in *CreateLikeStarRequest, opts ...grpc.CallOption) (*CreateLikeStarResponse, error)
 	DeleteLikeStar(ctx context.Context, in *DeleteLikeStarRequest, opts ...grpc.CallOption) (*DeleteLikeStarResponse, error)
 	QueryLikeStar(ctx context.Context, in *QueryLikeStarRequest, opts ...grpc.CallOption) (*QueryLikeStarResponse, error)
+	QueryAllLikeStar(ctx context.Context, in *QueryAllLikeStarRequest, opts ...grpc.CallOption) (*QueryAllLikeStarResponse, error)
+	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error)
+	QueryComment(ctx context.Context, in *QueryCommentRequest, opts ...grpc.CallOption) (*QueryCommentResponse, error)
+	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*DeleteCommentResponse, error)
 }
 
 type articalServiceClient struct {
@@ -82,6 +86,42 @@ func (c *articalServiceClient) QueryLikeStar(ctx context.Context, in *QueryLikeS
 	return out, nil
 }
 
+func (c *articalServiceClient) QueryAllLikeStar(ctx context.Context, in *QueryAllLikeStarRequest, opts ...grpc.CallOption) (*QueryAllLikeStarResponse, error) {
+	out := new(QueryAllLikeStarResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/QueryAllLikeStar", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error) {
+	out := new(CreateCommentResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/CreateComment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) QueryComment(ctx context.Context, in *QueryCommentRequest, opts ...grpc.CallOption) (*QueryCommentResponse, error) {
+	out := new(QueryCommentResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/QueryComment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*DeleteCommentResponse, error) {
+	out := new(DeleteCommentResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/DeleteComment", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArticalServiceServer is the server API for ArticalService service.
 // All implementations must embed UnimplementedArticalServiceServer
 // for forward compatibility
@@ -91,6 +131,10 @@ type ArticalServiceServer interface {
 	CreateLikeStar(context.Context, *CreateLikeStarRequest) (*CreateLikeStarResponse, error)
 	DeleteLikeStar(context.Context, *DeleteLikeStarRequest) (*DeleteLikeStarResponse, error)
 	QueryLikeStar(context.Context, *QueryLikeStarRequest) (*QueryLikeStarResponse, error)
+	QueryAllLikeStar(context.Context, *QueryAllLikeStarRequest) (*QueryAllLikeStarResponse, error)
+	CreateComment(context.Context, *CreateCommentRequest) (*CreateCommentResponse, error)
+	QueryComment(context.Context, *QueryCommentRequest) (*QueryCommentResponse, error)
+	DeleteComment(context.Context, *DeleteCommentRequest) (*DeleteCommentResponse, error)
 	mustEmbedUnimplementedArticalServiceServer()
 }
 
@@ -112,6 +156,18 @@ func (UnimplementedArticalServiceServer) DeleteLikeStar(context.Context, *Delete
 }
 func (UnimplementedArticalServiceServer) QueryLikeStar(context.Context, *QueryLikeStarRequest) (*QueryLikeStarResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryLikeStar not implemented")
+}
+func (UnimplementedArticalServiceServer) QueryAllLikeStar(context.Context, *QueryAllLikeStarRequest) (*QueryAllLikeStarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAllLikeStar not implemented")
+}
+func (UnimplementedArticalServiceServer) CreateComment(context.Context, *CreateCommentRequest) (*CreateCommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
+}
+func (UnimplementedArticalServiceServer) QueryComment(context.Context, *QueryCommentRequest) (*QueryCommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryComment not implemented")
+}
+func (UnimplementedArticalServiceServer) DeleteComment(context.Context, *DeleteCommentRequest) (*DeleteCommentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteComment not implemented")
 }
 func (UnimplementedArticalServiceServer) mustEmbedUnimplementedArticalServiceServer() {}
 
@@ -216,6 +272,78 @@ func _ArticalService_QueryLikeStar_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArticalService_QueryAllLikeStar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllLikeStarRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).QueryAllLikeStar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/QueryAllLikeStar",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).QueryAllLikeStar(ctx, req.(*QueryAllLikeStarRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_CreateComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).CreateComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/CreateComment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).CreateComment(ctx, req.(*CreateCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_QueryComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).QueryComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/QueryComment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).QueryComment(ctx, req.(*QueryCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_DeleteComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCommentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).DeleteComment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/DeleteComment",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).DeleteComment(ctx, req.(*DeleteCommentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ArticalService_ServiceDesc is the grpc.ServiceDesc for ArticalService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +370,22 @@ var ArticalService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryLikeStar",
 			Handler:    _ArticalService_QueryLikeStar_Handler,
+		},
+		{
+			MethodName: "QueryAllLikeStar",
+			Handler:    _ArticalService_QueryAllLikeStar_Handler,
+		},
+		{
+			MethodName: "CreateComment",
+			Handler:    _ArticalService_CreateComment_Handler,
+		},
+		{
+			MethodName: "QueryComment",
+			Handler:    _ArticalService_QueryComment_Handler,
+		},
+		{
+			MethodName: "DeleteComment",
+			Handler:    _ArticalService_DeleteComment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

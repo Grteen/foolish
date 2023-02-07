@@ -18,25 +18,25 @@ message CreateArticalResponse {
 }
 
 message Artical {
-    int64 ID = 1;
+    int32 ID = 1;
     string author = 2;
     string title = 3;
     string text = 4;
 }
 
 message QueryArticalRequest {
-    int64 ID = 1;
+    repeated int32 IDs = 1;
 }
 
 message QueryArticalResponse {
     Resp resp = 1;
-    Artical artical = 2;
+    repeated Artical artical = 2;
 }
 
 message CreateLikeStarRequest {
     string userName = 1;
-    int64 ArticalID = 2;
-    int64 Type = 3;
+    int32 articalID = 2;
+    int32 type = 3;
 }
 
 message CreateLikeStarResponse {
@@ -45,8 +45,8 @@ message CreateLikeStarResponse {
 
 message DeleteLikeStarRequest {
     string userName = 1;
-    int64 ArticalID = 2;
-    int64 Type = 3;
+    int32 articalID = 2;
+    int32 type = 3;
 }
 
 message DeleteLikeStarResponse {
@@ -55,18 +55,62 @@ message DeleteLikeStarResponse {
 
 message LikeStar {
     string userName = 1;
-    int64 ArticalID = 2;
+    int64 articalID = 2;
 }
 
 message QueryLikeStarRequest {
     string userName = 1;
-    int64 ArticalID = 2;
-    int64 Type = 3;
+    int32 articalID = 2;
+    int32 type = 3;
 }
 
 message QueryLikeStarResponse {
     Resp resp = 1;
-    LikeStar LikeStar = 2;
+    LikeStar likeStar = 2;
+}
+
+message QueryAllLikeStarRequest {
+    string userName = 1;
+    int32 Type = 2;
+}
+
+message QueryAllLikeStarResponse {
+    Resp resp = 1;
+    repeated uint32 articalIDs = 2;
+}
+
+message Comment {
+    int32 ID = 1;
+    int32 articalID = 2;
+    string userName = 3;
+    string commentText = 4;
+}
+
+message CreateCommentRequest {
+    int32 articalID = 1;
+    string userName = 2;
+    string commentText = 3;
+}
+
+message CreateCommentResponse {
+    Resp resp = 1;
+}
+
+message QueryCommentRequest {
+    repeated int32 commentID = 1;
+}
+
+message QueryCommentResponse {
+    Resp resp = 1;
+    repeated Comment comment = 2;
+}
+
+message DeleteCommentRequest {
+    int32 commentID = 1;
+}
+
+message DeleteCommentResponse {
+    Resp resp = 1;
 }
 
 service ArticalService {
@@ -76,4 +120,9 @@ service ArticalService {
     rpc CreateLikeStar (CreateLikeStarRequest) returns (CreateLikeStarResponse){}
     rpc DeleteLikeStar (DeleteLikeStarRequest) returns (DeleteLikeStarResponse){}
     rpc QueryLikeStar (QueryLikeStarRequest) returns (QueryLikeStarResponse){}
+    rpc QueryAllLikeStar (QueryAllLikeStarRequest) returns (QueryAllLikeStarResponse){}
+
+    rpc CreateComment (CreateCommentRequest) returns (CreateCommentResponse){}
+    rpc QueryComment (QueryCommentRequest) returns (QueryCommentResponse){}
+    rpc DeleteComment (DeleteCommentRequest) returns (DeleteCommentResponse){}
 }

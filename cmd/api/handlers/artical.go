@@ -18,8 +18,8 @@ func PublishArtical(ctx *gin.Context) {
 		return
 	}
 
-	// 作者为空 标题 < 5 && > 100 文本 > 50000
-	if len(p.Author) == 0 || len(p.Text) > 50000 || (len(p.Title) < 5 && len(p.Title) > 100) {
+	// 作者为空 标题 < 5 > 100 文本 > 50000
+	if len(p.Author) == 0 || len(p.Text) > 50000 || len(p.Title) < 5 || len(p.Title) > 100 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
@@ -56,13 +56,13 @@ func GetArtical(ctx *gin.Context) {
 		return
 	}
 
-	if p.ID <= 0 {
+	if len(p.IDs) <= 0 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
 
 	res, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
-		ID: p.ID,
+		IDs: p.IDs,
 	})
 
 	if err != nil {

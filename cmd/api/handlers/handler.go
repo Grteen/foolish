@@ -34,10 +34,24 @@ type PublishArticalParma struct {
 }
 
 type GetArticalParma struct {
-	ID int64 `form:"ID"`
+	IDs []int32 `form:"IDs"`
 }
 
 type LikeParma struct {
 	UserName  string `form:"username"`
-	ArticalID int64  `form:"articalID"`
+	ArticalID int32  `form:"articalID"`
+}
+
+type CommentParma struct {
+	UserName    string `form:"username"`
+	ArticalID   int32  `form:"articalID"`
+	CommentText string `form:"commentText"`
+}
+
+type QueryCommentParma struct {
+	ComentIDs []int32 `form:"commentIDs"`
+}
+
+type DeleteCommentParma struct {
+	CommentID int32 `form:"commentID"`
 }

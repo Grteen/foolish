@@ -39,3 +39,12 @@ func (s *ArticalService) QueryLikeStar(req *articaldemo.QueryLikeStarRequest) ([
 
 	return res, nil
 }
+
+func (s *ArticalService) QueryAllLikeStar(req *articaldemo.QueryAllLikeStarRequest) ([]uint32, error) {
+	res, err := db.QueryAllLikeStar(s.ctx, req.UserName)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}

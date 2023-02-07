@@ -57,6 +57,15 @@ func QueryLikeStar(ctx context.Context, likeStar *LikeStar) ([]*LikeStar, error)
 	return res, nil
 }
 
+// 查询 UserName 所有的 收藏 (点赞) 返回文章ID
+func QueryAllLikeStar(ctx context.Context, userName string) ([]uint32, error) {
+	res := make([]uint32, 0)
+	if err := DB.WithContext(ctx).Model(ctx.Value(constants.LikeStarModel)).Select("ArticalID").Where("username = ?", userName).Find(&res).Error; err != nil {
+		return nil, errno.ServiceFault
+	}
+	return res, nil
+}
+
 // 删除文章时可用
 // 根据 ArticalID 批量删除点赞 （收藏）
 func DeleteLikeStarByArticalID(ctx context.Context, articalID uint) error {

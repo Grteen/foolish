@@ -24,6 +24,7 @@ const (
 	AlreadyLikeStarErrCode                = 10015
 	AlreadyLikesErrCode                   = 10016
 	AlreadyStarErrCode                    = 10017
+	NoSuchCommentErrCode                  = 10018
 )
 
 type Errno struct {
@@ -75,4 +76,5 @@ var (
 	AlreadyLikeStarErr                = NewErrNo(AlreadyLikeStarErrCode, "Already been LikeStared")
 	AlreadyLikesErr                   = NewErrNo(AlreadyLikesErrCode, "Already been liked")
 	AlreadyStarErr                    = NewErrNo(AlreadyStarErrCode, "Already been stared")
+	NoSuchCommentErr                  = NewErrNo(NoSuchCommentErrCode, "No such comment")
 )

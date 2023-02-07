@@ -8,7 +8,6 @@ import (
 	"be/pkg/errno"
 	"be/pkg/uuid"
 	"context"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +29,6 @@ func Login(ctx *gin.Context) {
 		UserNameOrEmail: u.NameOrEmail,
 		PassWord:        u.PassWord,
 	})
-	fmt.Println(username)
 
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))

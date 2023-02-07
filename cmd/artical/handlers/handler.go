@@ -37,24 +37,26 @@ func (s *ArticalServiceImpl) CreateArtical(ctx context.Context, req *articaldemo
 func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.QueryArticalRequest) (*articaldemo.QueryArticalResponse, error) {
 	resp := new(articaldemo.QueryArticalResponse)
 
-	art, err := service.NewArticalService(ctx).QueryArtical(req)
+	// 文章id 为空
+	if len(req.IDs) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	arts, err := service.NewArticalService(ctx).QueryArtical(req)
 	if err != nil {
 		resp.Resp = pack.BuildResp(err)
 		return resp, nil
 	}
 
-	// 没有查询到文章
-	if art.ID == 0 {
-		resp.Resp = pack.BuildResp(errno.NoSuchArticalErr)
-		return resp, nil
-	}
-
 	resp.Resp = pack.BuildResp(errno.Success)
-	resp.Artical = &articaldemo.Artical{
-		ID:     int64(art.ID),
-		Author: art.Author,
-		Title:  art.Title,
-		Text:   art.Text,
+	for _, art := range arts {
+		resp.Artical = append(resp.Artical, &articaldemo.Artical{
+			ID:     int32(art.ID),
+			Author: art.Author,
+			Title:  art.Title,
+			Text:   art.Text,
+		})
 	}
 
 	return resp, nil
@@ -198,6 +200,112 @@ func (s *ArticalServiceImpl) QueryLikeStar(ctx context.Context, req *articaldemo
 	resp.LikeStar = &articaldemo.LikeStar{
 		UserName:  res[0].UserName,
 		ArticalID: int64(res[0].ArticalID),
+	}
+
+	return resp, nil
+}
+
+func (s *ArticalServiceImpl) QueryAllLikeStar(ctx context.Context, req *articaldemo.QueryAllLikeStarRequest) (*articaldemo.QueryAllLikeStarResponse, error) {
+	resp := new(articaldemo.QueryAllLikeStarResponse)
+
+	// userName 为空
+	if len(req.UserName) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	if req.Type == 0 {
+		// Like 请求
+		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Like{})
+	} else if req.Type == 1 {
+		// Star 请求
+		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Star{})
+	} else {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	res, err := service.NewArticalService(ctx).QueryAllLikeStar(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(err)
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.ArticalIDs = res
+
+	return resp, nil
+}
+
+func (s *ArticalServiceImpl) CreateComment(ctx context.Context, req *articaldemo.CreateCommentRequest) (*articaldemo.CreateCommentResponse, error) {
+	resp := new(articaldemo.CreateCommentResponse)
+
+	// 评论者为空 ArticalID 不合法 文本 > 500
+	if len(req.UserName) == 0 || len(req.CommentText) > 500 || req.ArticalID <= 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewArticalService(ctx).CreateComment(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(err)
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+func (s *ArticalServiceImpl) DeleteComment(ctx context.Context, req *articaldemo.DeleteCommentRequest) (*articaldemo.DeleteCommentResponse, error) {
+	resp := new(articaldemo.DeleteCommentResponse)
+
+	// ArticalID 不合法
+	if req.CommentID <= 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	// 查询是否存在 该评论
+	_, err := db.QueryComment(ctx, []int32{int32(req.CommentID)})
+	if err != nil {
+		// 不存在 或 发生错误
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	err = db.DeleteComment(ctx, req.CommentID)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.QueryCommentRequest) (*articaldemo.QueryCommentResponse, error) {
+	resp := new(articaldemo.QueryCommentResponse)
+
+	// CommentID 为空
+	if len(req.CommentID) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	cms, err := service.NewArticalService(ctx).QueryComment(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	for _, cm := range cms {
+		resp.Comment = append(resp.Comment, &articaldemo.Comment{
+			ID:          int32(cm.ID),
+			ArticalID:   int32(cm.ArticalID),
+			UserName:    cm.UserName,
+			CommentText: cm.CommentText,
+		})
 	}
 
 	return resp, nil

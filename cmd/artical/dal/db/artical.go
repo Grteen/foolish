@@ -7,29 +7,6 @@ import (
 	"time"
 )
 
-type ArticalStar struct {
-	ID        uint   `gorm:"primarykey"`
-	UserName  string `gorm:"username"`
-	ArticalID uint   `gorm:"articalID"`
-}
-
-func (as *ArticalStar) TableName() string {
-	return constants.ArticalStarTableName
-}
-
-type Comment struct {
-	ID          uint `gorm:"primarykey"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	UserName    string `gorm:"username"`
-	ArticalID   uint   `gorm:"articalID"`
-	CommentText string `gorm:"comment"`
-}
-
-func (c *Comment) TableName() string {
-	return constants.CommentTableName
-}
-
 type Artical struct {
 	ID        uint `gorm:"primarykey"`
 	CreatedAt time.Time
@@ -39,9 +16,9 @@ type Artical struct {
 	Author string `json:"author" gorm:"column:author; not null"`
 	Text   string `json:"text" gorm:"column:text; type:text"`
 
-	Liked   []*Like        `gorm:"foreignKey:ArticalID"`
-	Stared  []*ArticalStar `gorm:"foreignKey:ArticalID"`
-	Comment []*Comment     `gorm:"foreignKey:ArticalID"`
+	Liked   []*Like    `gorm:"foreignKey:ArticalID"`
+	Stared  []*Star    `gorm:"foreignKey:ArticalID"`
+	Comment []*Comment `gorm:"foreignKey:ArticalID"`
 }
 
 func (art *Artical) TableName() string {
@@ -57,9 +34,9 @@ func CreateArtical(ctx context.Context, arts []*Artical) error {
 }
 
 // 根据 ID 查询文章
-func QueryArtical(ctx context.Context, id uint) (*Artical, error) {
-	res := &Artical{}
-	if err := DB.WithContext(ctx).Where("id = ?", id).Find(&res).Error; err != nil {
+func QueryArtical(ctx context.Context, ids []int32) ([]*Artical, error) {
+	res := make([]*Artical, 0)
+	if err := DB.WithContext(ctx).Where("id in ?", ids).Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil

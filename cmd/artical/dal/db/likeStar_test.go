@@ -35,6 +35,12 @@ func TestLike(t *testing.T) {
 
 	fmt.Println(res[0])
 
+	tmp, err := QueryAllLikeStar(ctx, "Grteen-test")
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(tmp)
+
 	err = DeleteLikeStar(ctx, &LikeStar{
 		UserName:  "Grteen-test",
 		ArticalID: 2,

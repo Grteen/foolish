@@ -8,7 +8,7 @@ import (
 
 func TestArtical(t *testing.T) {
 	MySQLInit()
-	DB.AutoMigrate(&ArticalStar{})
+	DB.AutoMigrate(&Star{})
 	DB.AutoMigrate(&Like{})
 	DB.AutoMigrate(&Comment{})
 	DB.AutoMigrate(&Artical{})
@@ -20,7 +20,7 @@ func TestArtical(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := QueryArtical(context.Background(), 1)
+	res, err := QueryArtical(context.Background(), []int32{10, 11, 12})
 	if err != nil {
 		t.Error(err)
 	}
@@ -31,7 +31,7 @@ func TestArtical(t *testing.T) {
 
 	fmt.Println(res)
 
-	err = DeleteArtical(context.Background(), res.ID)
+	err = DeleteArtical(context.Background(), 7)
 	if err != nil {
 		t.Error(err)
 	}
