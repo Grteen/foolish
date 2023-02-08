@@ -97,3 +97,16 @@ func QueryAuthCookie(ctx context.Context, req *userdemo.QueryAuthCookieRequest) 
 
 	return resp.Value, nil
 }
+
+func DeleteAuthCookie(ctx context.Context, req *userdemo.DeleteAuthCookieRequest) error {
+	resp, err := client.DeleteAuthCookie(ctx, req)
+	if err != nil {
+		return errno.ConvertErr(err)
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}

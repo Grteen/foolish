@@ -17,13 +17,32 @@ func NewArticalService(ctx context.Context) *ArticalService {
 func (s *ArticalService) CreateArtical(req *articaldemo.CreateArticalRequest) error {
 	return db.CreateArtical(s.ctx, []*db.Artical{
 		{
-			Author: req.Author,
-			Title:  req.Title,
-			Text:   req.Text,
+			Author:      req.Author,
+			Title:       req.Title,
+			Text:        req.Text,
+			Description: req.Description,
 		},
 	})
 }
 
 func (s *ArticalService) QueryArtical(req *articaldemo.QueryArticalRequest) ([]*db.Artical, error) {
 	return db.QueryArtical(s.ctx, req.IDs)
+}
+
+func (s *ArticalService) DeleteArtical(req *articaldemo.DeleteArticalRequest) error {
+	return db.DeleteArtical(s.ctx, req.ID)
+}
+
+// 不更新作者
+func (s *ArticalService) UpdateArtical(req *articaldemo.UpdateArticalRequest) error {
+	return db.UpdateArtical(s.ctx, &db.Artical{
+		ID:          uint(req.ArticalID),
+		Title:       req.Title,
+		Text:        req.Text,
+		Description: req.Description,
+	})
+}
+
+func (s *ArticalService) QueryArticalByAuthor(req *articaldemo.QueryArticalByAuthorRequest) ([]int32, error) {
+	return db.QueryArticalByAuthor(s.ctx, req.Author)
 }

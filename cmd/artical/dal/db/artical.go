@@ -12,9 +12,13 @@ type Artical struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	Title  string `json:"title" gorm:"column:title; not null"`
-	Author string `json:"author" gorm:"column:author; not null"`
-	Text   string `json:"text" gorm:"column:text; type:text"`
+	Title       string `json:"title" gorm:"column:title; not null"`
+	Author      string `json:"author" gorm:"column:author; not null"`
+	Text        string `json:"text" gorm:"column:text; type:text"`
+	Description string `json:"description" gorm:"column:description; not null"`
+
+	LikeNum int32 `gorm:"column:likeNum; not null"`
+	StarNum int32 `gorm:"column:starNum; not null"`
 
 	Liked   []*Like    `gorm:"foreignKey:ArticalID"`
 	Stared  []*Star    `gorm:"foreignKey:ArticalID"`
@@ -43,7 +47,7 @@ func QueryArtical(ctx context.Context, ids []int32) ([]*Artical, error) {
 }
 
 // 根据 ID 删除文章
-func DeleteArtical(ctx context.Context, id uint) error {
+func DeleteArtical(ctx context.Context, id int32) error {
 	if err := DB.WithContext(ctx).Where("id = ?", id).Delete(&Artical{}).Error; err != nil {
 		return errno.ServiceFault
 	}
@@ -56,6 +60,15 @@ func UpdateArtical(ctx context.Context, art *Artical) error {
 		return errno.ServiceFault
 	}
 	return nil
+}
+
+// 根据 Author 查询文章
+func QueryArticalByAuthor(ctx context.Context, author string) ([]int32, error) {
+	res := make([]int32, 0)
+	if err := DB.Model(&Artical{}).WithContext(ctx).Select("id").Where("author = ?", author).Find(&res).Error; err != nil {
+		return nil, errno.ServiceFault
+	}
+	return res, nil
 }
 
 // meaningless

@@ -28,9 +28,21 @@ type UploadPicParma struct {
 }
 
 type PublishArticalParma struct {
-	Author string `form:"author"`
-	Title  string `form:"title"`
-	Text   string `form:"text"`
+	Author      string `form:"author"`
+	Title       string `form:"title"`
+	Text        string `form:"text"`
+	Description string `form:"description"`
+}
+
+type DeleteArticalParma struct {
+	ArticalID int32 `form:"articalID"`
+}
+
+type UpdateArticalParma struct {
+	ArticalID   int32  `form:"articalID"`
+	Title       string `form:"title"`
+	Text        string `form:"text"`
+	Description string `form:"description"`
 }
 
 type GetArticalParma struct {
@@ -52,6 +64,15 @@ type QueryCommentParma struct {
 	ComentIDs []int32 `form:"commentIDs"`
 }
 
+type QueryCommentByArticalIDParma struct {
+	ArticalID int32 `form:"commentID"`
+}
+
 type DeleteCommentParma struct {
 	CommentID int32 `form:"commentID"`
+}
+
+type UpdateCommentParma struct {
+	CommentID   int32  `form:"commentID"`
+	CommentText string `form:"commentText"`
 }

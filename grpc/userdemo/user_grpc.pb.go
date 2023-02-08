@@ -28,6 +28,7 @@ type UserServiceClient interface {
 	QueryUserInfo(ctx context.Context, in *QueryUserInfoRequest, opts ...grpc.CallOption) (*QueryUserInfoResponse, error)
 	SetAuthCookie(ctx context.Context, in *SetAuthCookieRequest, opts ...grpc.CallOption) (*SetAuthCookieResponse, error)
 	QueryAuthCookie(ctx context.Context, in *QueryAuthCookieRequest, opts ...grpc.CallOption) (*QueryAuthCookieResponse, error)
+	DeleteAuthCookie(ctx context.Context, in *DeleteAuthCookieRequest, opts ...grpc.CallOption) (*DeleteAuthCookieResponse, error)
 }
 
 type userServiceClient struct {
@@ -92,6 +93,15 @@ func (c *userServiceClient) QueryAuthCookie(ctx context.Context, in *QueryAuthCo
 	return out, nil
 }
 
+func (c *userServiceClient) DeleteAuthCookie(ctx context.Context, in *DeleteAuthCookieRequest, opts ...grpc.CallOption) (*DeleteAuthCookieResponse, error) {
+	out := new(DeleteAuthCookieResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/DeleteAuthCookie", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
@@ -102,6 +112,7 @@ type UserServiceServer interface {
 	QueryUserInfo(context.Context, *QueryUserInfoRequest) (*QueryUserInfoResponse, error)
 	SetAuthCookie(context.Context, *SetAuthCookieRequest) (*SetAuthCookieResponse, error)
 	QueryAuthCookie(context.Context, *QueryAuthCookieRequest) (*QueryAuthCookieResponse, error)
+	DeleteAuthCookie(context.Context, *DeleteAuthCookieRequest) (*DeleteAuthCookieResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -126,6 +137,9 @@ func (UnimplementedUserServiceServer) SetAuthCookie(context.Context, *SetAuthCoo
 }
 func (UnimplementedUserServiceServer) QueryAuthCookie(context.Context, *QueryAuthCookieRequest) (*QueryAuthCookieResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryAuthCookie not implemented")
+}
+func (UnimplementedUserServiceServer) DeleteAuthCookie(context.Context, *DeleteAuthCookieRequest) (*DeleteAuthCookieResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAuthCookie not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -248,6 +262,24 @@ func _UserService_QueryAuthCookie_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_DeleteAuthCookie_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAuthCookieRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).DeleteAuthCookie(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/DeleteAuthCookie",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).DeleteAuthCookie(ctx, req.(*DeleteAuthCookieRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -278,6 +310,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryAuthCookie",
 			Handler:    _UserService_QueryAuthCookie_Handler,
+		},
+		{
+			MethodName: "DeleteAuthCookie",
+			Handler:    _UserService_DeleteAuthCookie_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

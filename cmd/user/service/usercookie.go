@@ -22,3 +22,7 @@ func (s *UserService) QueryAuthCookie(req *userdemo.QueryAuthCookieRequest) (str
 
 	return res, err
 }
+
+func (s *UserService) DeleteAuthCookie(req *userdemo.DeleteAuthCookieRequest) error {
+	return db.DeleteCookie(s.ctx, req.Key)
+}

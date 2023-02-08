@@ -3,7 +3,7 @@ package constants
 type ContextKey string
 
 const (
-	LoginCookieTime                 = 60 * 60 * 6
+	LoginCookieTime                 = 60 * 60 * 6 * 28
 	ChangeToRedis                   = 1000 * 1000 * 1000
 	AuthCookieName                  = "frostAuth"
 	MySQLDefaultDSN                 = "grteen:GrteenFL@tcp(127.0.0.1:3306)/db?parseTime=True"
@@ -15,6 +15,7 @@ const (
 	LikeTableName                   = "articalLike"
 	StarTableName                   = "articalStar"
 	LikeStarModel        ContextKey = "LikeStarModel"
+	AuthCookieUserName   ContextKey = "AuthCookieUserName"
 	PicUploadDir                    = "/root/nginx/image"
 	PicHttpUri                      = "http://124.70.111.92/image"
 )

@@ -18,7 +18,7 @@ func TestLike(t *testing.T) {
 			UserName:  "Grteen-test",
 			ArticalID: 2,
 		},
-	})
+	}, &Star{})
 
 	if err != nil {
 		t.Error(err)
@@ -27,7 +27,7 @@ func TestLike(t *testing.T) {
 	res, err := QueryLikeStar(ctx, &LikeStar{
 		UserName:  "Grteen-test",
 		ArticalID: 2,
-	})
+	}, &Star{})
 
 	if err != nil {
 		t.Error(err)
@@ -44,19 +44,18 @@ func TestLike(t *testing.T) {
 	err = DeleteLikeStar(ctx, &LikeStar{
 		UserName:  "Grteen-test",
 		ArticalID: 2,
-	})
+	}, &Star{})
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	ctx = context.WithValue(context.Background(), constants.LikeStarModel, &Like{})
 	err = CreateLikeStar(ctx, []*LikeStar{
 		{
 			UserName:  "Grteen-test",
 			ArticalID: 3,
 		},
-	})
+	}, &Like{})
 
 	if err != nil {
 		t.Error(err)
@@ -65,7 +64,7 @@ func TestLike(t *testing.T) {
 	res, err = QueryLikeStar(ctx, &LikeStar{
 		UserName:  "Grteen-test",
 		ArticalID: 3,
-	})
+	}, &Like{})
 
 	if err != nil {
 		t.Error(err)
@@ -76,7 +75,7 @@ func TestLike(t *testing.T) {
 	err = DeleteLikeStar(ctx, &LikeStar{
 		UserName:  "Grteen-test",
 		ArticalID: 3,
-	})
+	}, &Like{})
 
 	if err != nil {
 		t.Error(err)

@@ -73,6 +73,14 @@ message QueryAuthCookieResponse {
     string value = 2;
 }
 
+message DeleteAuthCookieRequest {
+    string key = 1;
+}
+
+message DeleteAuthCookieResponse {
+    Resp resp = 1;
+}
+
 service UserService {
     rpc CreateUser (CreateUserRequest) returns (CreateUserResponse){}
     rpc CheckUser (CheckUserRequest) returns (CheckUserResponse){}
@@ -80,6 +88,7 @@ service UserService {
     rpc UpdateUserInfo (UpdateUserInfoRequest) returns (UpdateUserInfoResponse){}
     rpc QueryUserInfo (QueryUserInfoRequest) returns (QueryUserInfoResponse){}
 
-    rpc SetAuthCookie(SetAuthCookieRequest) returns (SetAuthCookieResponse){}
-    rpc QueryAuthCookie(QueryAuthCookieRequest) returns (QueryAuthCookieResponse){}
+    rpc SetAuthCookie (SetAuthCookieRequest) returns (SetAuthCookieResponse){}
+    rpc QueryAuthCookie (QueryAuthCookieRequest) returns (QueryAuthCookieResponse){}
+    rpc DeleteAuthCookie (DeleteAuthCookieRequest) returns (DeleteAuthCookieResponse){}
 }

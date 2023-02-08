@@ -13,6 +13,7 @@ type UserServiceImpl struct {
 	userdemo.UnimplementedUserServiceServer
 }
 
+// 设置 登录 cookie
 func (s *UserServiceImpl) SetAuthCookie(ctx context.Context, req *userdemo.SetAuthCookieRequest) (*userdemo.SetAuthCookieResponse, error) {
 	resp := new(userdemo.SetAuthCookieResponse)
 
@@ -33,6 +34,7 @@ func (s *UserServiceImpl) SetAuthCookie(ctx context.Context, req *userdemo.SetAu
 
 }
 
+// 查询 登录 cookie 并返回 cookie 对应的值  如果不存在 则返回 cookie 过期错误
 func (s *UserServiceImpl) QueryAuthCookie(ctx context.Context, req *userdemo.QueryAuthCookieRequest) (*userdemo.QueryAuthCookieResponse, error) {
 	resp := new(userdemo.QueryAuthCookieResponse)
 
@@ -47,6 +49,21 @@ func (s *UserServiceImpl) QueryAuthCookie(ctx context.Context, req *userdemo.Que
 	return resp, nil
 }
 
+// 删除 登录 cookie
+func (s *UserServiceImpl) DeleteAuthCookie(ctx context.Context, req *userdemo.DeleteAuthCookieRequest) (*userdemo.DeleteAuthCookieResponse, error) {
+	resp := new(userdemo.DeleteAuthCookieResponse)
+
+	err := service.NewUserService(ctx).DeleteAuthCookie(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(err)
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 创建一个用户 如果失败返回对应错误
 func (s *UserServiceImpl) CreateUser(ctx context.Context, req *userdemo.CreateUserRequest) (*userdemo.CreateUserResponse, error) {
 	resp := new(userdemo.CreateUserResponse)
 
@@ -66,6 +83,7 @@ func (s *UserServiceImpl) CreateUser(ctx context.Context, req *userdemo.CreateUs
 	return resp, nil
 }
 
+// 检测用户和密码是否匹配 如果不匹配返回相应错误
 func (s *UserServiceImpl) CheckUser(ctx context.Context, req *userdemo.CheckUserRequest) (*userdemo.CheckUserResponse, error) {
 	resp := new(userdemo.CheckUserResponse)
 
@@ -86,6 +104,7 @@ func (s *UserServiceImpl) CheckUser(ctx context.Context, req *userdemo.CheckUser
 	return resp, nil
 }
 
+// 更新用户信息 如果更新失败 返回对应错误
 func (s *UserServiceImpl) UpdateUserInfo(ctx context.Context, req *userdemo.UpdateUserInfoRequest) (*userdemo.UpdateUserInfoResponse, error) {
 	resp := new(userdemo.UpdateUserInfoResponse)
 
@@ -105,6 +124,7 @@ func (s *UserServiceImpl) UpdateUserInfo(ctx context.Context, req *userdemo.Upda
 	return resp, nil
 }
 
+// 查询用户信息 如果用户不存在 返回用户还未注册错误
 func (s *UserServiceImpl) QueryUserInfo(ctx context.Context, req *userdemo.QueryUserInfoRequest) (*userdemo.QueryUserInfoResponse, error) {
 	resp := new(userdemo.QueryUserInfoResponse)
 
@@ -120,7 +140,7 @@ func (s *UserServiceImpl) QueryUserInfo(ctx context.Context, req *userdemo.Query
 		return resp, nil
 	}
 
-	// 没查到用户信息
+	// 用户存在且没查到用户信息
 	if len(ufs) == 0 {
 		resp.Resp = pack.BuildResp(errno.ServiceFault)
 		return resp, nil

@@ -33,6 +33,32 @@ func CreateArtical(ctx context.Context, req *articaldemo.CreateArticalRequest) e
 	return nil
 }
 
+func DeleteArtical(ctx context.Context, req *articaldemo.DeleteArticalRequest) error {
+	resp, err := articalClient.DeleteArtical(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func UpdateArtical(ctx context.Context, req *articaldemo.UpdateArticalRequest) error {
+	resp, err := articalClient.UpdateArtical(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
 func QueryArtical(ctx context.Context, req *articaldemo.QueryArticalRequest) ([]*articaldemo.Artical, error) {
 	resp, err := articalClient.QueryArtical(ctx, req)
 	if err != nil {
@@ -44,6 +70,19 @@ func QueryArtical(ctx context.Context, req *articaldemo.QueryArticalRequest) ([]
 	}
 
 	return resp.Artical, err
+}
+
+func QueryArticalByAuthor(ctx context.Context, req *articaldemo.QueryArticalByAuthorRequest) ([]int32, error) {
+	resp, err := articalClient.QueryArticalByAuthor(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.IDs, err
 }
 
 func CreateLikeStar(ctx context.Context, req *articaldemo.CreateLikeStarRequest) error {
@@ -110,8 +149,33 @@ func QueryComment(ctx context.Context, req *articaldemo.QueryCommentRequest) ([]
 	return resp.Comment, nil
 }
 
+func QueryCommentByArticalID(ctx context.Context, req *articaldemo.QueryCommentByArticalIDRequest) ([]int32, error) {
+	resp, err := articalClient.QueryCommentByArticalID(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.IDs, nil
+}
+
 func DeleteComment(ctx context.Context, req *articaldemo.DeleteCommentRequest) error {
 	resp, err := articalClient.DeleteComment(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func UpdateComment(ctx context.Context, req *articaldemo.UpdateCommentRequest) error {
+	resp, err := articalClient.UpdateComment(ctx, req)
 	if err != nil {
 		return err
 	}

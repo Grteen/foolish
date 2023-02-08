@@ -8,6 +8,7 @@ import (
 	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
+	"html"
 )
 
 // implements the service interface defined in IDL
@@ -18,15 +19,55 @@ type ArticalServiceImpl struct {
 func (s *ArticalServiceImpl) CreateArtical(ctx context.Context, req *articaldemo.CreateArticalRequest) (*articaldemo.CreateArticalResponse, error) {
 	resp := new(articaldemo.CreateArticalResponse)
 
-	// 作者为空 标题 < 5 && > 100 文本 > 50000
-	if len(req.Author) == 0 || len(req.Text) > 50000 || (len(req.Title) < 5 && len(req.Title) > 100) {
+	// 作者为空 标题 < 5 && > 100 文本 > 50000 描述 < 5 > 100
+	if len(req.Author) == 0 || len(req.Text) > 50000 || len(req.Title) < 5 || len(req.Title) > 100 || len(req.Description) < 5 || len(req.Description) > 100 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
 
 	err := service.NewArticalService(ctx).CreateArtical(req)
 	if err != nil {
-		resp.Resp = pack.BuildResp(err)
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 根据 ID 删除文章
+func (s *ArticalServiceImpl) DeleteArtical(ctx context.Context, req *articaldemo.DeleteArticalRequest) (*articaldemo.DeleteArticalResponse, error) {
+	resp := new(articaldemo.DeleteArticalResponse)
+
+	// ID 不合法
+	if req.ID <= 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewArticalService(ctx).DeleteArtical(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 根据文章 ID 更新文章 不更新作者
+func (s *ArticalServiceImpl) UpdateArtical(ctx context.Context, req *articaldemo.UpdateArticalRequest) (*articaldemo.UpdateArticalResponse, error) {
+	resp := new(articaldemo.UpdateArticalResponse)
+
+	// ID 非法 标题 < 5 && > 100 文本 > 50000 描述 < 5 > 100
+	if req.ArticalID <= 0 || len(req.Text) > 50000 || len(req.Title) < 5 || len(req.Title) > 100 || len(req.Description) < 5 || len(req.Description) > 100 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewArticalService(ctx).UpdateArtical(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
 		return resp, nil
 	}
 
@@ -52,12 +93,36 @@ func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.
 	resp.Resp = pack.BuildResp(errno.Success)
 	for _, art := range arts {
 		resp.Artical = append(resp.Artical, &articaldemo.Artical{
-			ID:     int32(art.ID),
-			Author: art.Author,
-			Title:  art.Title,
-			Text:   art.Text,
+			ID:          int32(art.ID),
+			Author:      art.Author,
+			Title:       html.UnescapeString(art.Title),
+			Text:        html.UnescapeString(art.Text),
+			Description: html.UnescapeString(art.Description),
+			LikeNum:     art.LikeNum,
+			StarNum:     art.StarNum,
 		})
 	}
+
+	return resp, nil
+}
+
+func (s *ArticalServiceImpl) QueryArticalByAuthor(ctx context.Context, req *articaldemo.QueryArticalByAuthorRequest) (*articaldemo.QueryArticalByAuthorResponse, error) {
+	resp := new(articaldemo.QueryArticalByAuthorResponse)
+
+	// 作者名称为空
+	if len(req.Author) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	ids, err := service.NewArticalService(ctx).QueryArticalByAuthor(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(err)
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.IDs = ids
 
 	return resp, nil
 }
@@ -71,21 +136,11 @@ func (s *ArticalServiceImpl) CreateLikeStar(ctx context.Context, req *articaldem
 		return resp, nil
 	}
 
-	if req.Type == 0 {
-		// Like 请求
-		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Like{})
-	} else if req.Type == 1 {
-		// Star 请求
-		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Star{})
-	} else {
-		resp.Resp = pack.BuildResp(errno.ServiceFault)
-		return resp, nil
-	}
-
 	// 查询是否有该用户对于该文章的点赞 (收藏)
 	res, err := service.NewArticalService(ctx).QueryLikeStar(&articaldemo.QueryLikeStarRequest{
 		UserName:  req.UserName,
 		ArticalID: req.ArticalID,
+		Type:      req.Type,
 	})
 
 	if err != nil && err != errno.NoLikeStarErr {
@@ -126,21 +181,11 @@ func (s *ArticalServiceImpl) DeleteLikeStar(ctx context.Context, req *articaldem
 		return resp, nil
 	}
 
-	if req.Type == 0 {
-		// Like 请求
-		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Like{})
-	} else if req.Type == 1 {
-		// Star 请求
-		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Star{})
-	} else {
-		resp.Resp = pack.BuildResp(errno.ServiceFault)
-		return resp, nil
-	}
-
 	// 查询是否有该用户对于该文章的点赞 (收藏)
 	_, err := service.NewArticalService(ctx).QueryLikeStar(&articaldemo.QueryLikeStarRequest{
 		UserName:  req.UserName,
 		ArticalID: req.ArticalID,
+		Type:      req.Type,
 	})
 
 	if err != nil {
@@ -256,6 +301,29 @@ func (s *ArticalServiceImpl) CreateComment(ctx context.Context, req *articaldemo
 	return resp, nil
 }
 
+// 根据 ID 更新评论 不更新 评论者和被评论的文章
+func (s *ArticalServiceImpl) UpdateComment(ctx context.Context, req *articaldemo.UpdateCommentRequest) (*articaldemo.UpdateCommentResponse, error) {
+	resp := new(articaldemo.UpdateCommentResponse)
+
+	// CommentID 不合法
+	if req.CommentID <= 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewArticalService(context.Background()).UpdateComment(&articaldemo.UpdateCommentRequest{
+		CommentID:   req.CommentID,
+		CommentText: req.CommentText,
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
 func (s *ArticalServiceImpl) DeleteComment(ctx context.Context, req *articaldemo.DeleteCommentRequest) (*articaldemo.DeleteCommentResponse, error) {
 	resp := new(articaldemo.DeleteCommentResponse)
 
@@ -265,15 +333,9 @@ func (s *ArticalServiceImpl) DeleteComment(ctx context.Context, req *articaldemo
 		return resp, nil
 	}
 
-	// 查询是否存在 该评论
-	_, err := db.QueryComment(ctx, []int32{int32(req.CommentID)})
-	if err != nil {
-		// 不存在 或 发生错误
-		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
-		return resp, nil
-	}
-
-	err = db.DeleteComment(ctx, req.CommentID)
+	err := service.NewArticalService(context.Background()).DeleteComment(&articaldemo.DeleteCommentRequest{
+		CommentID: req.CommentID,
+	})
 	if err != nil {
 		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
 		return resp, nil
@@ -307,6 +369,27 @@ func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.
 			CommentText: cm.CommentText,
 		})
 	}
+
+	return resp, nil
+}
+
+func (s *ArticalServiceImpl) QueryCommentByArticalID(ctx context.Context, req *articaldemo.QueryCommentByArticalIDRequest) (*articaldemo.QueryCommentByArticalIDResponse, error) {
+	resp := new(articaldemo.QueryCommentByArticalIDResponse)
+
+	// Artical ID 非法
+	if req.ArticalID <= 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	ids, err := service.NewArticalService(ctx).QueryCommentByArticalID(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.IDs = ids
 
 	return resp, nil
 }

@@ -36,8 +36,29 @@ func Login(ctx *gin.Context) {
 	}
 
 	uuid := uuid.GetUUid()
-	// 设置 Cookie 和 Seesion
-	setAuthCookie(ctx, uuid, username, constants.LoginCookieTime)
+	// 检查是否有 cookie 了
+	oldval, err := rpc.QueryAuthCookie(context.Background(), &userdemo.QueryAuthCookieRequest{
+		Key: username,
+	})
+
+	// 错误
+	if err != nil && err != errno.AuthenticationCookieExpirationErr {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	if err == errno.AuthenticationCookieExpirationErr {
+		// 无 cookie
+		setAuthCookie(ctx, uuid, username, constants.LoginCookieTime)
+	} else {
+		// 有 cookie
+		// 设置新 cookie 并删除原来的 cookie
+		setAuthCookie(ctx, uuid, username, constants.LoginCookieTime)
+		rpc.DeleteAuthCookie(ctx, &userdemo.DeleteAuthCookieRequest{
+			Key: oldval,
+		})
+	}
+
 	pack.SendResponse(ctx, errno.Success)
 }
 
@@ -46,6 +67,12 @@ func setAuthCookie(ctx *gin.Context, key, value string, maxAge int) {
 	rpc.SetAuthCookie(context.Background(), &userdemo.SetAuthCookieRequest{
 		Key:    key,
 		Value:  value,
+		MaxAge: int64(maxAge) * constants.ChangeToRedis,
+	})
+
+	rpc.SetAuthCookie(context.Background(), &userdemo.SetAuthCookieRequest{
+		Key:    value,
+		Value:  key,
 		MaxAge: int64(maxAge) * constants.ChangeToRedis,
 	})
 

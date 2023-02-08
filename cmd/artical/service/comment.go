@@ -30,6 +30,17 @@ func (s *ArticalService) QueryComment(req *articaldemo.QueryCommentRequest) ([]*
 	return cm, nil
 }
 
+func (s *ArticalService) QueryCommentByArticalID(req *articaldemo.QueryCommentByArticalIDRequest) ([]int32, error) {
+	return db.QueryCommentByArticalID(s.ctx, req.ArticalID)
+}
+
+func (s *ArticalService) UpdateComment(req *articaldemo.UpdateCommentRequest) error {
+	return db.UpdateComment(s.ctx, &db.Comment{
+		ID:          uint(req.CommentID),
+		CommentText: req.CommentText,
+	})
+}
+
 func (s *ArticalService) DeleteComment(req *articaldemo.DeleteCommentRequest) error {
-	return db.DeleteComment(s.ctx, int32(req.CommentID))
+	return db.DeleteComment(s.ctx, req.CommentID)
 }

@@ -7,21 +7,44 @@ message Resp {
     string statusMessage = 2;
 }
 
+message Artical {
+    int32 ID = 1;
+    string author = 2;
+    string title = 3;
+    string text = 4;
+    string description = 5;
+    int32 likeNum = 6;
+    int32 starNum = 7;
+}
+
 message CreateArticalRequest {
     string author = 1;
     string title = 2;
     string text = 3;
+    string description = 4;
 }
 
 message CreateArticalResponse {
     Resp resp = 1;
 }
 
-message Artical {
+message DeleteArticalRequest {
     int32 ID = 1;
-    string author = 2;
-    string title = 3;
-    string text = 4;
+}
+
+message DeleteArticalResponse {
+    Resp resp = 1;
+}
+
+message UpdateArticalRequest {
+    int32 articalID = 1;
+    string title = 2;
+    string text = 3;
+    string description = 4;
+}
+
+message UpdateArticalResponse {
+    Resp resp = 1;
 }
 
 message QueryArticalRequest {
@@ -31,6 +54,15 @@ message QueryArticalRequest {
 message QueryArticalResponse {
     Resp resp = 1;
     repeated Artical artical = 2;
+}
+
+message QueryArticalByAuthorRequest {
+    string author = 1;
+}
+
+message QueryArticalByAuthorResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
 }
 
 message CreateLikeStarRequest {
@@ -105,6 +137,24 @@ message QueryCommentResponse {
     repeated Comment comment = 2;
 }
 
+message QueryCommentByArticalIDRequest {
+    int32 ArticalID = 1;
+}
+
+message QueryCommentByArticalIDResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message UpdateCommentRequest {
+    int32 commentID = 1;
+    string commentText = 2;
+}
+
+message UpdateCommentResponse {
+    Resp resp = 1;
+}
+
 message DeleteCommentRequest {
     int32 commentID = 1;
 }
@@ -115,7 +165,10 @@ message DeleteCommentResponse {
 
 service ArticalService {
     rpc CreateArtical (CreateArticalRequest) returns (CreateArticalResponse){}
+    rpc DeleteArtical (DeleteArticalRequest) returns (DeleteArticalResponse){}
+    rpc UpdateArtical (UpdateArticalRequest) returns (UpdateArticalResponse){}
     rpc QueryArtical (QueryArticalRequest) returns (QueryArticalResponse){}
+    rpc QueryArticalByAuthor (QueryArticalByAuthorRequest) returns (QueryArticalByAuthorResponse){}
 
     rpc CreateLikeStar (CreateLikeStarRequest) returns (CreateLikeStarResponse){}
     rpc DeleteLikeStar (DeleteLikeStarRequest) returns (DeleteLikeStarResponse){}
@@ -123,6 +176,8 @@ service ArticalService {
     rpc QueryAllLikeStar (QueryAllLikeStarRequest) returns (QueryAllLikeStarResponse){}
 
     rpc CreateComment (CreateCommentRequest) returns (CreateCommentResponse){}
+    rpc UpdateComment (UpdateCommentRequest) returns (UpdateCommentResponse){}
     rpc QueryComment (QueryCommentRequest) returns (QueryCommentResponse){}
+    rpc QueryCommentByArticalID (QueryCommentByArticalIDRequest) returns (QueryCommentByArticalIDResponse){}
     rpc DeleteComment (DeleteCommentRequest) returns (DeleteCommentResponse){}
 }

@@ -26,7 +26,11 @@ func main() {
 	ginServer.POST("/uploadPic", middleware.AuthMidWare, handlers.UploadPic)
 
 	ginServer.POST("/publish", middleware.AuthMidWare, handlers.PublishArtical)
+	ginServer.DELETE("/artical", middleware.AuthMidWare, handlers.DeleteArtical)
+	ginServer.PUT("/artical", middleware.AuthMidWare, handlers.UpdateArtical)
 	ginServer.GET("/artical", handlers.GetArtical)
+	ginServer.GET("/artical/:author", handlers.GetArticalIDsByAuthor)
+
 	ginServer.POST("/like", middleware.AuthMidWare, handlers.GiveLike)
 	ginServer.DELETE("/like", middleware.AuthMidWare, handlers.DeleteLike)
 	ginServer.POST("/star", middleware.AuthMidWare, handlers.GiveStar)
@@ -35,6 +39,8 @@ func main() {
 
 	ginServer.POST("/comment", middleware.AuthMidWare, handlers.CreateComment)
 	ginServer.GET("/comment", handlers.QueryComment)
+	ginServer.GET("/comment/:articalID", handlers.QueryCommentByArticalID)
+	ginServer.PUT("/comment", middleware.AuthMidWare, handlers.UpdateComment)
 	ginServer.DELETE("/comment", middleware.AuthMidWare, handlers.DeleteComment)
 
 	ginServer.Run(":9877")

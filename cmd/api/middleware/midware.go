@@ -36,7 +36,7 @@ func AuthMidWare(ctx *gin.Context) {
 		return
 	}
 
-	_, err = rpc.QueryAuthCookie(context.Background(), &userdemo.QueryAuthCookieRequest{
+	userName, err := rpc.QueryAuthCookie(context.Background(), &userdemo.QueryAuthCookieRequest{
 		Key: cookie,
 	})
 
@@ -46,6 +46,8 @@ func AuthMidWare(ctx *gin.Context) {
 		return
 	}
 
+	// 设置该 cookie 对应的用户名
+	ctx.Set(string(constants.AuthCookieUserName), userName)
 	ctx.Next()
 	return
 }

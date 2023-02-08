@@ -54,9 +54,9 @@ func UpdateComment(ctx context.Context, cm *Comment) error {
 }
 
 // 根据 ArticalID 查看评论
-func QueryCommentByArticalID(ctx context.Context, articalID uint32) ([]*Comment, error) {
-	res := make([]*Comment, 0)
-	if err := DB.WithContext(ctx).Where("articalID = ?", articalID).Find(&res).Error; err != nil {
+func QueryCommentByArticalID(ctx context.Context, articalID int32) ([]int32, error) {
+	res := make([]int32, 0)
+	if err := DB.WithContext(ctx).Model(&Comment{}).Select("id").Where("articalID = ?", articalID).Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil

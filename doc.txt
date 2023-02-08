@@ -19,6 +19,7 @@ ErrorCode:
 	10015   "Already been LikeStared"       // 你不可能遇见这个错误
 	10016   "Already been liked"        // 已经点赞过了
 	10017   "Already been stared"       // 已经收藏了
+    10018   "No such comment"       // 没有该评论
 
 
 // 注册用户
@@ -122,15 +123,38 @@ POST /api/publish   form-data
         author      作者
         title       标题    (3<=  <= 100)
         text        文本    (0<=  <= 5W)
+        description 描述    (5<=  <= 100)
     返回值 : json {
         code:   02 03 09 10
         message: 
     }
 
-// 查询文章
-GET /api/artical   uri
+// 删除文章
+DELETE /api/artical     uri
     参数 :
-        ID        文章ID
+        articalID    文章ID
+    返回值 : json {
+        code:   02 03 09 10 11
+        message:
+    }
+
+// 更新文章
+PUT /api/artical    form-data
+    参数: 
+        // 作者不更新
+        articalID       要更新的目标文章ID
+        title           同Publish
+        text            同Publish
+        description     同Publish
+    返回值: json {
+        code: 02 03 09 10 11
+        message:
+    }
+
+// 查询文章
+GET /api/artical   form-data
+    参数 :
+        IDs        文章ID数组
     返回值 : 
     如果失败 :
         json {
@@ -141,12 +165,40 @@ GET /api/artical   uri
         json {
             code: 0
             message:
-            data: {
-                ID:     // 文章ID
-                title:      // 文章标题
-                author:     // 文章作者
-                text:       // 文章内容
-            }
+            data: [
+                {
+                    ID:     // 文章ID
+                    title:      // 文章标题
+                    author:     // 文章作者
+                    text:       // 文章内容
+                    likeNum     // 文章点赞总数
+                    starNum     // 文章收藏总数
+                },
+                {
+
+                },
+                {
+                    ....
+                }
+            ]
+        }
+
+// 查询一个用户发表的所有文章 的 ID
+GET /api/artical/:author      即/api/artical/Grteen-test
+    参数: 无
+    返回值: 
+    如果失败: 
+        json {
+            code: 02 03 06
+            message:
+        }
+    如果成功:
+        json {
+            code: 0
+            message:
+            data: [
+                // 文章ID数组
+            ]
         }
 
 // 点赞
@@ -188,4 +240,104 @@ DELETE  /api/star   form-data or uri
         code: 02 03 09 10 11 14
         message:
     }
+
+// 获取用户所有收藏
+GET /api/star  uri
+    参数: 
+        username        查询的人
+    返回值:
+        如果有错误:
+            json {
+                code:   02 03 06
+                message:
+            }
+        如果成功:
+            json {
+                code: 0
+                message:
+                data: {
+                    articalIDs: [
+                        // 文章ID 数组
+                    ]
+                }
+            }
+
+// 评论
+POST /api/comment  form-data
+    参数:
+        username    提交评论的人
+        articalID   被评论的文章ID
+        commentText     评论内容  <= 500字
+    返回值: json {
+        code: 02 03 09 10 11
+        message:
+    }
+
+// 根据 评论 ID 获取 评论内容
+GET /api/comment  form-data
+    参数:
+        commentIDs      // 评论 ID 的数组
+    返回值: 
+        如果错误：
+            json {
+                code: 02 03 
+                message:
+            }
+        如果成功
+            json {
+                code: 0
+                message:
+                data: [     // 只返回能够查到的评论 如果传入的 ID 数组中有 ID 不存在 则不返回该 ID 对应的评论
+                    {
+                        ID      // 评论ID
+                        articalID       // 评论的文章ID
+                        userName        // 评论的用户
+                        commentText     // 评论的内容
+                    },
+                    {
+
+                    },
+                    {
+                        ....
+                    }
+                ]
+            }
+
+// 根据评论 ID 删除评论
+DELETE /api/comment uri
+    参数:
+        commentID       // 评论 ID
+    返回值: json {
+        code: 02 03 09 10 18
+        message:
+    }
+
+// 根据评论 ID 更新评论  不更新 被评论的文章ID 和 评论者
+PUT /api/comment form-data
+    参数:
+        commentID       // 评论 ID
+        commentText     // 评论内容
+    返回值: json {
+        code: 02 03 09 10 18
+        message:
+    }
     
+
+// 获取某一个文章的所有评论 ID
+GET /api/comment/:articalID         即 /api/comment/11      (11 就是要查询的文章的ID)
+    参数:
+        无
+    返回值: 
+    如果失败: 
+        json {
+            code: 02 03 11
+            message:
+        }
+    如果成功:
+        json {
+            code: 0
+            message:
+            data: [
+                // 评论ID数组
+            ]
+        }
