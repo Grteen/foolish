@@ -5,6 +5,8 @@ import (
 	"be/pkg/errno"
 	"context"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Artical struct {
@@ -19,6 +21,7 @@ type Artical struct {
 
 	LikeNum int32 `gorm:"column:likeNum; not null"`
 	StarNum int32 `gorm:"column:starNum; not null"`
+	SeenNum int32 `gorm:"column:seenNum; not null"`
 
 	Liked   []*Like    `gorm:"foreignKey:ArticalID"`
 	Stared  []*Star    `gorm:"foreignKey:ArticalID"`
@@ -40,9 +43,13 @@ func CreateArtical(ctx context.Context, arts []*Artical) error {
 // 根据 ID 查询文章
 func QueryArtical(ctx context.Context, ids []int32) ([]*Artical, error) {
 	res := make([]*Artical, 0)
-	if err := DB.WithContext(ctx).Where("id in ?", ids).Find(&res).Error; err != nil {
-		return nil, errno.ServiceFault
-	}
+	DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.WithContext(ctx).Where("ID in ?", ids).Find(&res).Error; err != nil {
+			return errno.ServiceFault
+		}
+		return nil
+	})
+
 	return res, nil
 }
 

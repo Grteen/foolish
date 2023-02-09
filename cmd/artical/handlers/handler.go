@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"be/cmd/artical/dal/db"
 	"be/cmd/artical/pack"
 	"be/cmd/artical/service"
 	"be/grpc/articaldemo"
-	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
 	"html"
+	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // implements the service interface defined in IDL
@@ -100,6 +101,7 @@ func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.
 			Description: html.UnescapeString(art.Description),
 			LikeNum:     art.LikeNum,
 			StarNum:     art.StarNum,
+			SeenNum:     art.SeenNum,
 		})
 	}
 
@@ -136,7 +138,7 @@ func (s *ArticalServiceImpl) CreateLikeStar(ctx context.Context, req *articaldem
 		return resp, nil
 	}
 
-	// 查询是否有该用户对于该文章的点赞 (收藏)
+	// 查询是否有该用户对于该文章的点赞 (收藏) (观看历史)
 	res, err := service.NewArticalService(ctx).QueryLikeStar(&articaldemo.QueryLikeStarRequest{
 		UserName:  req.UserName,
 		ArticalID: req.ArticalID,
@@ -148,7 +150,7 @@ func (s *ArticalServiceImpl) CreateLikeStar(ctx context.Context, req *articaldem
 		return resp, nil
 	}
 
-	// 已经有点赞了 (收藏)
+	// 已经有点赞了 (收藏) (观看历史)
 	if len(res) != 0 && err != errno.NoLikeStarErr {
 		if req.Type == 0 {
 			// like 请求
@@ -156,6 +158,23 @@ func (s *ArticalServiceImpl) CreateLikeStar(ctx context.Context, req *articaldem
 		} else if req.Type == 1 {
 			// Star 请求
 			resp.Resp = pack.BuildResp(errno.AlreadyStarErr)
+		} else if req.Type == 2 {
+			// Seen 请求
+			// 修改 时间
+			err = service.NewArticalService(ctx).UpdateLikeStarTime(&articaldemo.UpdateLikeStarTimeRequest{
+				Likestar: &articaldemo.LikeStar{
+					UserName:  req.UserName,
+					ArticalID: req.ArticalID,
+				},
+				UpdateTime: timestamppb.New(time.Now()),
+				Type:       req.Type,
+			})
+			if err != nil {
+				resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+				return resp, nil
+			}
+			resp.Resp = pack.BuildResp(errno.Success)
+			return resp, nil
 		} else {
 			resp.Resp = pack.BuildResp(errno.ServiceFault)
 		}
@@ -196,6 +215,10 @@ func (s *ArticalServiceImpl) DeleteLikeStar(ctx context.Context, req *articaldem
 			} else if req.Type == 1 {
 				// Star 请求
 				resp.Resp = pack.BuildResp(errno.NoStarErr)
+			} else if req.Type == 2 {
+				// Seen 请求
+				// 默认不存在
+				resp.Resp = pack.BuildResp(errno.ServiceFault)
 			} else {
 				resp.Resp = pack.BuildResp(errno.ServiceFault)
 			}
@@ -215,23 +238,13 @@ func (s *ArticalServiceImpl) DeleteLikeStar(ctx context.Context, req *articaldem
 	return resp, nil
 }
 
+// 查询 某用户 是否 有对于 某文章的 收藏 （点赞）
 func (s *ArticalServiceImpl) QueryLikeStar(ctx context.Context, req *articaldemo.QueryLikeStarRequest) (*articaldemo.QueryLikeStarResponse, error) {
 	resp := new(articaldemo.QueryLikeStarResponse)
 
 	// username 为空 ID 不合法
 	if len(req.UserName) == 0 || req.ArticalID <= 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
-		return resp, nil
-	}
-
-	if req.Type == 0 {
-		// Like 请求
-		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Like{})
-	} else if req.Type == 1 {
-		// Star 请求
-		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Star{})
-	} else {
-		resp.Resp = pack.BuildResp(errno.ServiceFault)
 		return resp, nil
 	}
 
@@ -244,7 +257,7 @@ func (s *ArticalServiceImpl) QueryLikeStar(ctx context.Context, req *articaldemo
 	resp.Resp = pack.BuildResp(errno.Success)
 	resp.LikeStar = &articaldemo.LikeStar{
 		UserName:  res[0].UserName,
-		ArticalID: int64(res[0].ArticalID),
+		ArticalID: int32(res[0].ArticalID),
 	}
 
 	return resp, nil
@@ -256,17 +269,6 @@ func (s *ArticalServiceImpl) QueryAllLikeStar(ctx context.Context, req *articald
 	// userName 为空
 	if len(req.UserName) == 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
-		return resp, nil
-	}
-
-	if req.Type == 0 {
-		// Like 请求
-		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Like{})
-	} else if req.Type == 1 {
-		// Star 请求
-		ctx = context.WithValue(ctx, constants.LikeStarModel, &db.Star{})
-	} else {
-		resp.Resp = pack.BuildResp(errno.ServiceFault)
 		return resp, nil
 	}
 
@@ -390,6 +392,55 @@ func (s *ArticalServiceImpl) QueryCommentByArticalID(ctx context.Context, req *a
 
 	resp.Resp = pack.BuildResp(errno.Success)
 	resp.IDs = ids
+
+	return resp, nil
+}
+
+// redis 缓存文章
+func (s *ArticalServiceImpl) RdbSetArtical(ctx context.Context, req *articaldemo.RdbSetArticalRequest) (*articaldemo.RdbSetArticalResponse, error) {
+	resp := new(articaldemo.RdbSetArticalResponse)
+
+	// 非用户输入 无需验证
+	err := service.NewArticalService(ctx).RdbSetArtical(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// redis 获取文章
+func (s *ArticalServiceImpl) RdbGetArtical(ctx context.Context, req *articaldemo.RdbGetArticalRequest) (*articaldemo.RdbGetArticalResponse, error) {
+	resp := new(articaldemo.RdbGetArticalResponse)
+
+	// IDs 为 空
+	if len(req.IDs) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	arts, ungot, err := service.NewArticalService(ctx).RdbGetArtical(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.Ungot = ungot
+	for _, art := range arts {
+		resp.RdbArticals = append(resp.RdbArticals, &articaldemo.RdbArtical{
+			ID:         int32(art.ID),
+			CreateTime: timestamppb.New(art.CreatedAt),
+			Title:      art.Title,
+			Author:     art.Author,
+			Text:       art.Text,
+			LikeNum:    art.LikeNum,
+			StarNum:    art.StarNum,
+			SeenNum:    art.SeenNum,
+		})
+	}
 
 	return resp, nil
 }

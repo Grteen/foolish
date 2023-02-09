@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "google/protobuf/timestamp.proto";
 package articaldemo;
 option go_package = ".;articaldemo";
 
@@ -15,6 +16,7 @@ message Artical {
     string description = 5;
     int32 likeNum = 6;
     int32 starNum = 7;
+    int32 SeenNum = 8;
 }
 
 message CreateArticalRequest {
@@ -87,7 +89,17 @@ message DeleteLikeStarResponse {
 
 message LikeStar {
     string userName = 1;
-    int64 articalID = 2;
+    int32 articalID = 2;
+}
+
+message UpdateLikeStarTimeRequest {
+    LikeStar likestar = 1;
+    google.protobuf.Timestamp updateTime = 2;
+    int32 type = 3;
+}
+
+message UpdateLikeStarTimeResponse {
+    Resp resp = 1;
 }
 
 message QueryLikeStarRequest {
@@ -163,6 +175,36 @@ message DeleteCommentResponse {
     Resp resp = 1;
 }
 
+message RdbArtical {
+    int32 ID = 1;
+    google.protobuf.Timestamp CreateTime = 2;
+    string title = 3;
+    string author = 4;
+    string text = 5;
+    string description = 6;
+    int32 likeNum = 7;
+    int32 starNum = 8;
+    int32 seenNum = 9;
+}
+
+message RdbSetArticalRequest {
+    RdbArtical rdbArtical = 1;
+}
+
+message RdbSetArticalResponse {
+    Resp resp = 1;
+}
+
+message RdbGetArticalRequest {
+    repeated int32 IDs = 1;
+}
+
+message RdbGetArticalResponse {
+    Resp resp = 1;
+    repeated RdbArtical rdbArticals = 2;
+    repeated int32 ungot = 3;
+}
+
 service ArticalService {
     rpc CreateArtical (CreateArticalRequest) returns (CreateArticalResponse){}
     rpc DeleteArtical (DeleteArticalRequest) returns (DeleteArticalResponse){}
@@ -180,4 +222,7 @@ service ArticalService {
     rpc QueryComment (QueryCommentRequest) returns (QueryCommentResponse){}
     rpc QueryCommentByArticalID (QueryCommentByArticalIDRequest) returns (QueryCommentByArticalIDResponse){}
     rpc DeleteComment (DeleteCommentRequest) returns (DeleteCommentResponse){}
+
+    rpc RdbSetArtical (RdbSetArticalRequest) returns (RdbSetArticalResponse){}
+    rpc RdbGetArtical (RdbGetArticalRequest) returns (RdbGetArticalResponse){}
 }

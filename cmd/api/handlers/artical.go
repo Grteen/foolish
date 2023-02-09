@@ -8,6 +8,7 @@ import (
 	"be/pkg/errno"
 	"context"
 	"html"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -164,11 +165,12 @@ func GetArtical(ctx *gin.Context) {
 	}
 
 	if len(p.IDs) <= 0 {
+		log.Print(len(p.IDs))
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
 
-	res, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+	rdbres, ungot, err := rpc.RdbGetArtical(context.Background(), &articaldemo.RdbGetArticalRequest{
 		IDs: p.IDs,
 	})
 
@@ -177,7 +179,35 @@ func GetArtical(ctx *gin.Context) {
 		return
 	}
 
-	pack.SendData(ctx, errno.Success, res)
+	if len(ungot) == 0 {
+		// 全部查询到了
+		pack.SendData(ctx, errno.Success, rdbres)
+		return
+	}
+
+	res, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+		IDs: ungot,
+	})
+
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 将为查询到的文章全部缓存
+	for _, atr := range res {
+		err := rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
+			RdbArtical: ChangeArticalToRdbArtical([]*articaldemo.Artical{atr})[0],
+		})
+		if err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
+	}
+
+	rdbres = append(rdbres, ChangeArticalToRdbArtical(res)...)
+
+	pack.SendData(ctx, errno.Success, rdbres)
 }
 
 func GetArticalIDsByAuthor(ctx *gin.Context) {

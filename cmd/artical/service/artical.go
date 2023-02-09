@@ -2,6 +2,7 @@ package service
 
 import (
 	"be/cmd/artical/dal/db"
+	"be/cmd/artical/dal/rdb"
 	"be/grpc/articaldemo"
 	"context"
 )
@@ -45,4 +46,24 @@ func (s *ArticalService) UpdateArtical(req *articaldemo.UpdateArticalRequest) er
 
 func (s *ArticalService) QueryArticalByAuthor(req *articaldemo.QueryArticalByAuthorRequest) ([]int32, error) {
 	return db.QueryArticalByAuthor(s.ctx, req.Author)
+}
+
+func (s *ArticalService) RdbSetArtical(req *articaldemo.RdbSetArticalRequest) error {
+	return rdb.SetArtical(s.ctx, []*rdb.RdbArtical{
+		{
+			ID:        uint(req.RdbArtical.ID),
+			CreatedAt: req.RdbArtical.CreateTime.AsTime(),
+			Title:     req.RdbArtical.Title,
+			Author:    req.RdbArtical.Author,
+			Text:      req.RdbArtical.Text,
+
+			LikeNum: req.RdbArtical.LikeNum,
+			StarNum: req.RdbArtical.StarNum,
+			SeenNum: req.RdbArtical.SeenNum,
+		},
+	})
+}
+
+func (s *ArticalService) RdbGetArtical(req *articaldemo.RdbGetArticalRequest) ([]*rdb.RdbArtical, []int32, error) {
+	return rdb.GetArtical(s.ctx, req.IDs)
 }

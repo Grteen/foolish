@@ -1,5 +1,7 @@
 package handlers
 
+import "be/grpc/articaldemo"
+
 type UserParma struct {
 	Name     string `form:"name"`
 	PassWord string `form:"password"`
@@ -75,4 +77,22 @@ type DeleteCommentParma struct {
 type UpdateCommentParma struct {
 	CommentID   int32  `form:"commentID"`
 	CommentText string `form:"commentText"`
+}
+
+// 将 articaldemo.Artical 转化为 articaldemo.RdbArtical
+func ChangeArticalToRdbArtical(arts []*articaldemo.Artical) []*articaldemo.RdbArtical {
+	res := make([]*articaldemo.RdbArtical, 0)
+	for _, art := range arts {
+		res = append(res, &articaldemo.RdbArtical{
+			ID:          art.ID,
+			Title:       art.Title,
+			Author:      art.Author,
+			Text:        art.Text,
+			Description: art.Description,
+			LikeNum:     art.LikeNum,
+			StarNum:     art.StarNum,
+			SeenNum:     art.SeenNum,
+		})
+	}
+	return res
 }

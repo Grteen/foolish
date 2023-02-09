@@ -125,7 +125,7 @@ POST /api/publish   form-data
         text        文本    (0<=  <= 5W)
         description 描述    (5<=  <= 100)
     返回值 : json {
-        code:   02 03 09 10
+        code:  0 02 03 09 10
         message: 
     }
 
@@ -134,7 +134,7 @@ DELETE /api/artical     uri
     参数 :
         articalID    文章ID
     返回值 : json {
-        code:   02 03 09 10 11
+        code:  0 02 03 09 10 11
         message:
     }
 
@@ -147,7 +147,7 @@ PUT /api/artical    form-data
         text            同Publish
         description     同Publish
     返回值: json {
-        code: 02 03 09 10 11
+        code: 0 02 03 09 10 11
         message:
     }
 
@@ -173,6 +173,7 @@ GET /api/artical   form-data
                     text:       // 文章内容
                     likeNum     // 文章点赞总数
                     starNum     // 文章收藏总数
+                    seenNum     // 文章浏览总数
                 },
                 {
 
@@ -207,7 +208,7 @@ POST /api/like   form-data or uri
         username        点赞的人
         articalID       点赞的文章ID
     返回值: json {
-        code: 02 03 09 10 11 16
+        code: 0 02 03 09 10 11 16
         message:
     }  
 
@@ -217,7 +218,7 @@ DELETE  /api/like   form-data or uri
         username        取消点赞的人
         articalID       取消点赞的文章ID
     返回值: json {
-        code: 02 03 09 10 11 13
+        code: 0 02 03 09 10 11 13
         message:
     }
 
@@ -227,7 +228,7 @@ POST /api/star      form-data or uri
         username        收藏的人
         articalID       收藏的文章ID
     返回值: json {
-        code: 02 03 09 10 11 17
+        code: 0 02 03 09 10 11 17
         message:
     }
 
@@ -237,18 +238,50 @@ DELETE  /api/star   form-data or uri
         username        取消收藏的人
         articalID       取消收藏的文章ID
     返回值: json {
-        code: 02 03 09 10 11 14
+        code: 0 02 03 09 10 11 14
         message:
     }
 
-// 获取用户所有收藏
+// 获取用户所有收藏   按照时间降序排列
 GET /api/star  uri
     参数: 
         username        查询的人
     返回值:
         如果有错误:
             json {
-                code:   02 03 06
+                code:   02 03 06 10
+                message:
+            }
+        如果成功:
+            json {
+                code: 0
+                message:
+                data: {
+                    articalIDs: [
+                        // 文章ID 数组
+                    ]
+                }
+            }
+
+// 添加一次浏览记录
+POST /api/seen uri
+    参数:
+        username        浏览的人
+        articalID       浏览的文章ID
+    返回值: json {          // 同一个用户多次浏览 会返回 0 并且不记录在 目标的文章的 总浏览数之中
+        code: 0 02 03 09 10 11
+        message:
+    }
+    
+
+// 获取用户 浏览历史  按照时间降序排列
+GET /api/seen uri 
+    参数:
+        username        查询的人
+        返回值:
+        如果有错误:
+            json {
+                code:   02 03 06 10
                 message:
             }
         如果成功:

@@ -1,0 +1,84 @@
+package db
+
+import (
+	"be/pkg/constants"
+	"context"
+	"fmt"
+	"testing"
+)
+
+func TestLike(t *testing.T) {
+	MySQLInit()
+	DB.AutoMigrate(&Like{})
+	DB.AutoMigrate(&Star{})
+	DB.AutoMigrate(&Seen{})
+
+	ctx := context.WithValue(context.Background(), constants.LikeStarModel, &Star{})
+	err := CreateLikeStar(ctx, []*LikeStar{
+		{
+			UserName:  "Grteen-test",
+			ArticalID: 2,
+		},
+	}, &Star{})
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	res, err := QueryLikeStar(ctx, &LikeStar{
+		UserName:  "Grteen-test",
+		ArticalID: 2,
+	}, &Star{})
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	fmt.Println(res[0])
+
+	tmp, err := QueryAllLikeStar(ctx, "Grteen-test", &Star{})
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(tmp)
+
+	err = DeleteLikeStar(ctx, &LikeStar{
+		UserName:  "Grteen-test",
+		ArticalID: 2,
+	}, &Star{})
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = CreateLikeStar(ctx, []*LikeStar{
+		{
+			UserName:  "Grteen-test",
+			ArticalID: 3,
+		},
+	}, &Like{})
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	res, err = QueryLikeStar(ctx, &LikeStar{
+		UserName:  "Grteen-test",
+		ArticalID: 3,
+	}, &Like{})
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	fmt.Println(res[0])
+
+	err = DeleteLikeStar(ctx, &LikeStar{
+		UserName:  "Grteen-test",
+		ArticalID: 3,
+	}, &Like{})
+
+	if err != nil {
+		t.Error(err)
+	}
+}

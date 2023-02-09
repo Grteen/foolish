@@ -1,7 +1,7 @@
 package service
 
 import (
-	"be/cmd/user/dal/db"
+	"be/cmd/user/dal/rdb"
 	"be/grpc/userdemo"
 	"be/pkg/errno"
 
@@ -9,11 +9,11 @@ import (
 )
 
 func (s *UserService) SetAuthCookie(req *userdemo.SetAuthCookieRequest) error {
-	return db.SetCookie(s.ctx, req.Key, req.Value, req.MaxAge)
+	return rdb.SetCookie(s.ctx, req.Key, req.Value, req.MaxAge)
 }
 
 func (s *UserService) QueryAuthCookie(req *userdemo.QueryAuthCookieRequest) (string, error) {
-	res, err := db.QueryCookie(s.ctx, req.Key)
+	res, err := rdb.QueryCookie(s.ctx, req.Key)
 
 	if err == redis.Nil {
 		// key 不存在
@@ -24,5 +24,5 @@ func (s *UserService) QueryAuthCookie(req *userdemo.QueryAuthCookieRequest) (str
 }
 
 func (s *UserService) DeleteAuthCookie(req *userdemo.DeleteAuthCookieRequest) error {
-	return db.DeleteCookie(s.ctx, req.Key)
+	return rdb.DeleteCookie(s.ctx, req.Key)
 }

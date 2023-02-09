@@ -186,3 +186,29 @@ func UpdateComment(ctx context.Context, req *articaldemo.UpdateCommentRequest) e
 
 	return nil
 }
+
+func RdbSetArtical(ctx context.Context, req *articaldemo.RdbSetArticalRequest) error {
+	resp, err := articalClient.RdbSetArtical(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func RdbGetArtical(ctx context.Context, req *articaldemo.RdbGetArticalRequest) ([]*articaldemo.RdbArtical, []int32, error) {
+	resp, err := articalClient.RdbGetArtical(ctx, req)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.RdbArticals, resp.Ungot, nil
+}

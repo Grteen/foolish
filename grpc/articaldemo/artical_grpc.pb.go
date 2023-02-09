@@ -36,6 +36,8 @@ type ArticalServiceClient interface {
 	QueryComment(ctx context.Context, in *QueryCommentRequest, opts ...grpc.CallOption) (*QueryCommentResponse, error)
 	QueryCommentByArticalID(ctx context.Context, in *QueryCommentByArticalIDRequest, opts ...grpc.CallOption) (*QueryCommentByArticalIDResponse, error)
 	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*DeleteCommentResponse, error)
+	RdbSetArtical(ctx context.Context, in *RdbSetArticalRequest, opts ...grpc.CallOption) (*RdbSetArticalResponse, error)
+	RdbGetArtical(ctx context.Context, in *RdbGetArticalRequest, opts ...grpc.CallOption) (*RdbGetArticalResponse, error)
 }
 
 type articalServiceClient struct {
@@ -172,6 +174,24 @@ func (c *articalServiceClient) DeleteComment(ctx context.Context, in *DeleteComm
 	return out, nil
 }
 
+func (c *articalServiceClient) RdbSetArtical(ctx context.Context, in *RdbSetArticalRequest, opts ...grpc.CallOption) (*RdbSetArticalResponse, error) {
+	out := new(RdbSetArticalResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/RdbSetArtical", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) RdbGetArtical(ctx context.Context, in *RdbGetArticalRequest, opts ...grpc.CallOption) (*RdbGetArticalResponse, error) {
+	out := new(RdbGetArticalResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/RdbGetArtical", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArticalServiceServer is the server API for ArticalService service.
 // All implementations must embed UnimplementedArticalServiceServer
 // for forward compatibility
@@ -190,6 +210,8 @@ type ArticalServiceServer interface {
 	QueryComment(context.Context, *QueryCommentRequest) (*QueryCommentResponse, error)
 	QueryCommentByArticalID(context.Context, *QueryCommentByArticalIDRequest) (*QueryCommentByArticalIDResponse, error)
 	DeleteComment(context.Context, *DeleteCommentRequest) (*DeleteCommentResponse, error)
+	RdbSetArtical(context.Context, *RdbSetArticalRequest) (*RdbSetArticalResponse, error)
+	RdbGetArtical(context.Context, *RdbGetArticalRequest) (*RdbGetArticalResponse, error)
 	mustEmbedUnimplementedArticalServiceServer()
 }
 
@@ -238,6 +260,12 @@ func (UnimplementedArticalServiceServer) QueryCommentByArticalID(context.Context
 }
 func (UnimplementedArticalServiceServer) DeleteComment(context.Context, *DeleteCommentRequest) (*DeleteCommentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteComment not implemented")
+}
+func (UnimplementedArticalServiceServer) RdbSetArtical(context.Context, *RdbSetArticalRequest) (*RdbSetArticalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RdbSetArtical not implemented")
+}
+func (UnimplementedArticalServiceServer) RdbGetArtical(context.Context, *RdbGetArticalRequest) (*RdbGetArticalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RdbGetArtical not implemented")
 }
 func (UnimplementedArticalServiceServer) mustEmbedUnimplementedArticalServiceServer() {}
 
@@ -504,6 +532,42 @@ func _ArticalService_DeleteComment_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArticalService_RdbSetArtical_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RdbSetArticalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).RdbSetArtical(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/RdbSetArtical",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).RdbSetArtical(ctx, req.(*RdbSetArticalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_RdbGetArtical_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RdbGetArticalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).RdbGetArtical(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/RdbGetArtical",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).RdbGetArtical(ctx, req.(*RdbGetArticalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ArticalService_ServiceDesc is the grpc.ServiceDesc for ArticalService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -566,6 +630,14 @@ var ArticalService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteComment",
 			Handler:    _ArticalService_DeleteComment_Handler,
+		},
+		{
+			MethodName: "RdbSetArtical",
+			Handler:    _ArticalService_RdbSetArtical_Handler,
+		},
+		{
+			MethodName: "RdbGetArtical",
+			Handler:    _ArticalService_RdbGetArtical_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

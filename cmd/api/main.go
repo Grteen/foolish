@@ -35,9 +35,12 @@ func main() {
 	ginServer.DELETE("/like", middleware.AuthMidWare, handlers.DeleteLike)
 	ginServer.POST("/star", middleware.AuthMidWare, handlers.GiveStar)
 	ginServer.DELETE("/star", middleware.AuthMidWare, handlers.DeleteStar)
-	ginServer.GET("/star", handlers.QueryAllStar)
+	ginServer.GET("/star", middleware.AuthMidWare, handlers.QueryAllStar)
+	ginServer.POST("/seen", middleware.AuthMidWare, handlers.GiveSeen)
+	ginServer.GET("/seen", middleware.AuthMidWare, handlers.QueryAllSeen)
 
 	ginServer.POST("/comment", middleware.AuthMidWare, handlers.CreateComment)
+
 	ginServer.GET("/comment", handlers.QueryComment)
 	ginServer.GET("/comment/:articalID", handlers.QueryCommentByArticalID)
 	ginServer.PUT("/comment", middleware.AuthMidWare, handlers.UpdateComment)
