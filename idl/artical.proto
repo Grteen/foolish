@@ -16,7 +16,9 @@ message Artical {
     string description = 5;
     int32 likeNum = 6;
     int32 starNum = 7;
-    int32 SeenNum = 8;
+    int32 seenNum = 8;
+    string createdAt = 9;
+    string cover = 10;
 }
 
 message CreateArticalRequest {
@@ -24,6 +26,7 @@ message CreateArticalRequest {
     string title = 2;
     string text = 3;
     string description = 4;
+    string cover = 5;
 }
 
 message CreateArticalResponse {
@@ -43,6 +46,7 @@ message UpdateArticalRequest {
     string title = 2;
     string text = 3;
     string description = 4;
+    string cover = 5;
 }
 
 message UpdateArticalResponse {
@@ -177,7 +181,7 @@ message DeleteCommentResponse {
 
 message RdbArtical {
     int32 ID = 1;
-    google.protobuf.Timestamp CreateTime = 2;
+    string createAt = 2;
     string title = 3;
     string author = 4;
     string text = 5;
@@ -185,6 +189,7 @@ message RdbArtical {
     int32 likeNum = 7;
     int32 starNum = 8;
     int32 seenNum = 9;
+    string cover = 10;
 }
 
 message RdbSetArticalRequest {
@@ -192,6 +197,14 @@ message RdbSetArticalRequest {
 }
 
 message RdbSetArticalResponse {
+    Resp resp = 1;
+}
+
+message RdbDelArticalRequest {
+    int32 ID = 1;
+}
+
+message RdbDelArticalResponse {
     Resp resp = 1;
 }
 
@@ -203,6 +216,16 @@ message RdbGetArticalResponse {
     Resp resp = 1;
     repeated RdbArtical rdbArticals = 2;
     repeated int32 ungot = 3;
+}
+
+message RdbIncreaseitfRequest {
+    int32 articalID = 1;
+    int32 val = 2;
+    string field = 3;
+}
+
+message RdbIncreaseitfResponse {
+    Resp resp = 1;
 }
 
 service ArticalService {
@@ -224,5 +247,7 @@ service ArticalService {
     rpc DeleteComment (DeleteCommentRequest) returns (DeleteCommentResponse){}
 
     rpc RdbSetArtical (RdbSetArticalRequest) returns (RdbSetArticalResponse){}
+    rpc RdbDelArtical (RdbDelArticalRequest) returns (RdbDelArticalResponse){}
     rpc RdbGetArtical (RdbGetArticalRequest) returns (RdbGetArticalResponse){}
+    rpc RdbIncreaseitf (RdbIncreaseitfRequest) returns (RdbIncreaseitfResponse){}
 }

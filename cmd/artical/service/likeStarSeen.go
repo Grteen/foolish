@@ -2,6 +2,7 @@ package service
 
 import (
 	"be/cmd/artical/dal/db"
+	"be/cmd/artical/dal/rdb"
 	"be/grpc/articaldemo"
 	"be/pkg/errno"
 )
@@ -120,4 +121,8 @@ func (s *ArticalService) QueryAllLikeStar(req *articaldemo.QueryAllLikeStarReque
 	}
 
 	return res, nil
+}
+
+func (s *ArticalService) RdbIncreaseitf(req *articaldemo.RdbIncreaseitfRequest) error {
+	return rdb.IncreaseLikeStar(s.ctx, req.ArticalID, req.Val, req.Field)
 }

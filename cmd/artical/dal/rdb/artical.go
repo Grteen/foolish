@@ -7,16 +7,16 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
-	"time"
 )
 
 type RdbArtical struct {
 	ID          uint
-	CreatedAt   time.Time
+	CreatedAt   string
 	Title       string
 	Author      string
-	Text        string
+	Text        string `json:"-"`
 	Description string
+	Cover       string
 
 	LikeNum int32 `json:"-"`
 	StarNum int32 `json:"-"`
@@ -34,12 +34,22 @@ func SetArtical(ctx context.Context, arts []*RdbArtical) error {
 		if err := RDB.HMSet(ctx, constants.RdbArticalPre+id, constants.RdbArticalFieldArtical, res,
 			constants.RdbArticalFieldLikeNum, art.LikeNum,
 			constants.RdbArticalFieldStarNum, art.StarNum,
-			constants.RdbArticalFieldSeenNum, art.SeenNum).Err(); err != nil {
+			constants.RdbArticalFieldSeenNum, art.SeenNum,
+			constants.RdbArticalFieldText, art.Text).Err(); err != nil {
 			return errno.ServiceFault
 		}
 		if err := RDB.Expire(ctx, constants.RdbArticalPre+id, constants.RdbArticalExpriation*constants.ChangeToRedis).Err(); err != nil {
 			return errno.ServiceFault
 		}
+	}
+	return nil
+}
+
+// 将 RdbArtical 删除
+func DelArtical(ctx context.Context, articalID int32) error {
+	id := strconv.Itoa(int(articalID))
+	if err := RDB.Del(ctx, constants.RdbArticalPre+id).Err(); err != nil {
+		return errno.ServiceFault
 	}
 	return nil
 }
@@ -53,7 +63,8 @@ func GetArtical(ctx context.Context, ids []int32) ([]*RdbArtical, []int32, error
 		rdbres := RDB.HMGet(ctx, constants.RdbArticalPre+idstring, constants.RdbArticalFieldArtical,
 			constants.RdbArticalFieldLikeNum,
 			constants.RdbArticalFieldStarNum,
-			constants.RdbArticalFieldSeenNum)
+			constants.RdbArticalFieldSeenNum,
+			constants.RdbArticalFieldText)
 
 		resSlice, err := rdbres.Result()
 		if err != nil {
@@ -92,6 +103,10 @@ func GetArtical(ctx context.Context, ids []int32) ([]*RdbArtical, []int32, error
 			if err != nil {
 				return nil, nil, errno.ServiceFault
 			}
+			text, ok := resSlice[4].(string)
+			if !ok {
+				return nil, nil, errno.ServiceFault
+			}
 
 			err = json.Unmarshal([]byte(artjson), &art)
 			if err != nil {
@@ -100,6 +115,7 @@ func GetArtical(ctx context.Context, ids []int32) ([]*RdbArtical, []int32, error
 			art.LikeNum = int32(like)
 			art.StarNum = int32(star)
 			art.SeenNum = int32(seen)
+			art.Text = text
 
 			arts = append(arts, &art)
 			idstring := strconv.Itoa(int(id))

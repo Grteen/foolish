@@ -40,7 +40,6 @@ func main() {
 	ginServer.GET("/seen", middleware.AuthMidWare, handlers.QueryAllSeen)
 
 	ginServer.POST("/comment", middleware.AuthMidWare, handlers.CreateComment)
-
 	ginServer.GET("/comment", handlers.QueryComment)
 	ginServer.GET("/comment/:articalID", handlers.QueryCommentByArticalID)
 	ginServer.PUT("/comment", middleware.AuthMidWare, handlers.UpdateComment)

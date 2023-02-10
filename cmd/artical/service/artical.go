@@ -22,6 +22,11 @@ func (s *ArticalService) CreateArtical(req *articaldemo.CreateArticalRequest) er
 			Title:       req.Title,
 			Text:        req.Text,
 			Description: req.Description,
+			Cover:       req.Cover,
+			// CreatedAt:   time.Now(),
+			// LikeNum:     0,
+			// StarNum:     0,
+			// SeenNum:     0,
 		},
 	})
 }
@@ -41,6 +46,7 @@ func (s *ArticalService) UpdateArtical(req *articaldemo.UpdateArticalRequest) er
 		Title:       req.Title,
 		Text:        req.Text,
 		Description: req.Description,
+		Cover:       req.Cover,
 	})
 }
 
@@ -51,17 +57,23 @@ func (s *ArticalService) QueryArticalByAuthor(req *articaldemo.QueryArticalByAut
 func (s *ArticalService) RdbSetArtical(req *articaldemo.RdbSetArticalRequest) error {
 	return rdb.SetArtical(s.ctx, []*rdb.RdbArtical{
 		{
-			ID:        uint(req.RdbArtical.ID),
-			CreatedAt: req.RdbArtical.CreateTime.AsTime(),
-			Title:     req.RdbArtical.Title,
-			Author:    req.RdbArtical.Author,
-			Text:      req.RdbArtical.Text,
+			ID:          uint(req.RdbArtical.ID),
+			CreatedAt:   req.RdbArtical.CreateAt,
+			Title:       req.RdbArtical.Title,
+			Author:      req.RdbArtical.Author,
+			Text:        req.RdbArtical.Text,
+			Description: req.RdbArtical.Description,
 
 			LikeNum: req.RdbArtical.LikeNum,
 			StarNum: req.RdbArtical.StarNum,
 			SeenNum: req.RdbArtical.SeenNum,
+			Cover:   req.RdbArtical.Cover,
 		},
 	})
+}
+
+func (s *ArticalService) RdbDelArtical(req *articaldemo.RdbDelArticalRequest) error {
+	return rdb.DelArtical(s.ctx, req.ID)
 }
 
 func (s *ArticalService) RdbGetArtical(req *articaldemo.RdbGetArticalRequest) ([]*rdb.RdbArtical, []int32, error) {

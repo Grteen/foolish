@@ -5,6 +5,7 @@ import (
 	"be/cmd/api/rpc"
 	"be/grpc/articaldemo"
 	"be/grpc/userdemo"
+	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
 
@@ -59,6 +60,27 @@ func GiveLikeStar(ctx *gin.Context, tp int32) {
 		return
 	}
 
+	// 更新缓存
+	var field string
+	if tp == 0 {
+		// Like
+		field = constants.RdbArticalFieldLikeNum
+	} else if tp == 1 {
+		// Star
+		field = constants.RdbArticalFieldStarNum
+	} else if tp == 2 {
+		// Seen
+		field = constants.RdbArticalFieldSeenNum
+	} else {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	err = rpc.RdbIncreaseitf(context.Background(), &articaldemo.RdbIncreaseitfRequest{
+		ArticalID: p.ArticalID,
+		Val:       1,
+		Field:     field,
+	})
 	pack.SendResponse(ctx, errno.Success)
 }
 
@@ -108,6 +130,28 @@ func DeleteLikeStar(ctx *gin.Context, tp int32) {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
+
+	// 更新缓存
+	var field string
+	if tp == 0 {
+		// Like
+		field = constants.RdbArticalFieldLikeNum
+	} else if tp == 1 {
+		// Star
+		field = constants.RdbArticalFieldStarNum
+	} else if tp == 2 {
+		// Seen
+		field = constants.RdbArticalFieldSeenNum
+	} else {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	err = rpc.RdbIncreaseitf(context.Background(), &articaldemo.RdbIncreaseitfRequest{
+		ArticalID: p.ArticalID,
+		Val:       -1,
+		Field:     field,
+	})
 
 	pack.SendResponse(ctx, errno.Success)
 }

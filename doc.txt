@@ -90,7 +90,7 @@ PUT /api/userinfo  form-data
         username    用户名
         nickname    昵称
         description     个人简介
-        acator      头像
+        avator      头像
     返回值 : json {
         code: 0 02 03 06 09 10
         message:
@@ -124,6 +124,7 @@ POST /api/publish   form-data
         title       标题    (3<=  <= 100)
         text        文本    (0<=  <= 5W)
         description 描述    (5<=  <= 100)
+        cover       封面网址
     返回值 : json {
         code:  0 02 03 09 10
         message: 
@@ -146,6 +147,7 @@ PUT /api/artical    form-data
         title           同Publish
         text            同Publish
         description     同Publish
+        cover       封面网址
     返回值: json {
         code: 0 02 03 09 10 11
         message:
@@ -168,9 +170,12 @@ GET /api/artical   form-data
             data: [
                 {
                     ID:     // 文章ID
+                    createAt        // 创建时间
                     title:      // 文章标题
                     author:     // 文章作者
                     text:       // 文章内容
+                    description // 描述
+                    cover       // 封面图片网址
                     likeNum     // 文章点赞总数
                     starNum     // 文章收藏总数
                     seenNum     // 文章浏览总数

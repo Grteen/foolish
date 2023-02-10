@@ -34,6 +34,7 @@ type PublishArticalParma struct {
 	Title       string `form:"title"`
 	Text        string `form:"text"`
 	Description string `form:"description"`
+	Cover       string `form:"cover"`
 }
 
 type DeleteArticalParma struct {
@@ -45,6 +46,7 @@ type UpdateArticalParma struct {
 	Title       string `form:"title"`
 	Text        string `form:"text"`
 	Description string `form:"description"`
+	Cover       string `form:"cover"`
 }
 
 type GetArticalParma struct {
@@ -92,6 +94,8 @@ func ChangeArticalToRdbArtical(arts []*articaldemo.Artical) []*articaldemo.RdbAr
 			LikeNum:     art.LikeNum,
 			StarNum:     art.StarNum,
 			SeenNum:     art.SeenNum,
+			CreateAt:    art.CreatedAt,
+			Cover:       art.Cover,
 		})
 	}
 	return res

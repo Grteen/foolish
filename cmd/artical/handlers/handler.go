@@ -20,8 +20,8 @@ type ArticalServiceImpl struct {
 func (s *ArticalServiceImpl) CreateArtical(ctx context.Context, req *articaldemo.CreateArticalRequest) (*articaldemo.CreateArticalResponse, error) {
 	resp := new(articaldemo.CreateArticalResponse)
 
-	// 作者为空 标题 < 5 && > 100 文本 > 50000 描述 < 5 > 100
-	if len(req.Author) == 0 || len(req.Text) > 50000 || len(req.Title) < 5 || len(req.Title) > 100 || len(req.Description) < 5 || len(req.Description) > 100 {
+	// 作者为空 标题 < 5 && > 100 文本 > 50000 描述 < 5 > 100 封面 <= 0
+	if len(req.Author) == 0 || len(req.Text) > 50000 || len(req.Title) < 5 || len(req.Title) > 100 || len(req.Description) < 5 || len(req.Description) > 100 || len(req.Cover) <= 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
@@ -60,8 +60,8 @@ func (s *ArticalServiceImpl) DeleteArtical(ctx context.Context, req *articaldemo
 func (s *ArticalServiceImpl) UpdateArtical(ctx context.Context, req *articaldemo.UpdateArticalRequest) (*articaldemo.UpdateArticalResponse, error) {
 	resp := new(articaldemo.UpdateArticalResponse)
 
-	// ID 非法 标题 < 5 && > 100 文本 > 50000 描述 < 5 > 100
-	if req.ArticalID <= 0 || len(req.Text) > 50000 || len(req.Title) < 5 || len(req.Title) > 100 || len(req.Description) < 5 || len(req.Description) > 100 {
+	// ID 非法 标题 < 5 && > 100 文本 > 50000 描述 < 5 > 100 封面 <= 0
+	if req.ArticalID <= 0 || len(req.Text) > 50000 || len(req.Title) < 5 || len(req.Title) > 100 || len(req.Description) < 5 || len(req.Description) > 100 || len(req.Cover) <= 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
@@ -102,6 +102,8 @@ func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.
 			LikeNum:     art.LikeNum,
 			StarNum:     art.StarNum,
 			SeenNum:     art.SeenNum,
+			CreatedAt:   art.CreatedAt.String(),
+			Cover:       art.Cover,
 		})
 	}
 
@@ -411,6 +413,25 @@ func (s *ArticalServiceImpl) RdbSetArtical(ctx context.Context, req *articaldemo
 	return resp, nil
 }
 
+// redis 删除文章
+func (s *ArticalServiceImpl) RdbDelArtical(ctx context.Context, req *articaldemo.RdbDelArticalRequest) (*articaldemo.RdbDelArticalResponse, error) {
+	resp := new(articaldemo.RdbDelArticalResponse)
+
+	if req.ID <= 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewArticalService(ctx).RdbDelArtical(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
 // redis 获取文章
 func (s *ArticalServiceImpl) RdbGetArtical(ctx context.Context, req *articaldemo.RdbGetArticalRequest) (*articaldemo.RdbGetArticalResponse, error) {
 	resp := new(articaldemo.RdbGetArticalResponse)
@@ -431,16 +452,38 @@ func (s *ArticalServiceImpl) RdbGetArtical(ctx context.Context, req *articaldemo
 	resp.Ungot = ungot
 	for _, art := range arts {
 		resp.RdbArticals = append(resp.RdbArticals, &articaldemo.RdbArtical{
-			ID:         int32(art.ID),
-			CreateTime: timestamppb.New(art.CreatedAt),
-			Title:      art.Title,
-			Author:     art.Author,
-			Text:       art.Text,
-			LikeNum:    art.LikeNum,
-			StarNum:    art.StarNum,
-			SeenNum:    art.SeenNum,
+			ID:          int32(art.ID),
+			CreateAt:    art.CreatedAt,
+			Title:       art.Title,
+			Author:      art.Author,
+			Text:        art.Text,
+			Description: art.Description,
+			LikeNum:     art.LikeNum,
+			StarNum:     art.StarNum,
+			SeenNum:     art.SeenNum,
+			Cover:       art.Cover,
 		})
 	}
 
+	return resp, nil
+}
+
+// redis 修改 LikeNum StarNum SeenNum
+func (s *ArticalServiceImpl) RdbIncreaseitf(ctx context.Context, req *articaldemo.RdbIncreaseitfRequest) (*articaldemo.RdbIncreaseitfResponse, error) {
+	resp := new(articaldemo.RdbIncreaseitfResponse)
+
+	// ID 非法 Val 非法 Field 非法
+	if req.ArticalID <= 0 || req.Val >= 2 || req.Val <= -2 || len(req.Field) == 0 {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	err := service.NewArticalService(ctx).RdbIncreaseitf(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
 	return resp, nil
 }

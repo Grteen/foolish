@@ -13,7 +13,7 @@ func TestArtical(t *testing.T) {
 	err := SetArtical(ctx, []*RdbArtical{
 		{
 			ID:        114514,
-			CreatedAt: time.Now(),
+			CreatedAt: time.Now().String(),
 			Author:    "Grteen-test",
 			Title:     "test for redis",
 			Text:      "a good test for ",

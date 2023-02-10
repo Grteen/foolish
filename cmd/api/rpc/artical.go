@@ -200,6 +200,19 @@ func RdbSetArtical(ctx context.Context, req *articaldemo.RdbSetArticalRequest) e
 	return nil
 }
 
+func RdbDelArtical(ctx context.Context, req *articaldemo.RdbDelArticalRequest) error {
+	resp, err := articalClient.RdbDelArtical(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
 func RdbGetArtical(ctx context.Context, req *articaldemo.RdbGetArticalRequest) ([]*articaldemo.RdbArtical, []int32, error) {
 	resp, err := articalClient.RdbGetArtical(ctx, req)
 	if err != nil {
@@ -211,4 +224,17 @@ func RdbGetArtical(ctx context.Context, req *articaldemo.RdbGetArticalRequest) (
 	}
 
 	return resp.RdbArticals, resp.Ungot, nil
+}
+
+func RdbIncreaseitf(ctx context.Context, req *articaldemo.RdbIncreaseitfRequest) error {
+	resp, err := articalClient.RdbIncreaseitf(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
 }

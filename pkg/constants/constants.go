@@ -24,5 +24,6 @@ const (
 	RdbArticalFieldLikeNum            = "LikeNum"
 	RdbArticalFieldStarNum            = "StarNum"
 	RdbArticalFieldSeenNum            = "SeenNum"
+	RdbArticalFieldText               = "Text"
 	RdbArticalExpriation              = 60 * 10
 )

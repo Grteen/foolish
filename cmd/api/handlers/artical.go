@@ -20,8 +20,8 @@ func PublishArtical(ctx *gin.Context) {
 		return
 	}
 
-	// 作者为空 标题 < 5 > 100 文本 > 50000 描述 <5 > 100
-	if len(p.Author) == 0 || len(p.Text) > 50000 || len(p.Title) < 5 || len(p.Title) > 100 || len(p.Description) < 5 || len(p.Description) > 100 {
+	// 作者为空 标题 < 5 > 100 文本 > 50000 描述 <5 > 100 无封面
+	if len(p.Author) == 0 || len(p.Text) > 50000 || len(p.Title) < 5 || len(p.Title) > 100 || len(p.Description) < 5 || len(p.Description) > 100 || len(p.Cover) == 0 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
@@ -43,8 +43,8 @@ func PublishArtical(ctx *gin.Context) {
 		Title:       p.Title,
 		Text:        p.Text,
 		Description: p.Description,
+		Cover:       p.Cover,
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
@@ -98,6 +98,16 @@ func DeleteArtical(ctx *gin.Context) {
 		return
 	}
 
+	// 删除文章缓存
+	err = rpc.RdbDelArtical(context.Background(), &articaldemo.RdbDelArticalRequest{
+		ID: p.ArticalID,
+	})
+
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
 	pack.SendResponse(ctx, errno.Success)
 }
 
@@ -108,8 +118,8 @@ func UpdateArtical(ctx *gin.Context) {
 		return
 	}
 
-	// ID 不合法 标题 < 5 > 100 文本 > 50000
-	if p.ArticalID <= 0 || len(p.Text) > 50000 || len(p.Title) < 5 || len(p.Title) > 100 || len(p.Description) < 5 || len(p.Description) > 100 {
+	// ID 不合法 标题 < 5 > 100 文本 > 50000 无封面
+	if p.ArticalID <= 0 || len(p.Text) > 50000 || len(p.Title) < 5 || len(p.Title) > 100 || len(p.Description) < 5 || len(p.Description) > 100 || len(p.Cover) == 0 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
@@ -147,6 +157,25 @@ func UpdateArtical(ctx *gin.Context) {
 		Title:       p.Title,
 		Text:        p.Text,
 		Description: p.Description,
+		Cover:       p.Cover,
+	})
+
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 更新缓存
+	err = rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
+		RdbArtical: &articaldemo.RdbArtical{
+			ID:          p.ArticalID,
+			CreateAt:    arts[0].CreatedAt,
+			Title:       p.Title,
+			Text:        p.Text,
+			Description: p.Description,
+			Cover:       p.Cover,
+			Author:      arts[0].Author,
+		},
 	})
 
 	if err != nil {
@@ -194,10 +223,10 @@ func GetArtical(ctx *gin.Context) {
 		return
 	}
 
-	// 将为查询到的文章全部缓存
-	for _, atr := range res {
+	// 将未查询到的文章全部缓存
+	for _, art := range res {
 		err := rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
-			RdbArtical: ChangeArticalToRdbArtical([]*articaldemo.Artical{atr})[0],
+			RdbArtical: ChangeArticalToRdbArtical([]*articaldemo.Artical{art})[0],
 		})
 		if err != nil {
 			pack.SendResponse(ctx, errno.ConvertErr(err))
