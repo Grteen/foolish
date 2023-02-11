@@ -73,12 +73,12 @@ type LikeStarInterface interface {
 func CreateLikeStar(ctx context.Context, likeStars []*LikeStar, itf LikeStarInterface) error {
 	return DB.Transaction(func(tx *gorm.DB) error {
 		for _, ls := range likeStars {
-			err := DB.Model(&Artical{}).Where("ID = ?", ls.ArticalID).Update(itf.ColumnForArtical(), gorm.Expr(itf.ColumnForArtical()+" + ?", 1)).Error
+			err := tx.Model(&Artical{}).Where("id = ?", ls.ArticalID).Update(itf.ColumnForArtical(), gorm.Expr(itf.ColumnForArtical()+" + ?", 1)).Error
 			if err != nil {
 				return errno.ServiceFault
 			}
 		}
-		if err := DB.WithContext(ctx).Model(itf).Create(likeStars).Error; err != nil {
+		if err := tx.WithContext(ctx).Model(itf).Create(likeStars).Error; err != nil {
 			return errno.ServiceFault
 		}
 		return nil
@@ -96,11 +96,11 @@ func UpdateLikeStarTime(ctx context.Context, likeStar *LikeStar, ut time.Time, i
 // 根据 UserName 和 ArticalID 取消点赞  （收藏）
 func DeleteLikeStar(ctx context.Context, likeStar *LikeStar, itf LikeStarInterface) error {
 	return DB.Transaction(func(tx *gorm.DB) error {
-		err := DB.Model(&Artical{}).Where("ID = ?", likeStar.ArticalID).Update(itf.ColumnForArtical(), gorm.Expr(itf.ColumnForArtical()+" - ?", 1)).Error
+		err := tx.Model(&Artical{}).Where("id = ?", likeStar.ArticalID).Update(itf.ColumnForArtical(), gorm.Expr(itf.ColumnForArtical()+" - ?", 1)).Error
 		if err != nil {
 			return errno.ServiceFault
 		}
-		if err := DB.WithContext(ctx).Model(itf).Where("username = ?", likeStar.UserName).Where("articalID = ?", likeStar.ArticalID).Delete(itf).Error; err != nil {
+		if err := tx.WithContext(ctx).Model(itf).Where("username = ?", likeStar.UserName).Where("articalID = ?", likeStar.ArticalID).Delete(itf).Error; err != nil {
 			return errno.ServiceFault
 		}
 		return nil

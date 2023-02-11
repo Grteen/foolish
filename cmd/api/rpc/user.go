@@ -72,6 +72,19 @@ func QueryUserInfo(ctx context.Context, req *userdemo.QueryUserInfoRequest) (*us
 	return resp.UserInfo, nil
 }
 
+func QueryAvator(ctx context.Context, req *userdemo.QueryAvatorRequest) ([]string, error) {
+	resp, err := client.QueryAvator(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.Avator, nil
+}
+
 func SetAuthCookie(ctx context.Context, req *userdemo.SetAuthCookieRequest) error {
 	resp, err := client.SetAuthCookie(ctx, req)
 	if err != nil {

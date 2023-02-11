@@ -45,7 +45,7 @@ func CreateArtical(ctx context.Context, arts []*Artical) error {
 func QueryArtical(ctx context.Context, ids []int32) ([]*Artical, error) {
 	res := make([]*Artical, 0)
 	DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.WithContext(ctx).Where("ID in ?", ids).Find(&res).Error; err != nil {
+		if err := tx.WithContext(ctx).Where("id in ?", ids).Find(&res).Error; err != nil {
 			return errno.ServiceFault
 		}
 		return nil
@@ -54,11 +54,28 @@ func QueryArtical(ctx context.Context, ids []int32) ([]*Artical, error) {
 	return res, nil
 }
 
-// 根据 ID 删除文章
+// 根据 ID 删除文章 及其所有评论
 func DeleteArtical(ctx context.Context, id int32) error {
-	if err := DB.WithContext(ctx).Where("id = ?", id).Delete(&Artical{}).Error; err != nil {
-		return errno.ServiceFault
-	}
+	DB.Transaction(func(tx *gorm.DB) error {
+		res := make([]int32, 0)
+		// 查询该文章的所有 master 评论 并删除
+		if err := tx.WithContext(ctx).Model(&Comment{}).Select("id").Where("articalID = ?", id).Where("master is null").Order("updatedAt DESC").Find(&res).Error; err != nil {
+			return errno.ServiceFault
+		}
+		for _, cm := range res {
+			if err := tx.WithContext(ctx).Where("master = ?", cm).Delete(&Comment{}).Error; err != nil {
+				return errno.ServiceFault
+			}
+			if err := tx.WithContext(ctx).Where("id = ?", cm).Delete(&Comment{}).Error; err != nil {
+				return errno.ServiceFault
+			}
+		}
+
+		if err := tx.WithContext(ctx).Where("id = ?", id).Delete(&Artical{}).Error; err != nil {
+			return errno.ServiceFault
+		}
+		return nil
+	})
 	return nil
 }
 

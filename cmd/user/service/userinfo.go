@@ -36,3 +36,7 @@ func (s *UserService) QueryUserInfo(req *userdemo.QueryUserInfoRequest) ([]*db.U
 
 	return db.QueryUserInfo(s.ctx, req.UserName)
 }
+
+func (s *UserService) QueryAvator(req *userdemo.QueryAvatorRequest) ([]string, error) {
+	return db.QueryAvator(s.ctx, req.UserName)
+}

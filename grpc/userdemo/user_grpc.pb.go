@@ -26,6 +26,7 @@ type UserServiceClient interface {
 	CheckUser(ctx context.Context, in *CheckUserRequest, opts ...grpc.CallOption) (*CheckUserResponse, error)
 	UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...grpc.CallOption) (*UpdateUserInfoResponse, error)
 	QueryUserInfo(ctx context.Context, in *QueryUserInfoRequest, opts ...grpc.CallOption) (*QueryUserInfoResponse, error)
+	QueryAvator(ctx context.Context, in *QueryAvatorRequest, opts ...grpc.CallOption) (*QueryAvatorResponse, error)
 	SetAuthCookie(ctx context.Context, in *SetAuthCookieRequest, opts ...grpc.CallOption) (*SetAuthCookieResponse, error)
 	QueryAuthCookie(ctx context.Context, in *QueryAuthCookieRequest, opts ...grpc.CallOption) (*QueryAuthCookieResponse, error)
 	DeleteAuthCookie(ctx context.Context, in *DeleteAuthCookieRequest, opts ...grpc.CallOption) (*DeleteAuthCookieResponse, error)
@@ -75,6 +76,15 @@ func (c *userServiceClient) QueryUserInfo(ctx context.Context, in *QueryUserInfo
 	return out, nil
 }
 
+func (c *userServiceClient) QueryAvator(ctx context.Context, in *QueryAvatorRequest, opts ...grpc.CallOption) (*QueryAvatorResponse, error) {
+	out := new(QueryAvatorResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/QueryAvator", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceClient) SetAuthCookie(ctx context.Context, in *SetAuthCookieRequest, opts ...grpc.CallOption) (*SetAuthCookieResponse, error) {
 	out := new(SetAuthCookieResponse)
 	err := c.cc.Invoke(ctx, "/user.UserService/SetAuthCookie", in, out, opts...)
@@ -110,6 +120,7 @@ type UserServiceServer interface {
 	CheckUser(context.Context, *CheckUserRequest) (*CheckUserResponse, error)
 	UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*UpdateUserInfoResponse, error)
 	QueryUserInfo(context.Context, *QueryUserInfoRequest) (*QueryUserInfoResponse, error)
+	QueryAvator(context.Context, *QueryAvatorRequest) (*QueryAvatorResponse, error)
 	SetAuthCookie(context.Context, *SetAuthCookieRequest) (*SetAuthCookieResponse, error)
 	QueryAuthCookie(context.Context, *QueryAuthCookieRequest) (*QueryAuthCookieResponse, error)
 	DeleteAuthCookie(context.Context, *DeleteAuthCookieRequest) (*DeleteAuthCookieResponse, error)
@@ -131,6 +142,9 @@ func (UnimplementedUserServiceServer) UpdateUserInfo(context.Context, *UpdateUse
 }
 func (UnimplementedUserServiceServer) QueryUserInfo(context.Context, *QueryUserInfoRequest) (*QueryUserInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryUserInfo not implemented")
+}
+func (UnimplementedUserServiceServer) QueryAvator(context.Context, *QueryAvatorRequest) (*QueryAvatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAvator not implemented")
 }
 func (UnimplementedUserServiceServer) SetAuthCookie(context.Context, *SetAuthCookieRequest) (*SetAuthCookieResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetAuthCookie not implemented")
@@ -226,6 +240,24 @@ func _UserService_QueryUserInfo_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_QueryAvator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAvatorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).QueryAvator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/QueryAvator",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).QueryAvator(ctx, req.(*QueryAvatorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_SetAuthCookie_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetAuthCookieRequest)
 	if err := dec(in); err != nil {
@@ -302,6 +334,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryUserInfo",
 			Handler:    _UserService_QueryUserInfo_Handler,
+		},
+		{
+			MethodName: "QueryAvator",
+			Handler:    _UserService_QueryAvator_Handler,
 		},
 		{
 			MethodName: "SetAuthCookie",

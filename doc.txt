@@ -306,8 +306,9 @@ POST /api/comment  form-data
         username    提交评论的人
         articalID   被评论的文章ID
         commentText     评论内容  <= 500字
+        master      // 如果该评论为回复 请将 master 设置为 被回复的评论 ID   如果该评论不是回复 则将master设为 0 或者不设置
     返回值: json {
-        code: 02 03 09 10 11
+        code: 02 03 09 10 11 18
         message:
     }
 
@@ -330,7 +331,22 @@ GET /api/comment  form-data
                         ID      // 评论ID
                         articalID       // 评论的文章ID
                         userName        // 评论的用户
+                        avator          // 用户的头
                         commentText     // 评论的内容
+                        master          // 如果有 说明该条评论为回复
+                        reply: [        // 回复数组
+                            {
+                                ID
+                                articalID
+                                userName
+                                avator
+                                commentText
+                                master      // 撅对有 
+                            },
+                            {
+                                ....
+                            }
+                        ]
                     },
                     {
 
@@ -341,7 +357,7 @@ GET /api/comment  form-data
                 ]
             }
 
-// 根据评论 ID 删除评论
+// 根据评论 ID 删除评论 及其所有回复
 DELETE /api/comment uri
     参数:
         commentID       // 评论 ID
@@ -361,7 +377,9 @@ PUT /api/comment form-data
     }
     
 
-// 获取某一个文章的所有评论 ID
+// 获取某一个文章的所有评论 ID   只返回 master 评论  不返回 master 评论的回复
+// 所以 只要把返回结果的数组 塞进 GET /api/comment 里就行了
+// 按照时间降序排序
 GET /api/comment/:articalID         即 /api/comment/11      (11 就是要查询的文章的ID)
     参数:
         无
@@ -377,5 +395,27 @@ GET /api/comment/:articalID         即 /api/comment/11      (11 就是要查询
             message:
             data: [
                 // 评论ID数组
+            ]
+        }
+
+// 搜索文章
+GET /api/search     uri
+    参数:
+        keyword     // 搜索的关键词
+        limit     // 搜索几个
+        offset      // 跳过几个
+        // 搜索有keyword关键词的文章第 10 - 15 个   limit = 5 offset = 10
+    返回值:
+    如果失败:
+        json {
+            code: 02 03
+            message:
+        }
+    如果成功:
+        json {
+            code: 0
+            message:
+            data: [
+                // 文章ID数组
             ]
         }

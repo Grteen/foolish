@@ -62,6 +62,7 @@ type CommentParma struct {
 	UserName    string `form:"username"`
 	ArticalID   int32  `form:"articalID"`
 	CommentText string `form:"commentText"`
+	Master      int32  `form:"master"`
 }
 
 type QueryCommentParma struct {
@@ -79,6 +80,12 @@ type DeleteCommentParma struct {
 type UpdateCommentParma struct {
 	CommentID   int32  `form:"commentID"`
 	CommentText string `form:"commentText"`
+}
+
+type SearchArticalParma struct {
+	KeyWord string `form:"keyword"`
+	Limit   int32  `form:"limit"`
+	Offset  int32  `form:"offset"`
 }
 
 // 将 articaldemo.Artical 转化为 articaldemo.RdbArtical

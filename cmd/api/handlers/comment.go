@@ -4,6 +4,7 @@ import (
 	"be/cmd/api/pack"
 	"be/cmd/api/rpc"
 	"be/grpc/articaldemo"
+	"be/grpc/userdemo"
 	"be/pkg/errno"
 	"context"
 	"strconv"
@@ -18,9 +19,16 @@ func CreateComment(ctx *gin.Context) {
 		return
 	}
 
-	// 评论者为空 ArticalID 不合法 文本 > 500
-	if len(p.UserName) == 0 || len(p.CommentText) > 500 || p.ArticalID <= 0 {
+	// 评论者为空 ArticalID 不合法 文本 > 500 master < 0
+	if len(p.UserName) == 0 || len(p.CommentText) > 500 || p.ArticalID <= 0 || p.Master < 0 {
 		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	// 目标账户必须与 username 相同
+	err := pack.CheckAuthCookie(ctx, p.UserName)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
 
@@ -39,17 +47,39 @@ func CreateComment(ctx *gin.Context) {
 		return
 	}
 
-	// 目标账户必须与 username 相同
-	err = pack.CheckAuthCookie(ctx, p.UserName)
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
+	if p.Master != 0 {
+		// 查询是否存在评论
+		res, err := rpc.QueryComment(context.Background(), &articaldemo.QueryCommentRequest{
+			CommentID: []int32{p.Master},
+		})
+
+		if err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
+
+		if len(res) == 0 {
+			pack.SendResponse(ctx, errno.NoSuchCommentErr)
+			return
+		}
+
+		// master 评论的 articalID 必须与 回复 相同
+		if res[0].ArticalID != p.ArticalID {
+			pack.SendResponse(ctx, errno.ParamErr)
+			return
+		}
+
+		// 如果回复的评论也是 reply 则更改 master 为回复的评论的master
+		if res[0].Master != 0 {
+			p.Master = res[0].Master
+		}
 	}
 
 	err = rpc.CreateComment(context.Background(), &articaldemo.CreateCommentRequest{
 		UserName:    p.UserName,
 		ArticalID:   p.ArticalID,
 		CommentText: p.CommentText,
+		Master:      p.Master,
 	})
 
 	if err != nil {
@@ -83,6 +113,36 @@ func QueryComment(ctx *gin.Context) {
 	cms, err := rpc.QueryComment(context.Background(), &articaldemo.QueryCommentRequest{
 		CommentID: p.ComentIDs,
 	})
+
+	setAvator := func(cm *articaldemo.Comment) error {
+		res, err := rpc.QueryAvator(context.Background(), &userdemo.QueryAvatorRequest{
+			UserName: cm.UserName,
+		})
+		if err != nil {
+			return errno.ConvertErr(err)
+		}
+		if len(res) == 0 {
+			return errno.ServiceFault
+		}
+		cm.Avator = res[0]
+		return nil
+	}
+
+	// 查询用户头像
+	for _, cm := range cms {
+		if len(cm.Reply) != 0 {
+			for _, rp := range cm.Reply {
+				if err := setAvator(rp); err != nil {
+					pack.SendResponse(ctx, errno.ConvertErr(err))
+					return
+				}
+			}
+		}
+		if err := setAvator(cm); err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
+	}
 
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))

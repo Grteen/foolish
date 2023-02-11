@@ -48,3 +48,12 @@ func QueryUserInfo(ctx context.Context, userName string) ([]*UserInfo, error) {
 	}
 	return res, nil
 }
+
+// 根据 userName 查询用户头像
+func QueryAvator(ctx context.Context, userName string) ([]string, error) {
+	res := make([]string, 0)
+	if err := DB.WithContext(ctx).Model(&UserInfo{}).Select("avator").Where("username = ?", userName).Find(&res).Error; err != nil {
+		return nil, errno.ServiceFault
+	}
+	return res, nil
+}

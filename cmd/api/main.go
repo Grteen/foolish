@@ -45,5 +45,7 @@ func main() {
 	ginServer.PUT("/comment", middleware.AuthMidWare, handlers.UpdateComment)
 	ginServer.DELETE("/comment", middleware.AuthMidWare, handlers.DeleteComment)
 
+	ginServer.GET("/search", handlers.SearchArtical)
+
 	ginServer.Run(":9877")
 }

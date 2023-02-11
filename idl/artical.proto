@@ -131,13 +131,18 @@ message Comment {
     int32 ID = 1;
     int32 articalID = 2;
     string userName = 3;
-    string commentText = 4;
+    string avator = 4;
+    string commentText = 5;
+    int32 master = 6;
+
+    repeated Comment reply = 7;
 }
 
 message CreateCommentRequest {
     int32 articalID = 1;
     string userName = 2;
     string commentText = 3;
+    int32 master = 4;
 }
 
 message CreateCommentResponse {

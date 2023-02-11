@@ -54,6 +54,15 @@ message QueryUserInfoResponse {
     UserInfo userInfo = 2;
 }
 
+message QueryAvatorRequest {
+    string userName = 1;
+}
+
+message QueryAvatorResponse {
+    Resp resp = 1;
+    repeated string avator = 2;
+}
+
 message SetAuthCookieRequest {
     string key = 1;
     string value = 2;
@@ -87,6 +96,7 @@ service UserService {
 
     rpc UpdateUserInfo (UpdateUserInfoRequest) returns (UpdateUserInfoResponse){}
     rpc QueryUserInfo (QueryUserInfoRequest) returns (QueryUserInfoResponse){}
+    rpc QueryAvator (QueryAvatorRequest) returns (QueryAvatorResponse){}
 
     rpc SetAuthCookie (SetAuthCookieRequest) returns (SetAuthCookieResponse){}
     rpc QueryAuthCookie (QueryAuthCookieRequest) returns (QueryAuthCookieResponse){}

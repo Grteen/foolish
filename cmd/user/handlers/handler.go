@@ -136,7 +136,7 @@ func (s *UserServiceImpl) QueryUserInfo(ctx context.Context, req *userdemo.Query
 
 	ufs, err := service.NewUserService(ctx).QueryUserInfo(req)
 	if err != nil {
-		resp.Resp = pack.BuildResp(err)
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
 		return resp, nil
 	}
 
@@ -153,6 +153,28 @@ func (s *UserServiceImpl) QueryUserInfo(ctx context.Context, req *userdemo.Query
 		UserAvator:  ufs[0].UserAvator,
 		Description: ufs[0].Description,
 	}
+
+	return resp, nil
+}
+
+// 查询用户头像
+func (s *UserServiceImpl) QueryAvator(ctx context.Context, req *userdemo.QueryAvatorRequest) (*userdemo.QueryAvatorResponse, error) {
+	resp := new(userdemo.QueryAvatorResponse)
+
+	// 用户名空
+	if len(req.UserName) == 0 {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	res, err := service.NewUserService(ctx).QueryAvator(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.Avator = res
 
 	return resp, nil
 }

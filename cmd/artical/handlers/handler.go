@@ -286,11 +286,13 @@ func (s *ArticalServiceImpl) QueryAllLikeStar(ctx context.Context, req *articald
 	return resp, nil
 }
 
+// 创建评论或是 reply
+// 如果 master 不为 0 则为 reply
 func (s *ArticalServiceImpl) CreateComment(ctx context.Context, req *articaldemo.CreateCommentRequest) (*articaldemo.CreateCommentResponse, error) {
 	resp := new(articaldemo.CreateCommentResponse)
 
-	// 评论者为空 ArticalID 不合法 文本 > 500
-	if len(req.UserName) == 0 || len(req.CommentText) > 500 || req.ArticalID <= 0 {
+	// 评论者为空 ArticalID 不合法 文本 > 500 master < 0
+	if len(req.UserName) == 0 || len(req.CommentText) > 500 || req.ArticalID <= 0 || req.Master < 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
@@ -328,6 +330,7 @@ func (s *ArticalServiceImpl) UpdateComment(ctx context.Context, req *articaldemo
 	return resp, nil
 }
 
+// 根据 ID 删除评论及其所有 reply
 func (s *ArticalServiceImpl) DeleteComment(ctx context.Context, req *articaldemo.DeleteCommentRequest) (*articaldemo.DeleteCommentResponse, error) {
 	resp := new(articaldemo.DeleteCommentResponse)
 
@@ -349,6 +352,7 @@ func (s *ArticalServiceImpl) DeleteComment(ctx context.Context, req *articaldemo
 	return resp, nil
 }
 
+// 根据 ID 查询评论 返回该评论及其所有回复
 func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.QueryCommentRequest) (*articaldemo.QueryCommentResponse, error) {
 	resp := new(articaldemo.QueryCommentResponse)
 
@@ -366,11 +370,36 @@ func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.
 
 	resp.Resp = pack.BuildResp(errno.Success)
 	for _, cm := range cms {
+		reply := make([]*articaldemo.Comment, 0)
+		for _, rp := range cm.Reply {
+			// reply 绝对有 master
+			if rp.Master == nil {
+				resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+				return resp, nil
+			}
+			reply = append(reply, &articaldemo.Comment{
+				ID:          int32(rp.ID),
+				ArticalID:   int32(rp.ArticalID),
+				UserName:    rp.UserName,
+				CommentText: rp.CommentText,
+				Master:      int32(*rp.Master),
+			})
+		}
+
+		var temp int32 = 0
+		// 如果查询的目标是 reply
+		if cm.Master != nil {
+			temp = int32(*cm.Master)
+		}
+
 		resp.Comment = append(resp.Comment, &articaldemo.Comment{
 			ID:          int32(cm.ID),
 			ArticalID:   int32(cm.ArticalID),
 			UserName:    cm.UserName,
 			CommentText: cm.CommentText,
+
+			Master: temp,
+			Reply:  reply,
 		})
 	}
 

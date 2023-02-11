@@ -61,3 +61,39 @@ func TestComment(t *testing.T) {
 	}
 
 }
+
+func TestReply(t *testing.T) {
+	MySQLInit()
+	DB.AutoMigrate(&Comment{})
+
+	ctx := context.Background()
+	// var m uint = 1
+	// err := CreateComment(ctx, []*Comment{
+	// 	{
+	// 		UserName:    "Grteen-test",
+	// 		ArticalID:   3,
+	// 		CommentText: "First-Comment",
+	// 	},
+	// 	{
+	// 		UserName:    "Grteen-test",
+	// 		ArticalID:   3,
+	// 		CommentText: "Reply",
+	// 		Master:      &m,
+	// 	},
+	// })
+
+	// if err != nil {
+	// 	t.Error(err)
+	// }
+
+	res, err := QueryComment(ctx, []int32{1})
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(res[0].Reply)
+
+	// err = DeleteComment(ctx, 1)
+	// if err != nil {
+	// 	t.Error(err)
+	// }
+}
