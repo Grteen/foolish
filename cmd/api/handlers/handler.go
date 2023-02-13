@@ -88,6 +88,19 @@ type SearchArticalParma struct {
 	Offset  int32  `form:"offset"`
 }
 
+type SubscribeParma struct {
+	User string `form:"username"`
+	Sub  string `form:"subname"`
+}
+
+type QueryAllSubscribeParma struct {
+	User string `form:"username"`
+}
+
+type QueryAllFansParma struct {
+	User string `form:"username"`
+}
+
 // 将 articaldemo.Artical 转化为 articaldemo.RdbArtical
 func ChangeArticalToRdbArtical(arts []*articaldemo.Artical) []*articaldemo.RdbArtical {
 	res := make([]*articaldemo.RdbArtical, 0)

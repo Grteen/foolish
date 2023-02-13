@@ -25,8 +25,8 @@ type Resp struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	StatusCode    int64  `protobuf:"varint,1,opt,name=statusCode,proto3" json:"statusCode,omitempty"`
-	StatusMessage string `protobuf:"bytes,2,opt,name=statusMessage,proto3" json:"statusMessage,omitempty"`
+	StatusCode    int64  `protobuf:"varint,1,opt,name=statusCode,proto3" json:"statusCode"`
+	StatusMessage string `protobuf:"bytes,2,opt,name=statusMessage,proto3" json:"statusMessage"`
 }
 
 func (x *Resp) Reset() {
@@ -80,9 +80,9 @@ type SearchArticalRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Keyword string `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`
-	Limit   int32  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset  int32  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	Keyword string `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword"`
+	Limit   int32  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit"`
+	Offset  int32  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset"`
 }
 
 func (x *SearchArticalRequest) Reset() {
@@ -143,8 +143,8 @@ type SearchArticalResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Resp       *Resp   `protobuf:"bytes,1,opt,name=resp,proto3" json:"resp,omitempty"`
-	ArticalIDs []int32 `protobuf:"varint,2,rep,packed,name=articalIDs,proto3" json:"articalIDs,omitempty"`
+	Resp       *Resp   `protobuf:"bytes,1,opt,name=resp,proto3" json:"resp"`
+	ArticalIDs []int32 `protobuf:"varint,2,rep,packed,name=articalIDs,proto3" json:"articalIDs"`
 }
 
 func (x *SearchArticalResponse) Reset() {

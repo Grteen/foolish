@@ -32,3 +32,27 @@ func TestUser(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestSubscribe(t *testing.T) {
+	MySQLInit()
+	DB.AutoMigrate(&User{})
+	err := CreateUser(context.Background(), []*User{
+		{
+			UserName: "Grteen114514",
+			PassWord: "123456",
+			Email:    "not unique.com",
+
+			Subscribe: []*User{
+				{
+					UserName: "Grteen1437",
+					PassWord: "123456",
+					Email:    "ok.com",
+				},
+			},
+		},
+	})
+
+	if err != nil {
+		t.Error(err)
+	}
+}

@@ -24,12 +24,18 @@ const _ = grpc.SupportPackageIsVersion7
 type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	CheckUser(ctx context.Context, in *CheckUserRequest, opts ...grpc.CallOption) (*CheckUserResponse, error)
+	QueryUser(ctx context.Context, in *QueryUserRequest, opts ...grpc.CallOption) (*QueryUserResponse, error)
 	UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...grpc.CallOption) (*UpdateUserInfoResponse, error)
 	QueryUserInfo(ctx context.Context, in *QueryUserInfoRequest, opts ...grpc.CallOption) (*QueryUserInfoResponse, error)
 	QueryAvator(ctx context.Context, in *QueryAvatorRequest, opts ...grpc.CallOption) (*QueryAvatorResponse, error)
 	SetAuthCookie(ctx context.Context, in *SetAuthCookieRequest, opts ...grpc.CallOption) (*SetAuthCookieResponse, error)
 	QueryAuthCookie(ctx context.Context, in *QueryAuthCookieRequest, opts ...grpc.CallOption) (*QueryAuthCookieResponse, error)
 	DeleteAuthCookie(ctx context.Context, in *DeleteAuthCookieRequest, opts ...grpc.CallOption) (*DeleteAuthCookieResponse, error)
+	CreateSubscribe(ctx context.Context, in *CreateSubscribeRequest, opts ...grpc.CallOption) (*CreateSubscribeResponse, error)
+	DeleteSubscribe(ctx context.Context, in *DeleteSubscribeRequest, opts ...grpc.CallOption) (*DeleteSubscribeResponse, error)
+	QuerySubscribe(ctx context.Context, in *QuerySubscribeRequest, opts ...grpc.CallOption) (*QuerySubscribeResponse, error)
+	QueryAllSubscribe(ctx context.Context, in *QueryAllSubscribeRequest, opts ...grpc.CallOption) (*QueryAllSubscribeResponse, error)
+	QueryAllFans(ctx context.Context, in *QueryAllFansRequest, opts ...grpc.CallOption) (*QueryAllFansResponse, error)
 }
 
 type userServiceClient struct {
@@ -52,6 +58,15 @@ func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserReques
 func (c *userServiceClient) CheckUser(ctx context.Context, in *CheckUserRequest, opts ...grpc.CallOption) (*CheckUserResponse, error) {
 	out := new(CheckUserResponse)
 	err := c.cc.Invoke(ctx, "/user.UserService/CheckUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) QueryUser(ctx context.Context, in *QueryUserRequest, opts ...grpc.CallOption) (*QueryUserResponse, error) {
+	out := new(QueryUserResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/QueryUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,18 +127,69 @@ func (c *userServiceClient) DeleteAuthCookie(ctx context.Context, in *DeleteAuth
 	return out, nil
 }
 
+func (c *userServiceClient) CreateSubscribe(ctx context.Context, in *CreateSubscribeRequest, opts ...grpc.CallOption) (*CreateSubscribeResponse, error) {
+	out := new(CreateSubscribeResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/CreateSubscribe", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) DeleteSubscribe(ctx context.Context, in *DeleteSubscribeRequest, opts ...grpc.CallOption) (*DeleteSubscribeResponse, error) {
+	out := new(DeleteSubscribeResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/DeleteSubscribe", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) QuerySubscribe(ctx context.Context, in *QuerySubscribeRequest, opts ...grpc.CallOption) (*QuerySubscribeResponse, error) {
+	out := new(QuerySubscribeResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/QuerySubscribe", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) QueryAllSubscribe(ctx context.Context, in *QueryAllSubscribeRequest, opts ...grpc.CallOption) (*QueryAllSubscribeResponse, error) {
+	out := new(QueryAllSubscribeResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/QueryAllSubscribe", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) QueryAllFans(ctx context.Context, in *QueryAllFansRequest, opts ...grpc.CallOption) (*QueryAllFansResponse, error) {
+	out := new(QueryAllFansResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/QueryAllFans", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	CheckUser(context.Context, *CheckUserRequest) (*CheckUserResponse, error)
+	QueryUser(context.Context, *QueryUserRequest) (*QueryUserResponse, error)
 	UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*UpdateUserInfoResponse, error)
 	QueryUserInfo(context.Context, *QueryUserInfoRequest) (*QueryUserInfoResponse, error)
 	QueryAvator(context.Context, *QueryAvatorRequest) (*QueryAvatorResponse, error)
 	SetAuthCookie(context.Context, *SetAuthCookieRequest) (*SetAuthCookieResponse, error)
 	QueryAuthCookie(context.Context, *QueryAuthCookieRequest) (*QueryAuthCookieResponse, error)
 	DeleteAuthCookie(context.Context, *DeleteAuthCookieRequest) (*DeleteAuthCookieResponse, error)
+	CreateSubscribe(context.Context, *CreateSubscribeRequest) (*CreateSubscribeResponse, error)
+	DeleteSubscribe(context.Context, *DeleteSubscribeRequest) (*DeleteSubscribeResponse, error)
+	QuerySubscribe(context.Context, *QuerySubscribeRequest) (*QuerySubscribeResponse, error)
+	QueryAllSubscribe(context.Context, *QueryAllSubscribeRequest) (*QueryAllSubscribeResponse, error)
+	QueryAllFans(context.Context, *QueryAllFansRequest) (*QueryAllFansResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -136,6 +202,9 @@ func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserReq
 }
 func (UnimplementedUserServiceServer) CheckUser(context.Context, *CheckUserRequest) (*CheckUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUser not implemented")
+}
+func (UnimplementedUserServiceServer) QueryUser(context.Context, *QueryUserRequest) (*QueryUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryUser not implemented")
 }
 func (UnimplementedUserServiceServer) UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*UpdateUserInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserInfo not implemented")
@@ -154,6 +223,21 @@ func (UnimplementedUserServiceServer) QueryAuthCookie(context.Context, *QueryAut
 }
 func (UnimplementedUserServiceServer) DeleteAuthCookie(context.Context, *DeleteAuthCookieRequest) (*DeleteAuthCookieResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAuthCookie not implemented")
+}
+func (UnimplementedUserServiceServer) CreateSubscribe(context.Context, *CreateSubscribeRequest) (*CreateSubscribeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSubscribe not implemented")
+}
+func (UnimplementedUserServiceServer) DeleteSubscribe(context.Context, *DeleteSubscribeRequest) (*DeleteSubscribeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSubscribe not implemented")
+}
+func (UnimplementedUserServiceServer) QuerySubscribe(context.Context, *QuerySubscribeRequest) (*QuerySubscribeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QuerySubscribe not implemented")
+}
+func (UnimplementedUserServiceServer) QueryAllSubscribe(context.Context, *QueryAllSubscribeRequest) (*QueryAllSubscribeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAllSubscribe not implemented")
+}
+func (UnimplementedUserServiceServer) QueryAllFans(context.Context, *QueryAllFansRequest) (*QueryAllFansResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAllFans not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -200,6 +284,24 @@ func _UserService_CheckUser_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).CheckUser(ctx, req.(*CheckUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_QueryUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).QueryUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/QueryUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).QueryUser(ctx, req.(*QueryUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -312,6 +414,96 @@ func _UserService_DeleteAuthCookie_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_CreateSubscribe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSubscribeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).CreateSubscribe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/CreateSubscribe",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).CreateSubscribe(ctx, req.(*CreateSubscribeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_DeleteSubscribe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSubscribeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).DeleteSubscribe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/DeleteSubscribe",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).DeleteSubscribe(ctx, req.(*DeleteSubscribeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_QuerySubscribe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuerySubscribeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).QuerySubscribe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/QuerySubscribe",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).QuerySubscribe(ctx, req.(*QuerySubscribeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_QueryAllSubscribe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllSubscribeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).QueryAllSubscribe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/QueryAllSubscribe",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).QueryAllSubscribe(ctx, req.(*QueryAllSubscribeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_QueryAllFans_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllFansRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).QueryAllFans(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/QueryAllFans",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).QueryAllFans(ctx, req.(*QueryAllFansRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -326,6 +518,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckUser",
 			Handler:    _UserService_CheckUser_Handler,
+		},
+		{
+			MethodName: "QueryUser",
+			Handler:    _UserService_QueryUser_Handler,
 		},
 		{
 			MethodName: "UpdateUserInfo",
@@ -350,6 +546,26 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteAuthCookie",
 			Handler:    _UserService_DeleteAuthCookie_Handler,
+		},
+		{
+			MethodName: "CreateSubscribe",
+			Handler:    _UserService_CreateSubscribe_Handler,
+		},
+		{
+			MethodName: "DeleteSubscribe",
+			Handler:    _UserService_DeleteSubscribe_Handler,
+		},
+		{
+			MethodName: "QuerySubscribe",
+			Handler:    _UserService_QuerySubscribe_Handler,
+		},
+		{
+			MethodName: "QueryAllSubscribe",
+			Handler:    _UserService_QueryAllSubscribe_Handler,
+		},
+		{
+			MethodName: "QueryAllFans",
+			Handler:    _UserService_QueryAllFans_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

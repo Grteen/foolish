@@ -195,6 +195,7 @@ message RdbArtical {
     int32 starNum = 8;
     int32 seenNum = 9;
     string cover = 10;
+    string authorAvator = 11;
 }
 
 message RdbSetArticalRequest {

@@ -109,3 +109,8 @@ func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) (string, error) 
 
 	return u.UserName, nil
 }
+
+// 根据 userName 查询用户 主要用于查询 粉丝数 关注数 和文章数
+func (s *UserService) QueryUser(req *userdemo.QueryUserRequest) ([]*db.User, error) {
+	return db.QueryUser(s.ctx, req.User)
+}

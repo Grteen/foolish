@@ -70,7 +70,9 @@ func GiveLikeStar(ctx *gin.Context, tp int32) {
 		field = constants.RdbArticalFieldStarNum
 	} else if tp == 2 {
 		// Seen
-		field = constants.RdbArticalFieldSeenNum
+		// Seen 请求 不更新缓存
+		pack.SendResponse(ctx, errno.Success)
+		return
 	} else {
 		pack.SendResponse(ctx, errno.ServiceFault)
 		return
@@ -158,6 +160,63 @@ func DeleteLikeStar(ctx *gin.Context, tp int32) {
 
 // tp = 0 Like 请求
 // tp = 1 Star 请求
+func QueryLikeStar(ctx *gin.Context, tp int32) {
+	var p LikeParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, err)
+		return
+	}
+
+	if p.ArticalID <= 0 {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	// 查看是否存在文章
+	res, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+		IDs: []int32{p.ArticalID},
+	})
+
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	if len(res) == 0 {
+		pack.SendResponse(ctx, errno.NoSuchArticalErr)
+		return
+	}
+
+	// 目标账户必须与 username 相同
+	err = pack.CheckAuthCookie(ctx, p.UserName)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	_, err = rpc.QueryLikeStar(context.Background(), &articaldemo.QueryLikeStarRequest{
+		UserName:  p.UserName,
+		ArticalID: p.ArticalID,
+		Type:      tp,
+	})
+
+	if err != nil && err != errno.NoLikeStarErr {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 没有点赞收藏
+	if err == errno.NoLikeStarErr {
+		pack.SendData(ctx, errno.Success, false)
+		return
+	}
+
+	// 有点赞收藏
+	pack.SendData(ctx, errno.Success, true)
+}
+
+// tp = 0 Like 请求
+// tp = 1 Star 请求
 // tp = 2 Seen 请求
 func QueryAllLikeStar(ctx *gin.Context, tp int32) {
 	userName := ctx.Query("username")
@@ -214,4 +273,12 @@ func GiveSeen(ctx *gin.Context) {
 
 func QueryAllSeen(ctx *gin.Context) {
 	QueryAllLikeStar(ctx, 2)
+}
+
+func HasLike(ctx *gin.Context) {
+	QueryLikeStar(ctx, 0)
+}
+
+func HasStar(ctx *gin.Context) {
+	QueryLikeStar(ctx, 1)
 }

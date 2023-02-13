@@ -20,6 +20,8 @@ ErrorCode:
 	10016   "Already been liked"        // 已经点赞过了
 	10017   "Already been stared"       // 已经收藏了
     10018   "No such comment"       // 没有该评论
+    10019   "Already been Subscribed"       // 已经订阅了
+    10020   "Already been Subscribed"       // 还没有订阅
 
 
 // 注册用户
@@ -80,6 +82,9 @@ GET /api/userinfo  uri
                 nickName    昵称
                 description     个人简介
                 userAvator      头像
+                subNum      订阅数
+                fanNum      粉丝数
+                artNum      文章数
             }
         }
 
@@ -179,6 +184,7 @@ GET /api/artical   form-data
                     likeNum     // 文章点赞总数
                     starNum     // 文章收藏总数
                     seenNum     // 文章浏览总数
+                    authorAvator        // 文章作者脑袋
                 },
                 {
 
@@ -227,6 +233,24 @@ DELETE  /api/like   form-data or uri
         message:
     }
 
+// 查看某个用户是否有某个文章的点赞
+GET     /api/hasLike   uri
+    参数:
+        username
+        articalID       
+    返回值:
+    如果错误:
+        json {
+            code:   02 03 09 10 11
+            message
+        }
+    如果没错:
+        json {
+            code: 0
+            message
+            data: true      // 如果是 true 就说明有点赞收藏了  如果是 false 说明没有点赞收藏
+        }
+
 // 收藏
 POST /api/star      form-data or uri
     参数:
@@ -246,6 +270,24 @@ DELETE  /api/star   form-data or uri
         code: 0 02 03 09 10 11 14
         message:
     }
+
+// 查看某个用户是否有某个文章的收藏
+GET     /api/hasStar   uri
+    参数:
+        username
+        articalID       
+    返回值:
+    如果错误:
+        json {
+            code:   02 03 09 10 11
+            message
+        }
+    如果没错:
+        json {
+            code: 0
+            message
+            data: true      // 如果是 true 就说明有点赞收藏了  如果是 false 说明没有点赞收藏
+        }
 
 // 获取用户所有收藏   按照时间降序排列
 GET /api/star  uri
@@ -419,3 +461,65 @@ GET /api/search     uri
                 // 文章ID数组
             ]
         }
+
+// 关注某人
+POST /api/subscribe     form-data
+    参数:
+        username        // 关注的人
+        subname         // 被关注的人
+    返回值: json {
+        code: 0 02 03 09 10 19
+        message
+    }
+
+// 取关
+DELETE /api/subscribe       form-data
+    参数:
+        username        // 取关的人
+        subname         // 被取关的人
+    返回值: json {
+        code: 0 02 03 09 10 20
+        message
+    }
+
+// 查询是否关注
+GET /api/hasSubscribe          uri
+    参数:
+        username        
+        subname
+    返回值:
+    如果失败: 
+        json {
+            code: 02 03 09 10 
+            message
+        }
+    如果成功:
+        json {
+            code: 0
+            message
+            data: true          // 如果是 true 说明已经关注了  如果是 false 说明还未关注
+        }
+
+// 查询某人的所有关注
+GET /api/subscribe      uri
+    参数:
+        username
+    返回值: json {
+        code: 02 03
+        message
+        data: [
+            // 用户名数组 表示关注的所有人的username
+        ]       
+    }
+
+// 查询某人的所有粉丝
+GET /api/fan    uri
+    参数:
+        username
+    返回值: json {
+        code: 02 03
+        message
+        data: [
+            // 用户名数组 表示所有粉丝的username
+        ]       
+    }

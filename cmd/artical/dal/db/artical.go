@@ -33,12 +33,26 @@ func (art *Artical) TableName() string {
 	return constants.ArticalTableName
 }
 
+type User struct{}
+
+func (u *User) TableName() string {
+	return constants.UserTableName
+}
+
 // 创建文章
 func CreateArtical(ctx context.Context, arts []*Artical) error {
-	if err := DB.WithContext(ctx).Create(arts).Error; err != nil {
-		return errno.ServiceFault
-	}
-	return nil
+	return DB.Transaction(func(tx *gorm.DB) error {
+		for _, art := range arts {
+			// 作者文章数 + 1
+			if err := tx.WithContext(ctx).Model(&User{}).Where("username = ?", art.Author).Update("artNum", gorm.Expr("artNum + ?", 1)).Error; err != nil {
+				return errno.ServiceFault
+			}
+			if err := tx.WithContext(ctx).Create(arts).Error; err != nil {
+				return errno.ServiceFault
+			}
+		}
+		return nil
+	})
 }
 
 // 根据 ID 查询文章
@@ -56,7 +70,7 @@ func QueryArtical(ctx context.Context, ids []int32) ([]*Artical, error) {
 
 // 根据 ID 删除文章 及其所有评论
 func DeleteArtical(ctx context.Context, id int32) error {
-	DB.Transaction(func(tx *gorm.DB) error {
+	return DB.Transaction(func(tx *gorm.DB) error {
 		res := make([]int32, 0)
 		// 查询该文章的所有 master 评论 并删除
 		if err := tx.WithContext(ctx).Model(&Comment{}).Select("id").Where("articalID = ?", id).Where("master is null").Order("updatedAt DESC").Find(&res).Error; err != nil {
@@ -71,12 +85,20 @@ func DeleteArtical(ctx context.Context, id int32) error {
 			}
 		}
 
+		// 查询文章作者
+		var author string
+		if err := tx.WithContext(ctx).Model(&Artical{}).Select("author").Where("id = ?", id).Find(&author).Error; err != nil {
+			return errno.ServiceFault
+		}
+		// 作者文章数 - 1
+		if err := tx.WithContext(ctx).Model(&User{}).Where("username = ?", author).Update("artNum", gorm.Expr("artNum - ?", 1)).Error; err != nil {
+			return errno.ServiceFault
+		}
 		if err := tx.WithContext(ctx).Where("id = ?", id).Delete(&Artical{}).Error; err != nil {
 			return errno.ServiceFault
 		}
 		return nil
 	})
-	return nil
 }
 
 // 根据 ID 更新文章为 art

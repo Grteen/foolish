@@ -46,6 +46,18 @@ func CheckUser(ctx context.Context, req *userdemo.CheckUserRequest) (string, err
 	return resp.UserName, err
 }
 
+func QueryUser(ctx context.Context, req *userdemo.QueryUserRequest) ([]*userdemo.User, error) {
+	resp, err := client.QueryUser(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.User, err
+}
+
 func UpdateUserInfo(ctx context.Context, req *userdemo.UpdateUserInfoRequest) error {
 	resp, err := client.UpdateUserInfo(ctx, req)
 	if err != nil {
@@ -122,4 +134,70 @@ func DeleteAuthCookie(ctx context.Context, req *userdemo.DeleteAuthCookieRequest
 	}
 
 	return nil
+}
+
+func CreateSubscribe(ctx context.Context, req *userdemo.CreateSubscribeRequest) error {
+	resp, err := client.CreateSubscribe(ctx, req)
+	if err != nil {
+		return errno.ConvertErr(err)
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func DeleteSubscribe(ctx context.Context, req *userdemo.DeleteSubscribeRequest) error {
+	resp, err := client.DeleteSubscribe(ctx, req)
+	if err != nil {
+		return errno.ConvertErr(err)
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func QuerySubscribe(ctx context.Context, req *userdemo.QuerySubscribeRequest) (*userdemo.UserSub, error) {
+	resp, err := client.QuerySubscribe(ctx, req)
+	if err != nil {
+		return nil, errno.ConvertErr(err)
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.Usersub, nil
+}
+
+func QueryAllSubscribe(ctx context.Context, req *userdemo.QueryAllSubscribeRequest) ([]string, error) {
+	resp, err := client.QueryAllSubscribe(ctx, req)
+	if err != nil {
+		return nil, errno.ConvertErr(err)
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.Subs, nil
+}
+
+func QueryALLFans(ctx context.Context, req *userdemo.QueryAllFansRequest) ([]string, error) {
+	resp, err := client.QueryAllFans(ctx, req)
+
+	if err != nil {
+		return nil, errno.ConvertErr(err)
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.Fans, nil
 }

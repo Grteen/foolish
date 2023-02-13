@@ -234,7 +234,28 @@ func GetArtical(ctx *gin.Context) {
 		}
 	}
 
+	setAvator := func(art *articaldemo.RdbArtical) error {
+		res, err := rpc.QueryAvator(context.Background(), &userdemo.QueryAvatorRequest{
+			UserName: art.Author,
+		})
+		if err != nil {
+			return errno.ConvertErr(err)
+		}
+		if len(res) == 0 {
+			return errno.ServiceFault
+		}
+		art.AuthorAvator = res[0]
+		return nil
+	}
+
 	rdbres = append(rdbres, ChangeArticalToRdbArtical(res)...)
+	// 查询文章作者头像
+	for _, art := range rdbres {
+		if err := setAvator(art); err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
+	}
 
 	pack.SendData(ctx, errno.Success, rdbres)
 }

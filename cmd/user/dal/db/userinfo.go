@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// 显示在用户个人主页的信息
+// 显示在用户个人主页的基础信息
 type UserInfo struct {
 	ID        uint `gorm:"primarykey"`
 	CreatedAt time.Time

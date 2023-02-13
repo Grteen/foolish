@@ -15,6 +15,11 @@ type User struct {
 	Email     string    `json:"email" gorm:"column:email; unique"`
 	PassWord  string    `json:"password" gorm:"column:pw"`
 	UserInfo  *UserInfo `gorm:"foreignKey:UserName; references:UserName"`
+
+	SubNum    int32   `json:"subNum" gorm:"column:subNum; not null"`
+	FanNum    int32   `json:"fanNum" gorm:"column:fanNum; not null"`
+	ArtNum    int32   `json:"artNum" gorm:"column:artNum; not null"`
+	Subscribe []*User `gorm:"many2many:subscribe; foreignKey:UserName; joinForeignKey:User; References:UserName; joinReferences:Subscribe"`
 }
 
 func (u *User) TableName() string {

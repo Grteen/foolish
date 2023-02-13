@@ -104,6 +104,37 @@ func (s *UserServiceImpl) CheckUser(ctx context.Context, req *userdemo.CheckUser
 	return resp, nil
 }
 
+// 查询用户
+func (s *UserServiceImpl) QueryUser(ctx context.Context, req *userdemo.QueryUserRequest) (*userdemo.QueryUserResponse, error) {
+	resp := new(userdemo.QueryUserResponse)
+
+	// 账户为空
+	if len(req.User) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	res, err := service.NewUserService(ctx).QueryUser(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(err)
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	for _, u := range res {
+		resp.User = append(resp.User, &userdemo.User{
+			UserName: u.UserName,
+			Email:    u.Email,
+			Password: u.PassWord,
+			SubNum:   u.SubNum,
+			FanNum:   u.FanNum,
+			ArtNum:   u.ArtNum,
+		})
+	}
+
+	return resp, nil
+}
+
 // 更新用户信息 如果更新失败 返回对应错误
 func (s *UserServiceImpl) UpdateUserInfo(ctx context.Context, req *userdemo.UpdateUserInfoRequest) (*userdemo.UpdateUserInfoResponse, error) {
 	resp := new(userdemo.UpdateUserInfoResponse)
@@ -176,5 +207,153 @@ func (s *UserServiceImpl) QueryAvator(ctx context.Context, req *userdemo.QueryAv
 	resp.Resp = pack.BuildResp(errno.Success)
 	resp.Avator = res
 
+	return resp, nil
+}
+
+// 订阅
+func (s *UserServiceImpl) CreateSubscribe(ctx context.Context, req *userdemo.CreateSubscribeRequest) (*userdemo.CreateSubscribeResponse, error) {
+	resp := new(userdemo.CreateSubscribeResponse)
+
+	// 用户名 空
+	if len(req.User) == 0 || len(req.Sub) == 0 {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	// 查询是否存在 user 对 sub 的订阅
+	uss, err := service.NewUserService(ctx).QuerySubscribe(&userdemo.QuerySubscribeRequest{
+		User: req.User,
+		Sub:  req.Sub,
+	})
+
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	// 存在 user 对于 sub 的订阅
+	if len(uss) != 0 {
+		resp.Resp = pack.BuildResp(errno.AlreadySubscribeErr)
+		return resp, nil
+	}
+
+	err = service.NewUserService(ctx).CreateSubscribe(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 取消订阅
+func (s *UserServiceImpl) DeleteSubscribe(ctx context.Context, req *userdemo.DeleteSubscribeRequest) (*userdemo.DeleteSubscribeResponse, error) {
+	resp := new(userdemo.DeleteSubscribeResponse)
+
+	// 用户名 空
+	if len(req.User) == 0 || len(req.Sub) == 0 {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	// 查询是否存在 user 对 sub 的订阅
+	uss, err := service.NewUserService(ctx).QuerySubscribe(&userdemo.QuerySubscribeRequest{
+		User: req.User,
+		Sub:  req.Sub,
+	})
+
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	// 不存在 user 对于 sub 的订阅
+	if len(uss) == 0 {
+		resp.Resp = pack.BuildResp(errno.NoSubscribeErr)
+		return resp, nil
+	}
+
+	err = service.NewUserService(ctx).DeleteSubscribe(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 查询是否有user对于sub的订阅  不存在则返回 NoSubscribeErr
+func (s *UserServiceImpl) QuerySubscribe(ctx context.Context, req *userdemo.QuerySubscribeRequest) (*userdemo.QuerySubscribeResponse, error) {
+	resp := new(userdemo.QuerySubscribeResponse)
+
+	// 用户名 空
+	if len(req.User) == 0 || len(req.Sub) == 0 {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+	uss, err := service.NewUserService(ctx).QuerySubscribe(&userdemo.QuerySubscribeRequest{
+		User: req.User,
+		Sub:  req.Sub,
+	})
+
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	if len(uss) == 0 {
+		resp.Resp = pack.BuildResp(errno.NoSubscribeErr)
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.Usersub = &userdemo.UserSub{
+		User: uss[0].User,
+		Sub:  uss[0].Sub,
+	}
+	return resp, nil
+}
+
+// 查询 用户的所有订阅 返回订阅的用户名
+func (s *UserServiceImpl) QueryAllSubscribe(ctx context.Context, req *userdemo.QueryAllSubscribeRequest) (*userdemo.QueryAllSubscribeResponse, error) {
+	resp := new(userdemo.QueryAllSubscribeResponse)
+
+	// 用户名 空
+	if len(req.User) == 0 {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	uss, err := service.NewUserService(ctx).QueryAllSubscribe(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.Subs = uss
+	return resp, nil
+}
+
+// 查询 用户的所有粉丝 返回粉丝的用户名
+func (s *UserServiceImpl) QueryAllFans(ctx context.Context, req *userdemo.QueryAllFansRequest) (*userdemo.QueryAllFansResponse, error) {
+	resp := new(userdemo.QueryAllFansResponse)
+
+	// 用户名 空
+	if len(req.User) == 0 {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	uss, err := service.NewUserService(ctx).QueryALLFans(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.Fans = uss
 	return resp, nil
 }

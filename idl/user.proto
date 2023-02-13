@@ -27,6 +27,24 @@ message CheckUserResponse {
     string userName = 2;
 }
 
+message User {
+    string userName = 2;
+    string email = 3;
+    string password = 4;
+    int32 subNum = 5;
+    int32 fanNum = 6;
+    int32 artNum = 7;
+}
+
+message QueryUserRequest {
+    string user = 1;
+}
+
+message QueryUserResponse {
+    Resp resp = 1;
+    repeated User user = 2;
+}
+
 message UpdateUserInfoRequest {
     string userName = 1;
     string nickName = 2;
@@ -90,9 +108,61 @@ message DeleteAuthCookieResponse {
     Resp resp = 1;
 }
 
+message CreateSubscribeRequest {
+    string user = 1;
+    string sub = 2;
+}
+
+message CreateSubscribeResponse {
+    Resp resp = 1;
+}
+
+message DeleteSubscribeRequest {
+    string user = 1;
+    string sub = 2;
+}
+
+message DeleteSubscribeResponse {
+    Resp resp = 1;
+}
+
+message UserSub {
+    string user = 1;
+    string sub = 2;
+}
+
+message QuerySubscribeRequest {
+    string user = 1;
+    string sub = 2;
+}
+
+message QuerySubscribeResponse {
+    Resp resp = 1;
+    UserSub usersub = 2;
+}
+
+message QueryAllSubscribeRequest {
+    string user = 1;
+}
+
+message QueryAllSubscribeResponse {
+    Resp resp = 1;
+    repeated string subs = 2;
+}
+
+message QueryAllFansRequest {
+    string user = 1;
+}
+
+message QueryAllFansResponse {
+    Resp resp = 1;
+    repeated string fans = 2;
+}
+
 service UserService {
     rpc CreateUser (CreateUserRequest) returns (CreateUserResponse){}
     rpc CheckUser (CheckUserRequest) returns (CheckUserResponse){}
+    rpc QueryUser (QueryUserRequest) returns (QueryUserResponse){}
 
     rpc UpdateUserInfo (UpdateUserInfoRequest) returns (UpdateUserInfoResponse){}
     rpc QueryUserInfo (QueryUserInfoRequest) returns (QueryUserInfoResponse){}
@@ -101,4 +171,10 @@ service UserService {
     rpc SetAuthCookie (SetAuthCookieRequest) returns (SetAuthCookieResponse){}
     rpc QueryAuthCookie (QueryAuthCookieRequest) returns (QueryAuthCookieResponse){}
     rpc DeleteAuthCookie (DeleteAuthCookieRequest) returns (DeleteAuthCookieResponse){}
+
+    rpc CreateSubscribe (CreateSubscribeRequest) returns (CreateSubscribeResponse){}
+    rpc DeleteSubscribe (DeleteSubscribeRequest) returns (DeleteSubscribeResponse){}
+    rpc QuerySubscribe (QuerySubscribeRequest) returns (QuerySubscribeResponse){}
+    rpc QueryAllSubscribe (QueryAllSubscribeRequest) returns (QueryAllSubscribeResponse){}
+    rpc QueryAllFans (QueryAllFansRequest) returns (QueryAllFansResponse){}
 }

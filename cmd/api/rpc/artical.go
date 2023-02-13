@@ -111,6 +111,18 @@ func DeleteLikeStar(ctx context.Context, req *articaldemo.DeleteLikeStarRequest)
 	return nil
 }
 
+func QueryLikeStar(ctx context.Context, req *articaldemo.QueryLikeStarRequest) (*articaldemo.LikeStar, error) {
+	resp, err := articalClient.QueryLikeStar(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.LikeStar, nil
+}
+
 func QueryAllLikeStar(ctx context.Context, req *articaldemo.QueryAllLikeStarRequest) ([]uint32, error) {
 	resp, err := articalClient.QueryAllLikeStar(ctx, req)
 	if err != nil {

@@ -95,13 +95,35 @@ func QueryUserInfo(ctx *gin.Context) {
 	res, err := rpc.QueryUserInfo(context.Background(), &userdemo.QueryUserInfoRequest{
 		UserName: p.UserName,
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
 
-	pack.SendData(ctx, errno.Success, res)
+	uf := &struct {
+		UserName    string
+		NickName    string
+		Description string
+		Avator      string
+		SubNum      int32
+		FanNum      int32
+		ArtNum      int32
+	}{UserName: res.UserName, NickName: res.NickName, Description: res.Description, Avator: res.UserAvator}
+
+	// 查询 订阅数 粉丝数 和 文章数
+	us, err := rpc.QueryUser(context.Background(), &userdemo.QueryUserRequest{
+		User: p.UserName,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	uf.SubNum = us[0].SubNum
+	uf.FanNum = us[0].FanNum
+	uf.ArtNum = us[0].ArtNum
+
+	pack.SendData(ctx, errno.Success, uf)
 }
 
 // 根据当前 Cookie 查询 UserName

@@ -23,6 +23,12 @@ func main() {
 	ginServer.PUT("/userinfo", middleware.AuthMidWare, handlers.UpdateUserInfo)
 	ginServer.GET("/userinfo", handlers.QueryUserInfo)
 
+	ginServer.POST("/subscribe", middleware.AuthMidWare, handlers.Subscribe)
+	ginServer.DELETE("/subscribe", middleware.AuthMidWare, handlers.UnSubscribe)
+	ginServer.GET("/hasSubscribe", middleware.AuthMidWare, handlers.QuerySubscribe)
+	ginServer.GET("/subscribe", handlers.QueryAllSubscribe)
+	ginServer.GET("/fan", handlers.QueryALLFans)
+
 	ginServer.POST("/uploadPic", middleware.AuthMidWare, handlers.UploadPic)
 
 	ginServer.POST("/publish", middleware.AuthMidWare, handlers.PublishArtical)
@@ -33,8 +39,10 @@ func main() {
 
 	ginServer.POST("/like", middleware.AuthMidWare, handlers.GiveLike)
 	ginServer.DELETE("/like", middleware.AuthMidWare, handlers.DeleteLike)
+	ginServer.GET("/hasLike", middleware.AuthMidWare, handlers.HasLike)
 	ginServer.POST("/star", middleware.AuthMidWare, handlers.GiveStar)
 	ginServer.DELETE("/star", middleware.AuthMidWare, handlers.DeleteStar)
+	ginServer.GET("/hasStar", middleware.AuthMidWare, handlers.HasStar)
 	ginServer.GET("/star", middleware.AuthMidWare, handlers.QueryAllStar)
 	ginServer.POST("/seen", middleware.AuthMidWare, handlers.GiveSeen)
 	ginServer.GET("/seen", middleware.AuthMidWare, handlers.QueryAllSeen)
