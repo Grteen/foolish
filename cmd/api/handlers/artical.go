@@ -5,6 +5,7 @@ import (
 	"be/cmd/api/rpc"
 	"be/grpc/articaldemo"
 	"be/grpc/userdemo"
+	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
 	"html"
@@ -44,6 +45,17 @@ func PublishArtical(ctx *gin.Context) {
 		Text:        p.Text,
 		Description: p.Description,
 		Cover:       p.Cover,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 更新缓存
+	err = rpc.RdbIncreaseItfUser(context.Background(), &userdemo.RdbIncreaseItfRequest{
+		UserName: p.Author,
+		Val:      1,
+		Field:    constants.RdbUserFieldArtNum,
 	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
@@ -103,6 +115,17 @@ func DeleteArtical(ctx *gin.Context) {
 		ID: p.ArticalID,
 	})
 
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 更新缓存
+	err = rpc.RdbIncreaseItfUser(context.Background(), &userdemo.RdbIncreaseItfRequest{
+		UserName: arts[0].Author,
+		Val:      -1,
+		Field:    constants.RdbUserFieldArtNum,
+	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
@@ -169,7 +192,7 @@ func UpdateArtical(ctx *gin.Context) {
 	err = rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
 		RdbArtical: &articaldemo.RdbArtical{
 			ID:          p.ArticalID,
-			CreateAt:    arts[0].CreatedAt,
+			CreatedAt:   arts[0].CreatedAt,
 			Title:       p.Title,
 			Text:        p.Text,
 			Description: p.Description,

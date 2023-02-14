@@ -20,7 +20,7 @@ func UpdateUserInfo(ctx *gin.Context) {
 	}
 
 	// 账户为空
-	if len(u.UserName) == 0 {
+	if len(u.UserName) == 0 || len(u.Description) == 0 || len(u.NickName) == 0 || len(u.Avator) == 0 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
@@ -63,6 +63,14 @@ func UpdateUserInfo(ctx *gin.Context) {
 		}
 	}
 
+	us, err := rpc.QueryUser(context.Background(), &userdemo.QueryUserRequest{
+		User: u.UserName,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
 	err = rpc.UpdateUserInfo(context.Background(), &userdemo.UpdateUserInfoRequest{
 		UserName:    u.UserName,
 		Description: u.Description,
@@ -74,6 +82,19 @@ func UpdateUserInfo(ctx *gin.Context) {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
+
+	// 更新缓存
+	err = rpc.RdbSetUser(context.Background(), &userdemo.RdbSetUserRequest{
+		RdbUser: &userdemo.RdbUser{
+			UserName:    u.UserName,
+			NickName:    u.NickName,
+			Description: u.Description,
+			UserAvator:  u.Avator,
+			SubNum:      us[0].SubNum,
+			FanNum:      us[0].FanNum,
+			ArtNum:      us[0].ArtNum,
+		},
+	})
 
 	pack.SendResponse(ctx, errno.Success)
 }
@@ -92,8 +113,24 @@ func QueryUserInfo(ctx *gin.Context) {
 		return
 	}
 
+	// 查询缓存
+	rdbres, ungot, err := rpc.RdbGetUser(context.Background(), &userdemo.RdbGetUserRequest{
+		Users: []string{p.UserName},
+	})
+
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	if len(ungot) == 0 {
+		// 全部查询到了
+		pack.SendData(ctx, errno.Success, rdbres[0])
+		return
+	}
+
 	res, err := rpc.QueryUserInfo(context.Background(), &userdemo.QueryUserInfoRequest{
-		UserName: p.UserName,
+		UserName: ungot[0],
 	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
@@ -101,18 +138,18 @@ func QueryUserInfo(ctx *gin.Context) {
 	}
 
 	uf := &struct {
-		UserName    string
-		NickName    string
-		Description string
-		Avator      string
-		SubNum      int32
-		FanNum      int32
-		ArtNum      int32
+		UserName    string `json:"userName"`
+		NickName    string `json:"nickName"`
+		Description string `json:"description"`
+		Avator      string `json:"userAvator"`
+		SubNum      int32  `json:"subNum"`
+		FanNum      int32  `json:"fanNum"`
+		ArtNum      int32  `json:"artNum"`
 	}{UserName: res.UserName, NickName: res.NickName, Description: res.Description, Avator: res.UserAvator}
 
 	// 查询 订阅数 粉丝数 和 文章数
 	us, err := rpc.QueryUser(context.Background(), &userdemo.QueryUserRequest{
-		User: p.UserName,
+		User: ungot[0],
 	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
@@ -122,6 +159,23 @@ func QueryUserInfo(ctx *gin.Context) {
 	uf.SubNum = us[0].SubNum
 	uf.FanNum = us[0].FanNum
 	uf.ArtNum = us[0].ArtNum
+
+	// 全部缓存
+	err = rpc.RdbSetUser(context.Background(), &userdemo.RdbSetUserRequest{
+		RdbUser: &userdemo.RdbUser{
+			UserName:    uf.UserName,
+			NickName:    uf.NickName,
+			Description: uf.Description,
+			UserAvator:  uf.Avator,
+			SubNum:      uf.SubNum,
+			FanNum:      uf.FanNum,
+			ArtNum:      uf.ArtNum,
+		},
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
 
 	pack.SendData(ctx, errno.Success, uf)
 }

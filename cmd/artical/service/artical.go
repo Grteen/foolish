@@ -58,7 +58,7 @@ func (s *ArticalService) RdbSetArtical(req *articaldemo.RdbSetArticalRequest) er
 	return rdb.SetArtical(s.ctx, []*rdb.RdbArtical{
 		{
 			ID:          uint(req.RdbArtical.ID),
-			CreatedAt:   req.RdbArtical.CreateAt,
+			CreatedAt:   req.RdbArtical.CreatedAt,
 			Title:       req.RdbArtical.Title,
 			Author:      req.RdbArtical.Author,
 			Text:        req.RdbArtical.Text,

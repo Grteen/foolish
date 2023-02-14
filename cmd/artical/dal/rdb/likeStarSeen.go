@@ -9,7 +9,7 @@ import (
 
 func IncreaseLikeStar(ctx context.Context, articalID int32, val int32, field string) error {
 	id := strconv.Itoa(int(articalID))
-	if err := RDB.HIncrBy(ctx, constants.RdbArticalPre+id, field, int64(val)); err != nil {
+	if err := RDB.HIncrBy(ctx, constants.RdbArticalPre+id, field, int64(val)).Err(); err != nil {
 		return errno.ServiceFault
 	}
 	return nil

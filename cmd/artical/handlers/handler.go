@@ -102,7 +102,7 @@ func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.
 			LikeNum:     art.LikeNum,
 			StarNum:     art.StarNum,
 			SeenNum:     art.SeenNum,
-			CreatedAt:   art.CreatedAt.String(),
+			CreatedAt:   art.CreatedAt.In(pack.Tz).String(),
 			Cover:       art.Cover,
 		})
 	}
@@ -369,6 +369,7 @@ func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.
 	}
 
 	resp.Resp = pack.BuildResp(errno.Success)
+
 	for _, cm := range cms {
 		reply := make([]*articaldemo.Comment, 0)
 		for _, rp := range cm.Reply {
@@ -382,6 +383,7 @@ func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.
 				ArticalID:   int32(rp.ArticalID),
 				UserName:    rp.UserName,
 				CommentText: rp.CommentText,
+				CreatedAt:   rp.CreatedAt.In(pack.Tz).String(),
 				Master:      int32(*rp.Master),
 			})
 		}
@@ -397,6 +399,7 @@ func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.
 			ArticalID:   int32(cm.ArticalID),
 			UserName:    cm.UserName,
 			CommentText: cm.CommentText,
+			CreatedAt:   cm.CreatedAt.In(pack.Tz).String(),
 
 			Master: temp,
 			Reply:  reply,
@@ -482,7 +485,7 @@ func (s *ArticalServiceImpl) RdbGetArtical(ctx context.Context, req *articaldemo
 	for _, art := range arts {
 		resp.RdbArticals = append(resp.RdbArticals, &articaldemo.RdbArtical{
 			ID:          int32(art.ID),
-			CreateAt:    art.CreatedAt,
+			CreatedAt:   art.CreatedAt,
 			Title:       art.Title,
 			Author:      art.Author,
 			Text:        art.Text,

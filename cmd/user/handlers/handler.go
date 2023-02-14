@@ -357,3 +357,71 @@ func (s *UserServiceImpl) QueryAllFans(ctx context.Context, req *userdemo.QueryA
 	resp.Fans = uss
 	return resp, nil
 }
+
+// 将 RdbUser 存储在 redis 中
+func (s *UserServiceImpl) RdbSetUser(ctx context.Context, req *userdemo.RdbSetUserRequest) (*userdemo.RdbSetUserResponse, error) {
+	resp := new(userdemo.RdbSetUserResponse)
+
+	// 非用户输入 无需验证
+	err := service.NewUserService(ctx).RdbSetUser(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 获取 RdbUser
+func (s *UserServiceImpl) RdbGetUser(ctx context.Context, req *userdemo.RdbGetUserRequest) (*userdemo.RdbGetUserResponse, error) {
+	resp := new(userdemo.RdbGetUserResponse)
+
+	// users 为空
+	if len(req.Users) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	users, ungot, err := service.NewUserService(ctx).RdbGetUser(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.Ungot = ungot
+	for _, user := range users {
+		resp.RdbUsers = append(resp.RdbUsers, &userdemo.RdbUser{
+			UserName:    user.UserName,
+			NickName:    user.NickName,
+			Description: user.Description,
+			UserAvator:  user.UserAvator,
+			SubNum:      user.SubNum,
+			FanNum:      user.FanNum,
+			ArtNum:      user.ArtNum,
+		})
+	}
+
+	return resp, nil
+}
+
+// 增加 粉丝数 关注数 文章数
+func (s *UserServiceImpl) RdbIncreaseItf(ctx context.Context, req *userdemo.RdbIncreaseItfRequest) (*userdemo.RdbIncreaseItfResponse, error) {
+	resp := new(userdemo.RdbIncreaseItfResponse)
+
+	// 参数检测
+	if len(req.UserName) == 0 || len(req.Field) == 0 || req.Val <= -2 || req.Val >= 2 {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+
+	err := service.NewUserService(ctx).RdbIncreaseItf(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}

@@ -4,6 +4,7 @@ import (
 	"be/cmd/api/pack"
 	"be/cmd/api/rpc"
 	"be/grpc/userdemo"
+	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
 
@@ -50,6 +51,27 @@ func Subscribe(ctx *gin.Context) {
 		return
 	}
 
+	// 更新缓存
+	err = rpc.RdbIncreaseItfUser(context.Background(), &userdemo.RdbIncreaseItfRequest{
+		UserName: p.User,
+		Val:      1,
+		Field:    constants.RdbUserFieldSubNum,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	err = rpc.RdbIncreaseItfUser(context.Background(), &userdemo.RdbIncreaseItfRequest{
+		UserName: p.Sub,
+		Val:      1,
+		Field:    constants.RdbUserFieldFanNum,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
 	pack.SendResponse(ctx, errno.Success)
 }
 
@@ -88,6 +110,27 @@ func UnSubscribe(ctx *gin.Context) {
 		Sub:  p.Sub,
 	})
 
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 更新缓存
+	err = rpc.RdbIncreaseItfUser(context.Background(), &userdemo.RdbIncreaseItfRequest{
+		UserName: p.User,
+		Val:      -1,
+		Field:    constants.RdbUserFieldSubNum,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	err = rpc.RdbIncreaseItfUser(context.Background(), &userdemo.RdbIncreaseItfRequest{
+		UserName: p.Sub,
+		Val:      -1,
+		Field:    constants.RdbUserFieldFanNum,
+	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return

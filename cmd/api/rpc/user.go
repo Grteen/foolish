@@ -201,3 +201,42 @@ func QueryALLFans(ctx context.Context, req *userdemo.QueryAllFansRequest) ([]str
 
 	return resp.Fans, nil
 }
+
+func RdbSetUser(ctx context.Context, req *userdemo.RdbSetUserRequest) error {
+	resp, err := client.RdbSetUser(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func RdbGetUser(ctx context.Context, req *userdemo.RdbGetUserRequest) ([]*userdemo.RdbUser, []string, error) {
+	resp, err := client.RdbGetUser(ctx, req)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.RdbUsers, resp.Ungot, nil
+}
+
+func RdbIncreaseItfUser(ctx context.Context, req *userdemo.RdbIncreaseItfRequest) error {
+	resp, err := client.RdbIncreaseItf(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}

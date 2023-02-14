@@ -101,6 +101,13 @@ type QueryAllFansParma struct {
 	User string `form:"username"`
 }
 
+type CreateReplyNotifyParma struct {
+	UserName string `form:"username"`
+	Title    string `form:"title"`
+	Sender   string `form:"sender"`
+	Text     string `form:"text"`
+}
+
 // 将 articaldemo.Artical 转化为 articaldemo.RdbArtical
 func ChangeArticalToRdbArtical(arts []*articaldemo.Artical) []*articaldemo.RdbArtical {
 	res := make([]*articaldemo.RdbArtical, 0)
@@ -114,7 +121,7 @@ func ChangeArticalToRdbArtical(arts []*articaldemo.Artical) []*articaldemo.RdbAr
 			LikeNum:     art.LikeNum,
 			StarNum:     art.StarNum,
 			SeenNum:     art.SeenNum,
-			CreateAt:    art.CreatedAt,
+			CreatedAt:   art.CreatedAt,
 			Cover:       art.Cover,
 		})
 	}

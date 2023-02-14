@@ -27,3 +27,13 @@ func (t Time) MarshalJSON() ([]byte, error) {
 func (t Time) String() string {
 	return time.Time(t).Format(timeFormart)
 }
+
+var Tz *time.Location
+
+func InitTimeZone() {
+	var err error
+	Tz, err = time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		panic(err)
+	}
+}

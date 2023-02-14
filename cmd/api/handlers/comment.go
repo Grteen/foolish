@@ -4,6 +4,7 @@ import (
 	"be/cmd/api/pack"
 	"be/cmd/api/rpc"
 	"be/grpc/articaldemo"
+	"be/grpc/notifydemo"
 	"be/grpc/userdemo"
 	"be/pkg/errno"
 	"context"
@@ -47,6 +48,9 @@ func CreateComment(ctx *gin.Context) {
 		return
 	}
 
+	// 被回复的人
+	var replyed string
+
 	if p.Master != 0 {
 		// 查询是否存在评论
 		res, err := rpc.QueryComment(context.Background(), &articaldemo.QueryCommentRequest{
@@ -73,6 +77,10 @@ func CreateComment(ctx *gin.Context) {
 		if res[0].Master != 0 {
 			p.Master = res[0].Master
 		}
+
+		replyed = res[0].UserName
+	} else {
+		replyed = res[0].Author
 	}
 
 	err = rpc.CreateComment(context.Background(), &articaldemo.CreateCommentRequest{
@@ -80,6 +88,21 @@ func CreateComment(ctx *gin.Context) {
 		ArticalID:   p.ArticalID,
 		CommentText: p.CommentText,
 		Master:      p.Master,
+	})
+
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 创建回复消息
+	err = rpc.CreateReplyNotify(context.Background(), &notifydemo.CreateReplyNotifyRequest{
+		Replyntf: &notifydemo.ReplyNotify{
+			Sender:   p.UserName,
+			UserName: replyed,
+			Title:    "有人回复了你",
+			Text:     p.CommentText,
+		},
 	})
 
 	if err != nil {

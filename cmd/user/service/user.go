@@ -2,6 +2,7 @@ package service
 
 import (
 	"be/cmd/user/dal/db"
+	"be/cmd/user/dal/rdb"
 	"be/grpc/userdemo"
 	"be/pkg/constants"
 	"be/pkg/errno"
@@ -113,4 +114,29 @@ func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) (string, error) 
 // 根据 userName 查询用户 主要用于查询 粉丝数 关注数 和文章数
 func (s *UserService) QueryUser(req *userdemo.QueryUserRequest) ([]*db.User, error) {
 	return db.QueryUser(s.ctx, req.User)
+}
+
+// 将 RdbUser 存储在 redis 中
+func (s *UserService) RdbSetUser(req *userdemo.RdbSetUserRequest) error {
+	return rdb.SetUser(s.ctx, []*rdb.RdbUser{
+		{
+			UserName:    req.RdbUser.UserName,
+			NickName:    req.RdbUser.NickName,
+			Description: req.RdbUser.Description,
+			UserAvator:  req.RdbUser.UserAvator,
+			SubNum:      req.RdbUser.SubNum,
+			FanNum:      req.RdbUser.FanNum,
+			ArtNum:      req.RdbUser.ArtNum,
+		},
+	})
+}
+
+// 获取 RdbUser
+func (s *UserService) RdbGetUser(req *userdemo.RdbGetUserRequest) ([]*rdb.RdbUser, []string, error) {
+	return rdb.GetUser(s.ctx, req.Users)
+}
+
+// 增加 粉丝数 关注数 文章数
+func (s *UserService) RdbIncreaseItf(req *userdemo.RdbIncreaseItfRequest) error {
+	return rdb.IncreaseItf(s.ctx, req.UserName, req.Val, req.Field)
 }
