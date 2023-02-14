@@ -6,7 +6,7 @@ const (
 	LoginCookieTime                   = 60 * 60 * 6 * 28
 	ChangeToRedis                     = 1000 * 1000 * 1000
 	AuthCookieName                    = "frostAuth"
-	MySQLDefaultDSN                   = ":@tcp(127.0.0.1:3306)/db?parseTime=True"
+	MySQLDefaultDSN                   = "grteen:GrteenFL@tcp(127.0.0.1:3306)/db?parseTime=True"
 	UserTableName                     = "user"
 	UserInfoTableName                 = "userinfo"
 	UserSubTableName                  = "subscribe"
@@ -16,6 +16,7 @@ const (
 	LikeTableName                     = "articalLike"
 	StarTableName                     = "articalStar"
 	SeenTableName                     = "articalSeen"
+	ReplyNotifyTableName              = "replyNotify"
 	LikeStarModel          ContextKey = "LikeStarModel"
 	AuthCookieUserName     ContextKey = "AuthCookieUserName"
 	PicUploadDir                      = "/root/nginx/image"
@@ -27,4 +28,11 @@ const (
 	RdbArticalFieldSeenNum            = "SeenNum"
 	RdbArticalFieldText               = "Text"
 	RdbArticalExpriation              = 60 * 10
+	RdbUserPre                        = "User-"
+	RdbUserFieldUserInfo              = "UserInfo"
+	RdbUserFieldUserAvator            = "Avator"
+	RdbUserFieldSubNum                = "SubNum"
+	RdbUserFieldFanNum                = "FanNum"
+	RdbUserFieldArtNum                = "ArtNum"
+	RdbUserExpiration                 = 60 * 30
 )

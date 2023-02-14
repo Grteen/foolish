@@ -7,3 +7,5 @@ cd /root/BE/cmd/artical
 ./build.sh
 cd /root/BE/cmd/search
 ./build.sh
+cd /root/BE/cmd/notify
+./build.sh

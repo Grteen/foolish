@@ -134,8 +134,9 @@ message Comment {
     string avator = 4;
     string commentText = 5;
     int32 master = 6;
+    string createdAt = 7;
 
-    repeated Comment reply = 7;
+    repeated Comment reply = 8;
 }
 
 message CreateCommentRequest {
@@ -186,7 +187,7 @@ message DeleteCommentResponse {
 
 message RdbArtical {
     int32 ID = 1;
-    string createAt = 2;
+    string createdAt = 2;
     string title = 3;
     string author = 4;
     string text = 5;

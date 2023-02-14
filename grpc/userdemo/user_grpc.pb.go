@@ -36,6 +36,9 @@ type UserServiceClient interface {
 	QuerySubscribe(ctx context.Context, in *QuerySubscribeRequest, opts ...grpc.CallOption) (*QuerySubscribeResponse, error)
 	QueryAllSubscribe(ctx context.Context, in *QueryAllSubscribeRequest, opts ...grpc.CallOption) (*QueryAllSubscribeResponse, error)
 	QueryAllFans(ctx context.Context, in *QueryAllFansRequest, opts ...grpc.CallOption) (*QueryAllFansResponse, error)
+	RdbSetUser(ctx context.Context, in *RdbSetUserRequest, opts ...grpc.CallOption) (*RdbSetUserResponse, error)
+	RdbGetUser(ctx context.Context, in *RdbGetUserRequest, opts ...grpc.CallOption) (*RdbGetUserResponse, error)
+	RdbIncreaseItf(ctx context.Context, in *RdbIncreaseItfRequest, opts ...grpc.CallOption) (*RdbIncreaseItfResponse, error)
 }
 
 type userServiceClient struct {
@@ -172,6 +175,33 @@ func (c *userServiceClient) QueryAllFans(ctx context.Context, in *QueryAllFansRe
 	return out, nil
 }
 
+func (c *userServiceClient) RdbSetUser(ctx context.Context, in *RdbSetUserRequest, opts ...grpc.CallOption) (*RdbSetUserResponse, error) {
+	out := new(RdbSetUserResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/RdbSetUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) RdbGetUser(ctx context.Context, in *RdbGetUserRequest, opts ...grpc.CallOption) (*RdbGetUserResponse, error) {
+	out := new(RdbGetUserResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/RdbGetUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) RdbIncreaseItf(ctx context.Context, in *RdbIncreaseItfRequest, opts ...grpc.CallOption) (*RdbIncreaseItfResponse, error) {
+	out := new(RdbIncreaseItfResponse)
+	err := c.cc.Invoke(ctx, "/user.UserService/RdbIncreaseItf", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
@@ -190,6 +220,9 @@ type UserServiceServer interface {
 	QuerySubscribe(context.Context, *QuerySubscribeRequest) (*QuerySubscribeResponse, error)
 	QueryAllSubscribe(context.Context, *QueryAllSubscribeRequest) (*QueryAllSubscribeResponse, error)
 	QueryAllFans(context.Context, *QueryAllFansRequest) (*QueryAllFansResponse, error)
+	RdbSetUser(context.Context, *RdbSetUserRequest) (*RdbSetUserResponse, error)
+	RdbGetUser(context.Context, *RdbGetUserRequest) (*RdbGetUserResponse, error)
+	RdbIncreaseItf(context.Context, *RdbIncreaseItfRequest) (*RdbIncreaseItfResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -238,6 +271,15 @@ func (UnimplementedUserServiceServer) QueryAllSubscribe(context.Context, *QueryA
 }
 func (UnimplementedUserServiceServer) QueryAllFans(context.Context, *QueryAllFansRequest) (*QueryAllFansResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryAllFans not implemented")
+}
+func (UnimplementedUserServiceServer) RdbSetUser(context.Context, *RdbSetUserRequest) (*RdbSetUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RdbSetUser not implemented")
+}
+func (UnimplementedUserServiceServer) RdbGetUser(context.Context, *RdbGetUserRequest) (*RdbGetUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RdbGetUser not implemented")
+}
+func (UnimplementedUserServiceServer) RdbIncreaseItf(context.Context, *RdbIncreaseItfRequest) (*RdbIncreaseItfResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RdbIncreaseItf not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -504,6 +546,60 @@ func _UserService_QueryAllFans_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_RdbSetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RdbSetUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).RdbSetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/RdbSetUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).RdbSetUser(ctx, req.(*RdbSetUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_RdbGetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RdbGetUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).RdbGetUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/RdbGetUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).RdbGetUser(ctx, req.(*RdbGetUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_RdbIncreaseItf_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RdbIncreaseItfRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).RdbIncreaseItf(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.UserService/RdbIncreaseItf",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).RdbIncreaseItf(ctx, req.(*RdbIncreaseItfRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -566,6 +662,18 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryAllFans",
 			Handler:    _UserService_QueryAllFans_Handler,
+		},
+		{
+			MethodName: "RdbSetUser",
+			Handler:    _UserService_RdbSetUser_Handler,
+		},
+		{
+			MethodName: "RdbGetUser",
+			Handler:    _UserService_RdbGetUser_Handler,
+		},
+		{
+			MethodName: "RdbIncreaseItf",
+			Handler:    _UserService_RdbIncreaseItf_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

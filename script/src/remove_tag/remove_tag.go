@@ -10,7 +10,7 @@ import (
 
 func main() {
 	prefix := "/root/BE/grpc/"
-	file := []string{"articaldemo/artical.pb.go", "searchdemo/search.pb.go", "userdemo/user.pb.go"}
+	file := []string{"articaldemo/artical.pb.go", "searchdemo/search.pb.go", "userdemo/user.pb.go", "notifydemo/notify.pb.go"}
 	for _, filename := range file {
 		fileData, err := ioutil.ReadFile(prefix + filename)
 		if err != nil {

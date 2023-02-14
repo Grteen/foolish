@@ -12,5 +12,9 @@ protoc --go_out=../grpc/searchdemo/ search.proto
 
 protoc --go-grpc_out=../grpc/searchdemo/ search.proto
 
+protoc --go_out=../grpc/notifydemo/ notify.proto
+
+protoc --go-grpc_out=../grpc/notifydemo/ notify.proto
+
 cd /root/BE/script/bin
 ./remove_tag

@@ -1,0 +1,30 @@
+syntax = "proto3";
+package notifydemo;
+option go_package = ".;notifydemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message ReplyNotify {
+    int32 ID = 1;
+    string createdAt = 2;
+    string userName = 3;
+    string title = 4;
+    string sender = 5;
+    string text = 6;
+    bool isread = 7;
+}
+
+message CreateReplyNotifyRequest {
+    ReplyNotify replyntf = 1;
+}
+
+message CreateReplyNotifyResponse {
+    Resp resp = 1;
+}
+
+service NotifyService {
+    rpc CreateReplyNotify (CreateReplyNotifyRequest) returns (CreateReplyNotifyResponse){}
+}

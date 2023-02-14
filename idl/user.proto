@@ -159,6 +159,44 @@ message QueryAllFansResponse {
     repeated string fans = 2;
 }
 
+message RdbUser {
+    string userName = 1;
+    string nickName = 2;
+    string description = 3;
+    string userAvator = 4;
+    int32 subNum = 5;
+    int32 fanNum = 6;
+    int32 artNum = 7;
+}
+
+message RdbSetUserRequest {
+    RdbUser rdbUser = 1;
+}
+
+message RdbSetUserResponse {
+    Resp resp = 1;
+}
+
+message RdbGetUserRequest {
+    repeated string users = 1;
+}
+
+message RdbGetUserResponse {
+    Resp resp = 1;
+    repeated RdbUser rdbUsers = 2;
+    repeated string ungot = 3;
+}
+
+message RdbIncreaseItfRequest {
+    string userName = 1;
+    int32 val = 2;
+    string field = 3;
+}
+
+message RdbIncreaseItfResponse {
+    Resp resp = 1;
+}
+
 service UserService {
     rpc CreateUser (CreateUserRequest) returns (CreateUserResponse){}
     rpc CheckUser (CheckUserRequest) returns (CheckUserResponse){}
@@ -177,4 +215,8 @@ service UserService {
     rpc QuerySubscribe (QuerySubscribeRequest) returns (QuerySubscribeResponse){}
     rpc QueryAllSubscribe (QueryAllSubscribeRequest) returns (QueryAllSubscribeResponse){}
     rpc QueryAllFans (QueryAllFansRequest) returns (QueryAllFansResponse){}
+
+    rpc RdbSetUser (RdbSetUserRequest) returns (RdbSetUserResponse){}
+    rpc RdbGetUser (RdbGetUserRequest) returns (RdbGetUserResponse){}
+    rpc RdbIncreaseItf (RdbIncreaseItfRequest) returns (RdbIncreaseItfResponse){}
 }
