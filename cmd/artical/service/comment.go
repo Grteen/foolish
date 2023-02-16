@@ -8,7 +8,7 @@ import (
 
 // 创建评论或是 reply
 // 如果 master 不为 0 则为 reply
-func (s *ArticalService) CreateComment(req *articaldemo.CreateCommentRequest) error {
+func (s *ArticalService) CreateComment(req *articaldemo.CreateCommentRequest) ([]int32, error) {
 	if req.Master != 0 {
 		m := uint(req.Master)
 		return db.CreateComment(s.ctx, []*db.Comment{

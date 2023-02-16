@@ -11,7 +11,7 @@ func TestComment(t *testing.T) {
 	DB.AutoMigrate(&Comment{})
 
 	ctx := context.Background()
-	err := CreateComment(ctx, []*Comment{
+	_, err := CreateComment(ctx, []*Comment{
 		{
 			UserName:    "Grteen-test",
 			ArticalID:   3,

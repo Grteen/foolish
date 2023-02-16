@@ -16,9 +16,11 @@ func TestReplyNotify(t *testing.T) {
 				UserName: "Grteen-test",
 				Title:    "a first test",
 				Sender:   "Grteen-test",
-				Text:     "very good",
+				Text:     "very very good good",
 				IsRead:   false,
 			},
+			ArticalID: 16,
+			CommentID: 1,
 		},
 	})
 	if err != nil {
@@ -29,5 +31,6 @@ func TestReplyNotify(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
 	fmt.Println(res)
 }

@@ -8,12 +8,19 @@ import (
 	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
+type ArticalInfo struct {
+	ID          int32  `json:"ID"`
+	Title       string `json:"title"`
+	Author      string `json:"author"`
+	Description string `json:"description"`
+}
+
 // tp = 0  Like 请求
-// tp = 1  Star 请求
 // tp = 2  Seen 请求
 func GiveLikeStar(ctx *gin.Context, tp int32) {
 	var p LikeParma
@@ -83,6 +90,9 @@ func GiveLikeStar(ctx *gin.Context, tp int32) {
 		Val:       1,
 		Field:     field,
 	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+	}
 	pack.SendResponse(ctx, errno.Success)
 }
 
@@ -215,10 +225,8 @@ func QueryLikeStar(ctx *gin.Context, tp int32) {
 	pack.SendData(ctx, errno.Success, true)
 }
 
-// tp = 0 Like 请求
-// tp = 1 Star 请求
-// tp = 2 Seen 请求
-func QueryAllLikeStar(ctx *gin.Context, tp int32) {
+// 查询所有历史记录
+func QueryAllSeen(ctx *gin.Context) {
 	userName := ctx.Query("username")
 
 	// 查看是否存在该用户
@@ -234,7 +242,7 @@ func QueryAllLikeStar(ctx *gin.Context, tp int32) {
 
 	ids, err := rpc.QueryAllLikeStar(context.Background(), &articaldemo.QueryAllLikeStarRequest{
 		UserName: userName,
-		Type:     tp,
+		Type:     2,
 	})
 
 	if err != nil {
@@ -242,9 +250,377 @@ func QueryAllLikeStar(ctx *gin.Context, tp int32) {
 		return
 	}
 
-	pack.SendData(ctx, errno.Success, map[string][]uint32{
-		"ArticalIDs": ids,
+	artinfos, err := QueryArticalInfoOfSeen(ids, userName)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	pack.SendData(ctx, errno.Success, map[string][]*ArticalInfo{
+		"today":     artinfos[0],
+		"yesterday": artinfos[1],
+		"week":      artinfos[2],
+		"weekago":   artinfos[3],
 	})
+}
+
+// 查询历史记录对应的文章信息 按照时间顺序返回
+func QueryArticalInfoOfSeen(ids []int32, userName string) ([][]*ArticalInfo, error) {
+	artinfos := make([][]*ArticalInfo, 4)
+	for i := 0; i <= 3; i++ {
+		artinfos[i] = make([]*ArticalInfo, 0)
+	}
+
+	arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+		IDs: ids,
+	})
+	if err != nil {
+		return nil, errno.ConvertErr(err)
+	}
+
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, pack.Tz)
+	yesterday := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, pack.Tz)
+	weekago := time.Date(now.Year(), now.Month(), now.Day()-7, 0, 0, 0, 0, pack.Tz)
+	changeToArticalInfo := func(art *articaldemo.Artical) *ArticalInfo {
+		return &ArticalInfo{
+			ID:          art.ID,
+			Title:       art.Title,
+			Author:      art.Author,
+			Description: art.Description,
+		}
+	}
+	for _, art := range arts {
+		s, err := rpc.QueryLikeStar(context.Background(), &articaldemo.QueryLikeStarRequest{
+			UserName:  userName,
+			ArticalID: art.ID,
+			Type:      2,
+		})
+		if err != nil {
+			return nil, errno.ConvertErr(err)
+		}
+
+		theTime, err := time.Parse(pack.TimeLayout, s.UpdatedAt)
+		if err != nil {
+			return nil, errno.ServiceFault
+		}
+		if theTime.After(today) || theTime.Equal(today) {
+			artinfos[0] = append(artinfos[0], changeToArticalInfo(art))
+		} else if (theTime.After(yesterday) || theTime.Equal(yesterday)) && theTime.Before(today) {
+			artinfos[1] = append(artinfos[1], changeToArticalInfo(art))
+		} else if (theTime.After(weekago) || theTime.Equal(weekago)) && theTime.Before(yesterday) {
+			artinfos[2] = append(artinfos[2], changeToArticalInfo(art))
+		} else if theTime.Before(weekago) {
+			artinfos[3] = append(artinfos[3], changeToArticalInfo(art))
+		} else {
+			return nil, errno.ServiceFault
+		}
+	}
+
+	return artinfos, nil
+}
+
+// 创建收藏
+func CreateStar(ctx *gin.Context) {
+	var p CreateStarParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	if len(p.UserName) == 0 || p.ArticalID <= 0 || p.FolderID <= 0 {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	// 目标账户必须匹配
+	err := pack.CheckAuthCookie(ctx, p.UserName)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 检查收藏夹所属人是否与username相同
+	fs, err := rpc.QueryStarFolder(context.Background(), &articaldemo.QueryStarFolderRequest{
+		IDs: []int32{p.FolderID},
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+	if len(fs) == 0 {
+		pack.SendResponse(ctx, errno.NoStarFolderErr)
+		return
+	}
+	if fs[0].Username != p.UserName {
+		pack.SendResponse(ctx, errno.PermissionDeniedErr)
+		return
+	}
+
+	// 查看是否存在文章
+	res, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+		IDs: []int32{p.ArticalID},
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+	if len(res) == 0 {
+		pack.SendResponse(ctx, errno.NoSuchArticalErr)
+		return
+	}
+
+	// 查询是否已经收藏了
+	_, err = rpc.QueryLikeStar(context.Background(), &articaldemo.QueryLikeStarRequest{
+		UserName:  p.UserName,
+		ArticalID: p.ArticalID,
+		Type:      1,
+	})
+	if err != nil && err != errno.NoLikeStarErr {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+	// 已经收藏
+	if err != errno.NoLikeStarErr {
+		pack.SendResponse(ctx, errno.AlreadyStarErr)
+		return
+	}
+
+	err = rpc.CreateStar(context.Background(), &articaldemo.CreateStarRequest{
+		ArticalID:    p.ArticalID,
+		Username:     p.UserName,
+		StarFolderID: p.FolderID,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 更新缓存
+	err = rpc.RdbIncreaseitf(context.Background(), &articaldemo.RdbIncreaseitfRequest{
+		ArticalID: p.ArticalID,
+		Val:       1,
+		Field:     constants.RdbArticalFieldStarNum,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+	}
+
+	pack.SendResponse(ctx, errno.Success)
+}
+
+// 创建收藏夹
+func CreateStarFolder(ctx *gin.Context) {
+	var p CreateStarFolderParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	if len(p.FolderName) <= 0 || len(p.FolderName) >= 20 {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	// 目标账户必须匹配
+	err := pack.CheckAuthCookie(ctx, p.UserName)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	err = rpc.CreateStarFolder(context.Background(), &articaldemo.CreateStarFolderRequest{
+		UserName:   p.UserName,
+		FolderName: p.FolderName,
+		IsDefault:  false,
+	})
+
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	pack.SendResponse(ctx, errno.Success)
+}
+
+// 查询某个用户的所有收藏夹
+func QueryStarFolder(ctx *gin.Context) {
+	var p QueryStarFolderParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	// 目标账户必须匹配
+	err := pack.CheckAuthCookie(ctx, p.UserName)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	sfs, err := rpc.QueryAllStarFolder(context.Background(), &articaldemo.QueryAllStarFolderRequest{
+		UserName: p.UserName,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	pack.SendData(ctx, errno.Success, sfs)
+}
+
+// 查询某个收藏夹的所有收藏
+func QueryStar(ctx *gin.Context) {
+	var p QueryStarParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	if p.StarFolderID <= 0 || p.Offset < 0 || p.Limit <= 0 {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	if p.Limit >= 20 {
+		p.Limit = 20
+	}
+
+	// 检查收藏夹拥有者是否与当前账户匹配
+	sfs, err := rpc.QueryStarFolder(context.Background(), &articaldemo.QueryStarFolderRequest{
+		IDs: []int32{p.StarFolderID},
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+	if len(sfs) == 0 {
+		pack.SendResponse(ctx, errno.NoStarFolderErr)
+		return
+	}
+	err = pack.CheckAuthCookie(ctx, sfs[0].Username)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	stars, err := rpc.QueryAllStar(context.Background(), &articaldemo.QueryAllStarRequest{
+		StarFolderID: p.StarFolderID,
+		Limit:        p.Limit,
+		Offset:       p.Offset,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 查询对应文章的文章信息
+	for _, star := range stars {
+		art, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+			IDs: []int32{star.ArtcalID},
+		})
+		if err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
+		star.Author = art[0].Author
+		star.Title = art[0].Title
+		star.Description = art[0].Description
+	}
+
+	pack.SendData(ctx, errno.Success, stars)
+}
+
+func DeleteStarFolder(ctx *gin.Context) {
+	var p DeleteStarFolderParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	// 检测参数
+	if p.FolderID <= 0 {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	// 检查收藏夹拥有者是否与当前账户匹配
+	sfs, err := rpc.QueryStarFolder(context.Background(), &articaldemo.QueryStarFolderRequest{
+		IDs: []int32{p.FolderID},
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+	if len(sfs) == 0 {
+		pack.SendResponse(ctx, errno.NoStarFolderErr)
+		return
+	}
+	err = pack.CheckAuthCookie(ctx, sfs[0].Username)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 查看收藏夹是否为默认收藏夹
+	if sfs[0].IsDefault == true {
+		pack.SendResponse(ctx, errno.DefaultFolderErr)
+		return
+	}
+
+	err = rpc.DeleteStarFolder(context.Background(), &articaldemo.DeleteStarFolderRequest{
+		ID: p.FolderID,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	pack.SendResponse(ctx, errno.Success)
+}
+
+func UpdateStarFolder(ctx *gin.Context) {
+	var p UpdateStarFolderParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+	// 检测参数
+	if p.FolderID <= 0 || len(p.FolderName) == 0 || len(p.FolderName) >= 20 {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	// 检查收藏夹拥有者是否与当前账户匹配
+	sfs, err := rpc.QueryStarFolder(context.Background(), &articaldemo.QueryStarFolderRequest{
+		IDs: []int32{p.FolderID},
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+	if len(sfs) == 0 {
+		pack.SendResponse(ctx, errno.NoStarFolderErr)
+		return
+	}
+	err = pack.CheckAuthCookie(ctx, sfs[0].Username)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	err = rpc.UpdateStarFolder(context.Background(), &articaldemo.UpdateStarFolderRequest{
+		StarFolder: &articaldemo.StarFolder{
+			ID:         p.FolderID,
+			FolderName: p.FolderName,
+		},
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	pack.SendResponse(ctx, errno.Success)
 }
 
 func GiveLike(ctx *gin.Context) {
@@ -263,16 +639,8 @@ func DeleteStar(ctx *gin.Context) {
 	DeleteLikeStar(ctx, 1)
 }
 
-func QueryAllStar(ctx *gin.Context) {
-	QueryAllLikeStar(ctx, 1)
-}
-
 func GiveSeen(ctx *gin.Context) {
 	GiveLikeStar(ctx, 2)
-}
-
-func QueryAllSeen(ctx *gin.Context) {
-	QueryAllLikeStar(ctx, 2)
 }
 
 func HasLike(ctx *gin.Context) {

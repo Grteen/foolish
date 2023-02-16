@@ -3,6 +3,7 @@ package main
 import (
 	"be/cmd/api/handlers"
 	"be/cmd/api/middleware"
+	"be/cmd/api/pack"
 	"be/cmd/api/rpc"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +11,7 @@ import (
 
 func Init() {
 	rpc.Init()
+	pack.InitTimeZone()
 }
 
 func main() {
@@ -40,10 +42,14 @@ func main() {
 	ginServer.POST("/like", middleware.AuthMidWare, handlers.GiveLike)
 	ginServer.DELETE("/like", middleware.AuthMidWare, handlers.DeleteLike)
 	ginServer.GET("/hasLike", middleware.AuthMidWare, handlers.HasLike)
-	ginServer.POST("/star", middleware.AuthMidWare, handlers.GiveStar)
+	ginServer.POST("/star", middleware.AuthMidWare, handlers.CreateStar)
 	ginServer.DELETE("/star", middleware.AuthMidWare, handlers.DeleteStar)
 	ginServer.GET("/hasStar", middleware.AuthMidWare, handlers.HasStar)
-	ginServer.GET("/star", middleware.AuthMidWare, handlers.QueryAllStar)
+	ginServer.GET("/star", middleware.AuthMidWare, handlers.QueryStar)
+	ginServer.GET("/starFolder", middleware.AuthMidWare, handlers.QueryStarFolder)
+	ginServer.POST("/starFolder", middleware.AuthMidWare, handlers.CreateStarFolder)
+	ginServer.PUT("/starFolder", middleware.AuthMidWare, handlers.UpdateStarFolder)
+	ginServer.DELETE("/starFolder", middleware.AuthMidWare, handlers.DeleteStarFolder)
 	ginServer.POST("/seen", middleware.AuthMidWare, handlers.GiveSeen)
 	ginServer.GET("/seen", middleware.AuthMidWare, handlers.QueryAllSeen)
 
@@ -52,6 +58,9 @@ func main() {
 	ginServer.GET("/comment/:articalID", handlers.QueryCommentByArticalID)
 	ginServer.PUT("/comment", middleware.AuthMidWare, handlers.UpdateComment)
 	ginServer.DELETE("/comment", middleware.AuthMidWare, handlers.DeleteComment)
+
+	ginServer.GET("/notify/allreply", middleware.AuthMidWare, handlers.QueryAllReplyNotify)
+	ginServer.GET("/notify/reply", handlers.QueryReplyNotify)
 
 	ginServer.GET("/search", handlers.SearchArtical)
 

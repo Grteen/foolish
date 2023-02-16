@@ -25,18 +25,22 @@ func (c *Comment) TableName() string {
 	return constants.CommentTableName
 }
 
-// 创建评论
-func CreateComment(ctx context.Context, cms []*Comment) error {
+// 创建评论 并返回创建的评论的 ID
+func CreateComment(ctx context.Context, cms []*Comment) ([]int32, error) {
+	res := make([]int32, 0)
 	if err := DB.WithContext(ctx).Create(cms).Error; err != nil {
-		return errno.ServiceFault
+		return nil, errno.ServiceFault
 	}
-	return nil
+	for _, cm := range cms {
+		res = append(res, int32(cm.ID))
+	}
+	return res, nil
 }
 
 // 根据 ID 查询评论
 func QueryComment(ctx context.Context, id []int32) ([]*Comment, error) {
 	res := make([]*Comment, 0)
-	if err := DB.WithContext(ctx).Preload("Reply").Where("id in ?", id).Find(&res).Error; err != nil {
+	if err := DB.WithContext(ctx).Preload("Reply").Where("id in ?", id).Order("updatedAt DESC").Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil

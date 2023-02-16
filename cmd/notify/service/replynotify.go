@@ -23,8 +23,21 @@ func (s *NotifyService) CreateReplyNotify(req *notifydemo.CreateReplyNotifyReque
 				Title:    req.Replyntf.Title,
 				Sender:   req.Replyntf.Sender,
 				Text:     req.Replyntf.Text,
-				IsRead:   false,
+
+				IsRead: false,
 			},
+			ArticalID: req.Replyntf.ArticalID,
+			CommentID: req.Replyntf.CommentID,
 		},
 	})
+}
+
+// 根据 ID 查询回复消息
+func (s *NotifyService) QueryReplyNotify(req *notifydemo.QueryReplyNotifyRequest) ([]*db.ReplyNotify, error) {
+	return db.QueryReplyNotify(s.ctx, req.IDs)
+}
+
+// 查询某人的 回复消息id
+func (s *NotifyService) QueryAllReplyNotify(req *notifydemo.QueryAllReplyNotifyRequest) ([]int32, error) {
+	return db.QueryAllReplyNotify(s.ctx, req.UserName, req.Limit, req.Offset)
 }

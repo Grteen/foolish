@@ -11,8 +11,8 @@ import (
 
 type Artical struct {
 	ID        uint      `gorm:"primarykey"`
-	CreatedAt time.Time `json:"createTime"`
-	UpdatedAt time.Time
+	CreatedAt time.Time `json:"createdAt" gorm:"column:createdAt; not null"`
+	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updatedAt; not null"`
 
 	Title       string `json:"title" gorm:"column:title; not null"`
 	Author      string `json:"author" gorm:"column:author; not null"`

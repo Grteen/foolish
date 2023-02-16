@@ -50,6 +50,8 @@ func CreateComment(ctx *gin.Context) {
 
 	// 被回复的人
 	var replyed string
+	// 被回复的文章名称
+	var replyedArt string
 
 	if p.Master != 0 {
 		// 查询是否存在评论
@@ -83,7 +85,9 @@ func CreateComment(ctx *gin.Context) {
 		replyed = res[0].Author
 	}
 
-	err = rpc.CreateComment(context.Background(), &articaldemo.CreateCommentRequest{
+	replyedArt = res[0].Title
+
+	ids, err := rpc.CreateComment(context.Background(), &articaldemo.CreateCommentRequest{
 		UserName:    p.UserName,
 		ArticalID:   p.ArticalID,
 		CommentText: p.CommentText,
@@ -96,18 +100,29 @@ func CreateComment(ctx *gin.Context) {
 	}
 
 	// 创建回复消息
-	err = rpc.CreateReplyNotify(context.Background(), &notifydemo.CreateReplyNotifyRequest{
-		Replyntf: &notifydemo.ReplyNotify{
-			Sender:   p.UserName,
-			UserName: replyed,
-			Title:    "有人回复了你",
-			Text:     p.CommentText,
-		},
-	})
-
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
+	if p.UserName != replyed {
+		var title string
+		if p.Master != 0 {
+			// 回复
+			title = "有人回复了你 : " + replyedArt
+		} else {
+			// 评论
+			title = "有人评论了你的文章 : " + replyedArt
+		}
+		err = rpc.CreateReplyNotify(context.Background(), &notifydemo.CreateReplyNotifyRequest{
+			Replyntf: &notifydemo.ReplyNotify{
+				Sender:    p.UserName,
+				UserName:  replyed,
+				Title:     title,
+				Text:      p.CommentText,
+				ArticalID: p.ArticalID,
+				CommentID: ids[0],
+			},
+		})
+		if err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
 	}
 
 	pack.SendResponse(ctx, errno.Success)

@@ -101,7 +101,7 @@ func (s *ArticalService) QueryLikeStar(req *articaldemo.QueryLikeStarRequest) ([
 	return res, nil
 }
 
-func (s *ArticalService) QueryAllLikeStar(req *articaldemo.QueryAllLikeStarRequest) ([]uint32, error) {
+func (s *ArticalService) QueryAllLikeStar(req *articaldemo.QueryAllLikeStarRequest) ([]int32, error) {
 	var itf db.LikeStarInterface
 	if req.Type == 0 {
 		// Like
@@ -125,4 +125,51 @@ func (s *ArticalService) QueryAllLikeStar(req *articaldemo.QueryAllLikeStarReque
 
 func (s *ArticalService) RdbIncreaseitf(req *articaldemo.RdbIncreaseitfRequest) error {
 	return rdb.IncreaseLikeStar(s.ctx, req.ArticalID, req.Val, req.Field)
+}
+
+// 创建收藏
+func (s *ArticalService) CreateStar(req *articaldemo.CreateStarRequest) error {
+	return db.CreateStar(s.ctx, []*db.Star{
+		{
+			UserName:  req.Username,
+			ArticalID: uint(req.ArticalID),
+			FolderID:  uint(req.StarFolderID),
+		},
+	})
+}
+
+// 创建收藏夹
+func (s *ArticalService) CreateStarFolder(req *articaldemo.CreateStarFolderRequest) error {
+	return db.CreateStarFolder(s.ctx, []*db.StarFolder{
+		{
+			UserName:   req.UserName,
+			FolderName: req.FolderName,
+			IsDefault:  req.IsDefault,
+		},
+	})
+}
+
+// 查询收藏夹
+func (s *ArticalService) QueryStarFolder(req *articaldemo.QueryStarFolderRequest) ([]*db.StarFolder, error) {
+	return db.QueryStarFolder(s.ctx, req.IDs)
+}
+
+// 查询所有的收藏夹
+func (s *ArticalService) QueryAllStarFolder(req *articaldemo.QueryAllStarFolderRequest) ([]*db.StarFolder, error) {
+	return db.QueryAllStarFolder(s.ctx, req.UserName)
+}
+
+// 查询收藏夹的所有收藏
+func (s *ArticalService) QueryAllStar(req *articaldemo.QueryAllStarRequest) ([]*db.Star, error) {
+	return db.QueryAllStar(s.ctx, req.StarFolderID, req.Limit, req.Offset)
+}
+
+// 删除收藏夹
+func (s *ArticalService) DeleteStarFolder(req *articaldemo.DeleteStarFolderRequest) error {
+	return db.DeleteStarFolder(s.ctx, req.ID)
+}
+
+// 更新收藏夹
+func (s *ArticalService) UpdateStarFolder(req *articaldemo.UpdateStarFolderRequest) error {
+	return db.UpdateStarFolder(s.ctx, req.StarFolder.ID, req.StarFolder.FolderName)
 }

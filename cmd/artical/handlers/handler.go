@@ -102,7 +102,7 @@ func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.
 			LikeNum:     art.LikeNum,
 			StarNum:     art.StarNum,
 			SeenNum:     art.SeenNum,
-			CreatedAt:   art.CreatedAt.In(pack.Tz).String(),
+			CreatedAt:   art.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
 			Cover:       art.Cover,
 		})
 	}
@@ -240,7 +240,7 @@ func (s *ArticalServiceImpl) DeleteLikeStar(ctx context.Context, req *articaldem
 	return resp, nil
 }
 
-// 查询 某用户 是否 有对于 某文章的 收藏 （点赞）
+// 查询 某用户 是否 有对于 某文章的 收藏 （点赞）(历史记录)
 func (s *ArticalServiceImpl) QueryLikeStar(ctx context.Context, req *articaldemo.QueryLikeStarRequest) (*articaldemo.QueryLikeStarResponse, error) {
 	resp := new(articaldemo.QueryLikeStarResponse)
 
@@ -260,6 +260,7 @@ func (s *ArticalServiceImpl) QueryLikeStar(ctx context.Context, req *articaldemo
 	resp.LikeStar = &articaldemo.LikeStar{
 		UserName:  res[0].UserName,
 		ArticalID: int32(res[0].ArticalID),
+		UpdatedAt: res[0].UpdatedAt.In(pack.Tz).Format(pack.TimeLayout),
 	}
 
 	return resp, nil
@@ -297,13 +298,14 @@ func (s *ArticalServiceImpl) CreateComment(ctx context.Context, req *articaldemo
 		return resp, nil
 	}
 
-	err := service.NewArticalService(ctx).CreateComment(req)
+	ids, err := service.NewArticalService(ctx).CreateComment(req)
 	if err != nil {
 		resp.Resp = pack.BuildResp(err)
 		return resp, nil
 	}
 
 	resp.Resp = pack.BuildResp(errno.Success)
+	resp.IDs = ids
 	return resp, nil
 }
 
@@ -383,7 +385,7 @@ func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.
 				ArticalID:   int32(rp.ArticalID),
 				UserName:    rp.UserName,
 				CommentText: rp.CommentText,
-				CreatedAt:   rp.CreatedAt.In(pack.Tz).String(),
+				CreatedAt:   rp.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
 				Master:      int32(*rp.Master),
 			})
 		}
@@ -399,7 +401,7 @@ func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.
 			ArticalID:   int32(cm.ArticalID),
 			UserName:    cm.UserName,
 			CommentText: cm.CommentText,
-			CreatedAt:   cm.CreatedAt.In(pack.Tz).String(),
+			CreatedAt:   cm.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
 
 			Master: temp,
 			Reply:  reply,
@@ -517,5 +519,171 @@ func (s *ArticalServiceImpl) RdbIncreaseitf(ctx context.Context, req *articaldem
 	}
 
 	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 创建收藏
+func (s *ArticalServiceImpl) CreateStar(ctx context.Context, req *articaldemo.CreateStarRequest) (*articaldemo.CreateStarResponse, error) {
+	resp := new(articaldemo.CreateStarResponse)
+
+	// 检测参数
+	if len(req.Username) == 0 || req.ArticalID <= 0 || req.StarFolderID <= 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+	err := service.NewArticalService(ctx).CreateStar(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 创建收藏夹
+func (s *ArticalServiceImpl) CreateStarFolder(ctx context.Context, req *articaldemo.CreateStarFolderRequest) (*articaldemo.CreateStarFolderResponse, error) {
+	resp := new(articaldemo.CreateStarFolderResponse)
+
+	// 检测参数
+	if len(req.UserName) == 0 || len(req.FolderName) == 0 || len(req.FolderName) >= 20 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+	err := service.NewArticalService(ctx).CreateStarFolder(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 查询收藏夹
+func (s *ArticalServiceImpl) QueryStarFolder(ctx context.Context, req *articaldemo.QueryStarFolderRequest) (*articaldemo.QueryStarFolderResponse, error) {
+	resp := new(articaldemo.QueryStarFolderResponse)
+
+	if len(req.IDs) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	fs, err := service.NewArticalService(ctx).QueryStarFolder(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	for _, f := range fs {
+		resp.StarFolders = append(resp.StarFolders, &articaldemo.StarFolder{
+			ID:         int32(f.ID),
+			CreatedAt:  f.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
+			FolderName: f.FolderName,
+			Username:   f.UserName,
+			IsDefault:  f.IsDefault,
+		})
+	}
+	return resp, nil
+}
+
+// 查询所有的收藏夹
+func (s *ArticalServiceImpl) QueryAllStarFolder(ctx context.Context, req *articaldemo.QueryAllStarFolderRequest) (*articaldemo.QueryAllStarFolderResponse, error) {
+	resp := new(articaldemo.QueryAllStarFolderResponse)
+
+	// 检测参数
+	if len(req.UserName) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	res, err := service.NewArticalService(ctx).QueryAllStarFolder(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	for _, f := range res {
+		resp.StarFolders = append(resp.StarFolders, &articaldemo.StarFolder{
+			ID:         int32(f.ID),
+			CreatedAt:  f.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
+			FolderName: f.FolderName,
+			Username:   f.UserName,
+			IsDefault:  f.IsDefault,
+		})
+	}
+	return resp, nil
+}
+
+// 删除收藏夹
+func (s *ArticalServiceImpl) DeleteStarFolder(ctx context.Context, req *articaldemo.DeleteStarFolderRequest) (*articaldemo.DeleteStarFolderResponse, error) {
+	resp := new(articaldemo.DeleteStarFolderResponse)
+
+	// 检测参数
+	if req.ID <= 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewArticalService(ctx).DeleteStarFolder(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 更新收藏夹
+func (s *ArticalServiceImpl) UpdateStarFolder(ctx context.Context, req *articaldemo.UpdateStarFolderRequest) (*articaldemo.UpdateStarFolderResponse, error) {
+	resp := new(articaldemo.UpdateStarFolderResponse)
+
+	// 检测参数
+	if req.StarFolder.ID <= 0 || len(req.StarFolder.FolderName) == 0 || len(req.StarFolder.FolderName) >= 20 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewArticalService(ctx).UpdateStarFolder(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 查询收藏夹的所有收藏
+func (s *ArticalServiceImpl) QueryAllStar(ctx context.Context, req *articaldemo.QueryAllStarRequest) (*articaldemo.QueryAllStarResponse, error) {
+	resp := new(articaldemo.QueryAllStarResponse)
+
+	// 检测参数
+	if req.StarFolderID <= 0 || req.Limit <= 0 || req.Offset < 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	if req.Limit >= 20 {
+		req.Limit = 20
+	}
+
+	stars, err := service.NewArticalService(ctx).QueryAllStar(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	for _, star := range stars {
+		resp.Stars = append(resp.Stars, &articaldemo.Star{
+			ID:        int32(star.ID),
+			CreatedAt: star.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
+			ArtcalID:  int32(star.ArticalID),
+		})
+	}
 	return resp, nil
 }

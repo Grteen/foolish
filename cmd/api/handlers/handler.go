@@ -1,6 +1,8 @@
 package handlers
 
-import "be/grpc/articaldemo"
+import (
+	"be/grpc/articaldemo"
+)
 
 type UserParma struct {
 	Name     string `form:"name"`
@@ -58,6 +60,36 @@ type LikeParma struct {
 	ArticalID int32  `form:"articalID"`
 }
 
+type CreateStarFolderParma struct {
+	UserName   string `form:"username"`
+	FolderName string `form:"foldername"`
+}
+
+type DeleteStarFolderParma struct {
+	FolderID int32 `form:"starfolderID"`
+}
+
+type UpdateStarFolderParma struct {
+	FolderID   int32  `form:"starfolderID"`
+	FolderName string `form:"foldername"`
+}
+
+type CreateStarParma struct {
+	UserName  string `form:"username"`
+	ArticalID int32  `form:"articalID"`
+	FolderID  int32  `form:"starfolderID"`
+}
+
+type QueryStarFolderParma struct {
+	UserName string `form:"username"`
+}
+
+type QueryStarParma struct {
+	StarFolderID int32 `form:"starfolderID"`
+	Limit        int32 `form:"limit"`
+	Offset       int32 `form:"offset"`
+}
+
 type CommentParma struct {
 	UserName    string `form:"username"`
 	ArticalID   int32  `form:"articalID"`
@@ -106,6 +138,16 @@ type CreateReplyNotifyParma struct {
 	Title    string `form:"title"`
 	Sender   string `form:"sender"`
 	Text     string `form:"text"`
+}
+
+type QueryAllReplyNotifyParma struct {
+	UserName string `form:"username"`
+	Limit    int32  `form:"limit"`
+	Offset   int32  `form:"offset"`
+}
+
+type QueryReplyNotifyParma struct {
+	IDs []int32 `form:"IDs"`
 }
 
 // 将 articaldemo.Artical 转化为 articaldemo.RdbArtical

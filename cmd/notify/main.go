@@ -3,6 +3,7 @@ package main
 import (
 	"be/cmd/notify/dal"
 	"be/cmd/notify/handlers"
+	"be/cmd/notify/pack"
 	"be/grpc/notifydemo"
 	"net"
 
@@ -11,6 +12,7 @@ import (
 
 func Init() {
 	dal.Init()
+	pack.InitTimeZone()
 }
 
 func main() {

@@ -8,12 +8,13 @@ import (
 
 func TestArtical(t *testing.T) {
 	MySQLInit()
+	DB.AutoMigrate(&Artical{})
 	DB.AutoMigrate(&Star{})
 	DB.AutoMigrate(&Like{})
 	DB.AutoMigrate(&Comment{})
-	DB.AutoMigrate(&Artical{})
+
 	err := CreateArtical(context.Background(), []*Artical{
-		{Title: "title1", Author: "Grteen", Text: "this is a good text"},
+		{Title: "title1", Author: "Grteen", Text: "this is a good text", Cover: "here", Description: "OK"},
 	})
 
 	if err != nil {

@@ -123,7 +123,7 @@ func QueryLikeStar(ctx context.Context, req *articaldemo.QueryLikeStarRequest) (
 	return resp.LikeStar, nil
 }
 
-func QueryAllLikeStar(ctx context.Context, req *articaldemo.QueryAllLikeStarRequest) ([]uint32, error) {
+func QueryAllLikeStar(ctx context.Context, req *articaldemo.QueryAllLikeStarRequest) ([]int32, error) {
 	resp, err := articalClient.QueryAllLikeStar(ctx, req)
 	if err != nil {
 		return nil, err
@@ -136,17 +136,17 @@ func QueryAllLikeStar(ctx context.Context, req *articaldemo.QueryAllLikeStarRequ
 	return resp.ArticalIDs, nil
 }
 
-func CreateComment(ctx context.Context, req *articaldemo.CreateCommentRequest) error {
+func CreateComment(ctx context.Context, req *articaldemo.CreateCommentRequest) ([]int32, error) {
 	resp, err := articalClient.CreateComment(ctx, req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if resp.Resp.StatusCode != 0 {
-		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
 	}
 
-	return nil
+	return resp.IDs, nil
 }
 
 func QueryComment(ctx context.Context, req *articaldemo.QueryCommentRequest) ([]*articaldemo.Comment, error) {
@@ -249,4 +249,95 @@ func RdbIncreaseitf(ctx context.Context, req *articaldemo.RdbIncreaseitfRequest)
 	}
 
 	return nil
+}
+
+func CreateStar(ctx context.Context, req *articaldemo.CreateStarRequest) error {
+	resp, err := articalClient.CreateStar(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func CreateStarFolder(ctx context.Context, req *articaldemo.CreateStarFolderRequest) error {
+	resp, err := articalClient.CreateStarFolder(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func DeleteStarFolder(ctx context.Context, req *articaldemo.DeleteStarFolderRequest) error {
+	resp, err := articalClient.DeleteStarFolder(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func UpdateStarFolder(ctx context.Context, req *articaldemo.UpdateStarFolderRequest) error {
+	resp, err := articalClient.UpdateStarFolder(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func QueryStarFolder(ctx context.Context, req *articaldemo.QueryStarFolderRequest) ([]*articaldemo.StarFolder, error) {
+	resp, err := articalClient.QueryStarFolder(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.StarFolders, nil
+}
+
+func QueryAllStarFolder(ctx context.Context, req *articaldemo.QueryAllStarFolderRequest) ([]*articaldemo.StarFolder, error) {
+	resp, err := articalClient.QueryAllStarFolder(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.StarFolders, nil
+}
+
+func QueryAllStar(ctx context.Context, req *articaldemo.QueryAllStarRequest) ([]*articaldemo.Star, error) {
+	resp, err := articalClient.QueryAllStar(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.Stars, nil
 }
