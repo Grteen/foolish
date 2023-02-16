@@ -8,13 +8,15 @@ message Resp {
 }
 
 message ReplyNotify {
-    int32 ID = 1;
-    string createdAt = 2;
-    string userName = 3;
-    string title = 4;
-    string sender = 5;
-    string text = 6;
-    bool isread = 7;
+    string createdAt = 1;
+    string userName = 2;
+    string title = 3;
+    string sender = 4;
+    string text = 5;
+    string avator = 6;
+    int32 articalID = 7;
+    int32 commentID = 8;
+    bool isread = 9;
 }
 
 message CreateReplyNotifyRequest {
@@ -25,6 +27,28 @@ message CreateReplyNotifyResponse {
     Resp resp = 1;
 }
 
+message QueryReplyNotifyRequest {
+    repeated int32 IDs = 1;
+}
+
+message QueryReplyNotifyResponse {
+    Resp resp = 1;
+    repeated ReplyNotify ntfs = 2;
+}
+
+message QueryAllReplyNotifyRequest {
+    string userName = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message QueryAllReplyNotifyResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
 service NotifyService {
     rpc CreateReplyNotify (CreateReplyNotifyRequest) returns (CreateReplyNotifyResponse){}
+    rpc QueryReplyNotify (QueryReplyNotifyRequest) returns (QueryReplyNotifyResponse){}
+    rpc QueryAllReplyNotify (QueryAllReplyNotifyRequest) returns (QueryAllReplyNotifyResponse){}
 }

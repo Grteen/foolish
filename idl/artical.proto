@@ -94,6 +94,7 @@ message DeleteLikeStarResponse {
 message LikeStar {
     string userName = 1;
     int32 articalID = 2;
+    string updatedAt = 3;
 }
 
 message UpdateLikeStarTimeRequest {
@@ -124,7 +125,7 @@ message QueryAllLikeStarRequest {
 
 message QueryAllLikeStarResponse {
     Resp resp = 1;
-    repeated uint32 articalIDs = 2;
+    repeated int32 articalIDs = 2;
 }
 
 message Comment {
@@ -148,6 +149,7 @@ message CreateCommentRequest {
 
 message CreateCommentResponse {
     Resp resp = 1;
+    repeated int32 IDs = 2;
 }
 
 message QueryCommentRequest {
@@ -235,6 +237,88 @@ message RdbIncreaseitfResponse {
     Resp resp = 1;
 }
 
+message CreateStarFolderRequest {
+    string userName = 1;
+    string folderName = 2;
+    bool isDefault = 3;
+}
+
+message CreateStarFolderResponse {
+    Resp resp = 1;
+}
+
+message StarFolder {
+    int32 ID = 1;
+    string createdAt = 2;
+    string folderName = 3;
+    string username = 4;
+    bool isDefault = 5;
+}
+
+message QueryStarFolderRequest {
+    repeated int32 IDs = 1;
+}
+
+message QueryStarFolderResponse {
+    Resp resp = 1;
+    repeated StarFolder starFolders = 2;
+}
+
+message QueryAllStarFolderRequest {
+    string userName = 1;
+}
+
+message QueryAllStarFolderResponse {
+    Resp resp = 1;
+    repeated StarFolder starFolders = 2;
+}
+
+message DeleteStarFolderRequest {
+    int32 ID = 1;
+}
+
+message DeleteStarFolderResponse {
+    Resp resp = 1;
+}
+
+message UpdateStarFolderRequest {
+    StarFolder starFolder = 1;
+}
+
+message UpdateStarFolderResponse {
+    Resp resp = 1;
+}
+
+message Star {
+    int32 ID = 1;
+    string createdAt = 2;
+    int32 artcalID = 3;
+    string title = 4;
+    string author = 5;
+    string description = 6;
+}
+
+message CreateStarRequest {
+    int32 articalID = 1;
+    int32 starFolderID = 2;
+    string username = 3;
+}
+
+message CreateStarResponse {
+    Resp resp = 1;
+}
+
+message QueryAllStarRequest {
+    int32 starFolderID = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message QueryAllStarResponse {
+    Resp resp = 1;
+    repeated Star stars = 2;
+}
+
 service ArticalService {
     rpc CreateArtical (CreateArticalRequest) returns (CreateArticalResponse){}
     rpc DeleteArtical (DeleteArticalRequest) returns (DeleteArticalResponse){}
@@ -246,6 +330,13 @@ service ArticalService {
     rpc DeleteLikeStar (DeleteLikeStarRequest) returns (DeleteLikeStarResponse){}
     rpc QueryLikeStar (QueryLikeStarRequest) returns (QueryLikeStarResponse){}
     rpc QueryAllLikeStar (QueryAllLikeStarRequest) returns (QueryAllLikeStarResponse){}
+    rpc CreateStar (CreateStarRequest) returns (CreateStarResponse){}
+    rpc CreateStarFolder (CreateStarFolderRequest) returns (CreateStarFolderResponse){}
+    rpc DeleteStarFolder (DeleteStarFolderRequest) returns (DeleteStarFolderResponse){}
+    rpc UpdateStarFolder (UpdateStarFolderRequest) returns (UpdateStarFolderResponse){}
+    rpc QueryStarFolder (QueryStarFolderRequest) returns (QueryStarFolderResponse){}
+    rpc QueryAllStarFolder (QueryAllStarFolderRequest) returns (QueryAllStarFolderResponse){}
+    rpc QueryAllStar (QueryAllStarRequest) returns (QueryAllStarResponse){}
 
     rpc CreateComment (CreateCommentRequest) returns (CreateCommentResponse){}
     rpc UpdateComment (UpdateCommentRequest) returns (UpdateCommentResponse){}

@@ -27,6 +27,8 @@ const (
 	NoSuchCommentErrCode                  = 10018
 	AlreadySubscribeErrCode               = 10019
 	NoSubscribeErrCode                    = 10020
+	NoStarFolderErrCode                   = 10021
+	DefaultFolderErrCode                  = 10022
 )
 
 type Errno struct {
@@ -81,4 +83,6 @@ var (
 	NoSuchCommentErr                  = NewErrNo(NoSuchCommentErrCode, "No such comment")
 	AlreadySubscribeErr               = NewErrNo(AlreadySubscribeErrCode, "Already been Subscribed")
 	NoSubscribeErr                    = NewErrNo(NoSubscribeErrCode, "No Subscribes yet")
+	NoStarFolderErr                   = NewErrNo(NoStarFolderErrCode, "No Star folders yet")
+	DefaultFolderErr                  = NewErrNo(DefaultFolderErrCode, "Can not delete default star folder")
 )

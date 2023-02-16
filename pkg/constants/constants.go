@@ -16,6 +16,7 @@ const (
 	LikeTableName                     = "articalLike"
 	StarTableName                     = "articalStar"
 	SeenTableName                     = "articalSeen"
+	StarFolderTableName               = "starFolder"
 	ReplyNotifyTableName              = "replyNotify"
 	LikeStarModel          ContextKey = "LikeStarModel"
 	AuthCookieUserName     ContextKey = "AuthCookieUserName"

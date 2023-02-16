@@ -22,6 +22,8 @@ ErrorCode:
     10018   "No such comment"       // 没有该评论
     10019   "Already been Subscribed"       // 已经订阅了
     10020   "Already been Subscribed"       // 还没有订阅
+    10021   "No Star folders yet"       // 没有该收藏夹
+    10022   "Can not delete default star folder"        // 不能删除默认收藏夹
 
 
 // 注册用户
@@ -91,7 +93,7 @@ GET /api/userinfo  uri
 // 更新用户主页信息
 PUT /api/userinfo  form-data
     参数 :
-        // 后端只更新非空字段  如果只更新昵称 请将参数中的 个人简介 头像 设为 ""
+        // 要更新的内容
         username    用户名
         nickname    昵称
         description     个人简介
@@ -175,7 +177,7 @@ GET /api/artical   form-data
             data: [
                 {
                     ID:     // 文章ID
-                    createAt        // 创建时间
+                    createdAt        // 创建时间
                     title:      // 文章标题
                     author:     // 文章作者
                     text:       // 文章内容
@@ -251,15 +253,106 @@ GET     /api/hasLike   uri
             data: true      // 如果是 true 就说明有点赞收藏了  如果是 false 说明没有点赞收藏
         }
 
+// 查看某人的所有收藏夹
+GET /api/starFolder     uri 
+    参数:
+        username    某人
+    返回值:
+        失败:
+        json {
+            code: 02 03 09 10
+            message:
+        }
+        成功:
+        json {
+            code: 0
+            message: 
+            data: [
+                {
+                    ID:         // 收藏夹ID
+                    createdAt:      // 创建时间
+                    folderName:     // 收藏夹名称
+                    username:
+                    isDefault:      // 是否是默认收藏夹 true 就是默认收藏夹   默认收藏夹不能删除
+                }
+                {
+                    ...
+                }
+            ]
+        }
+
+// 创建收藏夹
+POST /api/starFolder    form-data
+    参数:
+        username        某人
+        foldername      收藏夹名称      0 < < 20
+    返回值: json {
+        code: 0 02 03 09 10
+        message
+    }
+
+// 查看某个收藏夹里所有收藏
+GET /api/star   uri
+    参数:
+        starfolderID    收藏夹ID
+        limit
+        offset
+    返回值: 
+        失败:    
+        json {
+            code: 02 03 09 10 21
+            message
+        }
+        成功:
+        json {
+            code: 0
+            message
+            data: [         // 按照时间倒序返回
+                {
+                    ID      // 收藏ID
+                    createdAt       // 收藏时间
+                    artcalID    // 收藏的文章ID
+                    title   // 文章标题
+                    author      // 文章作者
+                    description     // 文章描述
+                }
+                {
+                    ...
+                }
+            ]
+        }
+
+// 更新收藏夹名字
+PUT /api/starFolder  form-data or uri
+    参数:
+        starfolderID        // 收藏夹ID
+        foldername          // 要更新的名称
+    返回值: json {
+        code: 0 02 03 09 10 21
+        message
+    }
+
+// 删除收藏夹
+DELETE /api/starFolder  form-data or uri
+    参数:
+        starfolderID        // 收藏夹ID
+    返回值: json {
+        code: 0 02 03 09 10 21 22
+        message
+    }
+
 // 收藏
 POST /api/star      form-data or uri
     参数:
         username        收藏的人
         articalID       收藏的文章ID
+        starfolderID    收藏夹ID
     返回值: json {
-        code: 0 02 03 09 10 11 17
+        code: 0 02 03 09 10 11 17 21
         message:
     }
+
+
 
 // 取消收藏
 DELETE  /api/star   form-data or uri
@@ -288,27 +381,6 @@ GET     /api/hasStar   uri
             message
             data: true      // 如果是 true 就说明有点赞收藏了  如果是 false 说明没有点赞收藏
         }
-
-// 获取用户所有收藏   按照时间降序排列
-GET /api/star  uri
-    参数: 
-        username        查询的人
-    返回值:
-        如果有错误:
-            json {
-                code:   02 03 06 10
-                message:
-            }
-        如果成功:
-            json {
-                code: 0
-                message:
-                data: {
-                    articalIDs: [
-                        // 文章ID 数组
-                    ]
-                }
-            }
 
 // 添加一次浏览记录
 POST /api/seen uri
@@ -375,6 +447,7 @@ GET /api/comment  form-data
                         userName        // 评论的用户
                         avator          // 用户的头
                         commentText     // 评论的内容
+                        createdAt        // 创建时间
                         master          // 如果有 说明该条评论为回复
                         reply: [        // 回复数组
                             {
@@ -383,6 +456,7 @@ GET /api/comment  form-data
                                 userName
                                 avator
                                 commentText
+                                createdAt       
                                 master      // 撅对有 
                             },
                             {
@@ -457,7 +531,7 @@ GET /api/search     uri
         json {
             code: 0
             message:
-            data: [
+            data: [         // 按照发布时间降序排序
                 // 文章ID数组
             ]
         }
@@ -523,3 +597,56 @@ GET /api/fan    uri
             // 用户名数组 表示所有粉丝的username
         ]       
     }
+
+// 查询某人的回复通知       倒序排列
+GET /api/notify/allreply   uri
+    参数:
+        username
+        limit 
+        offset          // 差第10-15个 limit 5 offset 10
+    返回值: 
+        如果错误:
+        json {
+            code: 02 03 09 10
+            message
+        }
+        如果成功
+        json {
+            code: 0
+            message
+            data: [
+                // 通知ID数组 按照时间倒序排列
+            ]
+        }
+
+// 查询 某个ID 的回复通知          
+GET /api/notify/reply   uri
+    参数:
+        IDs         // ID 数组
+    返回值:
+        如果错误:
+        json {
+            code: 02 03
+            message
+        }
+        如果成功:
+        json {
+            code: 0
+            message:
+            data: [
+                {
+                    createdAt:
+                    userName:       // 收件人名字
+                    sender:         // 寄件人名字
+                    title:          // 通知标题
+                    text:           // 通知文本
+                    avator:         // 寄件人的头像
+                    articalID:      // 被评论的文章ID 或者是被回复的评论所属的文章ID
+                    commentID:      // 评论你的评论 的评论的ID
+                    isread:         // 是否读过         如果读过就是 true
+                }
+                {
+                    ...
+                }
+            ]
+        }

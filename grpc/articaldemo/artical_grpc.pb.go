@@ -31,6 +31,13 @@ type ArticalServiceClient interface {
 	DeleteLikeStar(ctx context.Context, in *DeleteLikeStarRequest, opts ...grpc.CallOption) (*DeleteLikeStarResponse, error)
 	QueryLikeStar(ctx context.Context, in *QueryLikeStarRequest, opts ...grpc.CallOption) (*QueryLikeStarResponse, error)
 	QueryAllLikeStar(ctx context.Context, in *QueryAllLikeStarRequest, opts ...grpc.CallOption) (*QueryAllLikeStarResponse, error)
+	CreateStar(ctx context.Context, in *CreateStarRequest, opts ...grpc.CallOption) (*CreateStarResponse, error)
+	CreateStarFolder(ctx context.Context, in *CreateStarFolderRequest, opts ...grpc.CallOption) (*CreateStarFolderResponse, error)
+	DeleteStarFolder(ctx context.Context, in *DeleteStarFolderRequest, opts ...grpc.CallOption) (*DeleteStarFolderResponse, error)
+	UpdateStarFolder(ctx context.Context, in *UpdateStarFolderRequest, opts ...grpc.CallOption) (*UpdateStarFolderResponse, error)
+	QueryStarFolder(ctx context.Context, in *QueryStarFolderRequest, opts ...grpc.CallOption) (*QueryStarFolderResponse, error)
+	QueryAllStarFolder(ctx context.Context, in *QueryAllStarFolderRequest, opts ...grpc.CallOption) (*QueryAllStarFolderResponse, error)
+	QueryAllStar(ctx context.Context, in *QueryAllStarRequest, opts ...grpc.CallOption) (*QueryAllStarResponse, error)
 	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error)
 	UpdateComment(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*UpdateCommentResponse, error)
 	QueryComment(ctx context.Context, in *QueryCommentRequest, opts ...grpc.CallOption) (*QueryCommentResponse, error)
@@ -131,6 +138,69 @@ func (c *articalServiceClient) QueryAllLikeStar(ctx context.Context, in *QueryAl
 	return out, nil
 }
 
+func (c *articalServiceClient) CreateStar(ctx context.Context, in *CreateStarRequest, opts ...grpc.CallOption) (*CreateStarResponse, error) {
+	out := new(CreateStarResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/CreateStar", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) CreateStarFolder(ctx context.Context, in *CreateStarFolderRequest, opts ...grpc.CallOption) (*CreateStarFolderResponse, error) {
+	out := new(CreateStarFolderResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/CreateStarFolder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) DeleteStarFolder(ctx context.Context, in *DeleteStarFolderRequest, opts ...grpc.CallOption) (*DeleteStarFolderResponse, error) {
+	out := new(DeleteStarFolderResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/DeleteStarFolder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) UpdateStarFolder(ctx context.Context, in *UpdateStarFolderRequest, opts ...grpc.CallOption) (*UpdateStarFolderResponse, error) {
+	out := new(UpdateStarFolderResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/UpdateStarFolder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) QueryStarFolder(ctx context.Context, in *QueryStarFolderRequest, opts ...grpc.CallOption) (*QueryStarFolderResponse, error) {
+	out := new(QueryStarFolderResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/QueryStarFolder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) QueryAllStarFolder(ctx context.Context, in *QueryAllStarFolderRequest, opts ...grpc.CallOption) (*QueryAllStarFolderResponse, error) {
+	out := new(QueryAllStarFolderResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/QueryAllStarFolder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) QueryAllStar(ctx context.Context, in *QueryAllStarRequest, opts ...grpc.CallOption) (*QueryAllStarResponse, error) {
+	out := new(QueryAllStarResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/QueryAllStar", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *articalServiceClient) CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error) {
 	out := new(CreateCommentResponse)
 	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/CreateComment", in, out, opts...)
@@ -225,6 +295,13 @@ type ArticalServiceServer interface {
 	DeleteLikeStar(context.Context, *DeleteLikeStarRequest) (*DeleteLikeStarResponse, error)
 	QueryLikeStar(context.Context, *QueryLikeStarRequest) (*QueryLikeStarResponse, error)
 	QueryAllLikeStar(context.Context, *QueryAllLikeStarRequest) (*QueryAllLikeStarResponse, error)
+	CreateStar(context.Context, *CreateStarRequest) (*CreateStarResponse, error)
+	CreateStarFolder(context.Context, *CreateStarFolderRequest) (*CreateStarFolderResponse, error)
+	DeleteStarFolder(context.Context, *DeleteStarFolderRequest) (*DeleteStarFolderResponse, error)
+	UpdateStarFolder(context.Context, *UpdateStarFolderRequest) (*UpdateStarFolderResponse, error)
+	QueryStarFolder(context.Context, *QueryStarFolderRequest) (*QueryStarFolderResponse, error)
+	QueryAllStarFolder(context.Context, *QueryAllStarFolderRequest) (*QueryAllStarFolderResponse, error)
+	QueryAllStar(context.Context, *QueryAllStarRequest) (*QueryAllStarResponse, error)
 	CreateComment(context.Context, *CreateCommentRequest) (*CreateCommentResponse, error)
 	UpdateComment(context.Context, *UpdateCommentRequest) (*UpdateCommentResponse, error)
 	QueryComment(context.Context, *QueryCommentRequest) (*QueryCommentResponse, error)
@@ -267,6 +344,27 @@ func (UnimplementedArticalServiceServer) QueryLikeStar(context.Context, *QueryLi
 }
 func (UnimplementedArticalServiceServer) QueryAllLikeStar(context.Context, *QueryAllLikeStarRequest) (*QueryAllLikeStarResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryAllLikeStar not implemented")
+}
+func (UnimplementedArticalServiceServer) CreateStar(context.Context, *CreateStarRequest) (*CreateStarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateStar not implemented")
+}
+func (UnimplementedArticalServiceServer) CreateStarFolder(context.Context, *CreateStarFolderRequest) (*CreateStarFolderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateStarFolder not implemented")
+}
+func (UnimplementedArticalServiceServer) DeleteStarFolder(context.Context, *DeleteStarFolderRequest) (*DeleteStarFolderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteStarFolder not implemented")
+}
+func (UnimplementedArticalServiceServer) UpdateStarFolder(context.Context, *UpdateStarFolderRequest) (*UpdateStarFolderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateStarFolder not implemented")
+}
+func (UnimplementedArticalServiceServer) QueryStarFolder(context.Context, *QueryStarFolderRequest) (*QueryStarFolderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryStarFolder not implemented")
+}
+func (UnimplementedArticalServiceServer) QueryAllStarFolder(context.Context, *QueryAllStarFolderRequest) (*QueryAllStarFolderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAllStarFolder not implemented")
+}
+func (UnimplementedArticalServiceServer) QueryAllStar(context.Context, *QueryAllStarRequest) (*QueryAllStarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAllStar not implemented")
 }
 func (UnimplementedArticalServiceServer) CreateComment(context.Context, *CreateCommentRequest) (*CreateCommentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
@@ -466,6 +564,132 @@ func _ArticalService_QueryAllLikeStar_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArticalServiceServer).QueryAllLikeStar(ctx, req.(*QueryAllLikeStarRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_CreateStar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateStarRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).CreateStar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/CreateStar",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).CreateStar(ctx, req.(*CreateStarRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_CreateStarFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateStarFolderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).CreateStarFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/CreateStarFolder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).CreateStarFolder(ctx, req.(*CreateStarFolderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_DeleteStarFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteStarFolderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).DeleteStarFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/DeleteStarFolder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).DeleteStarFolder(ctx, req.(*DeleteStarFolderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_UpdateStarFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateStarFolderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).UpdateStarFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/UpdateStarFolder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).UpdateStarFolder(ctx, req.(*UpdateStarFolderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_QueryStarFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryStarFolderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).QueryStarFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/QueryStarFolder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).QueryStarFolder(ctx, req.(*QueryStarFolderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_QueryAllStarFolder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllStarFolderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).QueryAllStarFolder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/QueryAllStarFolder",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).QueryAllStarFolder(ctx, req.(*QueryAllStarFolderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_QueryAllStar_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllStarRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).QueryAllStar(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/QueryAllStar",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).QueryAllStar(ctx, req.(*QueryAllStarRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -674,6 +898,34 @@ var ArticalService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryAllLikeStar",
 			Handler:    _ArticalService_QueryAllLikeStar_Handler,
+		},
+		{
+			MethodName: "CreateStar",
+			Handler:    _ArticalService_CreateStar_Handler,
+		},
+		{
+			MethodName: "CreateStarFolder",
+			Handler:    _ArticalService_CreateStarFolder_Handler,
+		},
+		{
+			MethodName: "DeleteStarFolder",
+			Handler:    _ArticalService_DeleteStarFolder_Handler,
+		},
+		{
+			MethodName: "UpdateStarFolder",
+			Handler:    _ArticalService_UpdateStarFolder_Handler,
+		},
+		{
+			MethodName: "QueryStarFolder",
+			Handler:    _ArticalService_QueryStarFolder_Handler,
+		},
+		{
+			MethodName: "QueryAllStarFolder",
+			Handler:    _ArticalService_QueryAllStarFolder_Handler,
+		},
+		{
+			MethodName: "QueryAllStar",
+			Handler:    _ArticalService_QueryAllStar_Handler,
 		},
 		{
 			MethodName: "CreateComment",
