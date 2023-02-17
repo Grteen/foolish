@@ -293,9 +293,6 @@ message Star {
     int32 ID = 1;
     string createdAt = 2;
     int32 artcalID = 3;
-    string title = 4;
-    string author = 5;
-    string description = 6;
 }
 
 message CreateStarRequest {
@@ -319,6 +316,15 @@ message QueryAllStarResponse {
     repeated Star stars = 2;
 }
 
+message DeleteStarFolderAndMoveRequest {
+    string username = 1;
+    int32 starFolderID = 2;
+}
+
+message DeleteStarFolderAndMoveResponse {
+    Resp resp = 1;
+}
+
 service ArticalService {
     rpc CreateArtical (CreateArticalRequest) returns (CreateArticalResponse){}
     rpc DeleteArtical (DeleteArticalRequest) returns (DeleteArticalResponse){}
@@ -333,6 +339,7 @@ service ArticalService {
     rpc CreateStar (CreateStarRequest) returns (CreateStarResponse){}
     rpc CreateStarFolder (CreateStarFolderRequest) returns (CreateStarFolderResponse){}
     rpc DeleteStarFolder (DeleteStarFolderRequest) returns (DeleteStarFolderResponse){}
+    rpc DeleteStarFolderAndMove (DeleteStarFolderAndMoveRequest) returns (DeleteStarFolderAndMoveResponse){}
     rpc UpdateStarFolder (UpdateStarFolderRequest) returns (UpdateStarFolderResponse){}
     rpc QueryStarFolder (QueryStarFolderRequest) returns (QueryStarFolderResponse){}
     rpc QueryAllStarFolder (QueryAllStarFolderRequest) returns (QueryAllStarFolderResponse){}

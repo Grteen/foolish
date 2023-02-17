@@ -34,6 +34,7 @@ type ArticalServiceClient interface {
 	CreateStar(ctx context.Context, in *CreateStarRequest, opts ...grpc.CallOption) (*CreateStarResponse, error)
 	CreateStarFolder(ctx context.Context, in *CreateStarFolderRequest, opts ...grpc.CallOption) (*CreateStarFolderResponse, error)
 	DeleteStarFolder(ctx context.Context, in *DeleteStarFolderRequest, opts ...grpc.CallOption) (*DeleteStarFolderResponse, error)
+	DeleteStarFolderAndMove(ctx context.Context, in *DeleteStarFolderAndMoveRequest, opts ...grpc.CallOption) (*DeleteStarFolderAndMoveResponse, error)
 	UpdateStarFolder(ctx context.Context, in *UpdateStarFolderRequest, opts ...grpc.CallOption) (*UpdateStarFolderResponse, error)
 	QueryStarFolder(ctx context.Context, in *QueryStarFolderRequest, opts ...grpc.CallOption) (*QueryStarFolderResponse, error)
 	QueryAllStarFolder(ctx context.Context, in *QueryAllStarFolderRequest, opts ...grpc.CallOption) (*QueryAllStarFolderResponse, error)
@@ -159,6 +160,15 @@ func (c *articalServiceClient) CreateStarFolder(ctx context.Context, in *CreateS
 func (c *articalServiceClient) DeleteStarFolder(ctx context.Context, in *DeleteStarFolderRequest, opts ...grpc.CallOption) (*DeleteStarFolderResponse, error) {
 	out := new(DeleteStarFolderResponse)
 	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/DeleteStarFolder", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articalServiceClient) DeleteStarFolderAndMove(ctx context.Context, in *DeleteStarFolderAndMoveRequest, opts ...grpc.CallOption) (*DeleteStarFolderAndMoveResponse, error) {
+	out := new(DeleteStarFolderAndMoveResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/DeleteStarFolderAndMove", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -298,6 +308,7 @@ type ArticalServiceServer interface {
 	CreateStar(context.Context, *CreateStarRequest) (*CreateStarResponse, error)
 	CreateStarFolder(context.Context, *CreateStarFolderRequest) (*CreateStarFolderResponse, error)
 	DeleteStarFolder(context.Context, *DeleteStarFolderRequest) (*DeleteStarFolderResponse, error)
+	DeleteStarFolderAndMove(context.Context, *DeleteStarFolderAndMoveRequest) (*DeleteStarFolderAndMoveResponse, error)
 	UpdateStarFolder(context.Context, *UpdateStarFolderRequest) (*UpdateStarFolderResponse, error)
 	QueryStarFolder(context.Context, *QueryStarFolderRequest) (*QueryStarFolderResponse, error)
 	QueryAllStarFolder(context.Context, *QueryAllStarFolderRequest) (*QueryAllStarFolderResponse, error)
@@ -353,6 +364,9 @@ func (UnimplementedArticalServiceServer) CreateStarFolder(context.Context, *Crea
 }
 func (UnimplementedArticalServiceServer) DeleteStarFolder(context.Context, *DeleteStarFolderRequest) (*DeleteStarFolderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteStarFolder not implemented")
+}
+func (UnimplementedArticalServiceServer) DeleteStarFolderAndMove(context.Context, *DeleteStarFolderAndMoveRequest) (*DeleteStarFolderAndMoveResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteStarFolderAndMove not implemented")
 }
 func (UnimplementedArticalServiceServer) UpdateStarFolder(context.Context, *UpdateStarFolderRequest) (*UpdateStarFolderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateStarFolder not implemented")
@@ -618,6 +632,24 @@ func _ArticalService_DeleteStarFolder_Handler(srv interface{}, ctx context.Conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArticalServiceServer).DeleteStarFolder(ctx, req.(*DeleteStarFolderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticalService_DeleteStarFolderAndMove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteStarFolderAndMoveRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).DeleteStarFolderAndMove(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/DeleteStarFolderAndMove",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).DeleteStarFolderAndMove(ctx, req.(*DeleteStarFolderAndMoveRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -910,6 +942,10 @@ var ArticalService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteStarFolder",
 			Handler:    _ArticalService_DeleteStarFolder_Handler,
+		},
+		{
+			MethodName: "DeleteStarFolderAndMove",
+			Handler:    _ArticalService_DeleteStarFolderAndMove_Handler,
 		},
 		{
 			MethodName: "UpdateStarFolder",
