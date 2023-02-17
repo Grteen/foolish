@@ -3,6 +3,7 @@ package service
 import (
 	"be/cmd/artical/dal/db"
 	"be/grpc/articaldemo"
+	"be/pkg/config"
 	"be/pkg/errno"
 )
 
@@ -11,7 +12,7 @@ import (
 func (s *ArticalService) CreateComment(req *articaldemo.CreateCommentRequest) ([]int32, error) {
 	if req.Master != 0 {
 		m := uint(req.Master)
-		return db.CreateComment(s.ctx, []*db.Comment{
+		return db.CreateComment(config.NewConfig(s.ctx, db.DB), []*db.Comment{
 			{
 				UserName:    req.UserName,
 				ArticalID:   uint(req.ArticalID),
@@ -21,7 +22,7 @@ func (s *ArticalService) CreateComment(req *articaldemo.CreateCommentRequest) ([
 			},
 		})
 	} else {
-		return db.CreateComment(s.ctx, []*db.Comment{
+		return db.CreateComment(config.NewConfig(s.ctx, db.DB), []*db.Comment{
 			{
 				UserName:    req.UserName,
 				ArticalID:   uint(req.ArticalID),
@@ -33,7 +34,7 @@ func (s *ArticalService) CreateComment(req *articaldemo.CreateCommentRequest) ([
 
 // 根据 ID 查询评论
 func (s *ArticalService) QueryComment(req *articaldemo.QueryCommentRequest) ([]*db.Comment, error) {
-	cm, err := db.QueryComment(s.ctx, req.CommentID)
+	cm, err := db.QueryComment(config.NewConfig(s.ctx, db.DB), req.CommentID)
 	if err != nil {
 		return nil, err
 	}
@@ -48,12 +49,12 @@ func (s *ArticalService) QueryComment(req *articaldemo.QueryCommentRequest) ([]*
 
 // 查询一篇文章的所有 评论 ID 只会返回 没有 master 字段的 评论
 func (s *ArticalService) QueryCommentByArticalID(req *articaldemo.QueryCommentByArticalIDRequest) ([]int32, error) {
-	return db.QueryCommentByArticalID(s.ctx, req.ArticalID)
+	return db.QueryCommentByArticalID(config.NewConfig(s.ctx, db.DB), req.ArticalID)
 }
 
 // 暂时无用
 func (s *ArticalService) UpdateComment(req *articaldemo.UpdateCommentRequest) error {
-	return db.UpdateComment(s.ctx, &db.Comment{
+	return db.UpdateComment(config.NewConfig(s.ctx, db.DB), &db.Comment{
 		ID:          uint(req.CommentID),
 		CommentText: req.CommentText,
 	})
@@ -61,5 +62,5 @@ func (s *ArticalService) UpdateComment(req *articaldemo.UpdateCommentRequest) er
 
 // 根据 ID 删除评论及其所有回复
 func (s *ArticalService) DeleteComment(req *articaldemo.DeleteCommentRequest) error {
-	return db.DeleteComment(s.ctx, req.CommentID)
+	return db.DeleteComment(config.NewConfig(s.ctx, db.DB), req.CommentID)
 }

@@ -3,9 +3,11 @@ package handlers
 import (
 	"be/cmd/api/pack"
 	"be/cmd/api/rpc"
+	"be/grpc/articaldemo"
 	"be/grpc/searchdemo"
 	"be/pkg/errno"
 	"context"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +20,7 @@ func SearchArtical(ctx *gin.Context) {
 	}
 
 	// 检测参数
-	if len(p.KeyWord) == 0 || len(p.KeyWord) >= 30 || p.Limit <= 0 || p.Limit > 20 || p.Offset < 0 {
+	if len(p.KeyWord) >= 30 || p.Limit <= 0 || p.Limit > 20 || p.Offset < 0 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
@@ -29,10 +31,16 @@ func SearchArtical(ctx *gin.Context) {
 		Offset:  p.Offset,
 	})
 
+	artinfos := make([]*ArticalInfo, 0)
+	fmt.Println(IDs)
+	arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+		IDs: IDs,
+	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
+	artinfos = append(artinfos, ChangeArticalToArticalInfo(arts)...)
 
-	pack.SendData(ctx, errno.Success, IDs)
+	pack.SendData(ctx, errno.Success, artinfos)
 }

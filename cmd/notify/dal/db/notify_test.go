@@ -1,6 +1,7 @@
 package db
 
 import (
+	"be/pkg/config"
 	"context"
 	"fmt"
 	"testing"
@@ -9,8 +10,11 @@ import (
 func TestReplyNotify(t *testing.T) {
 	MySQLInit()
 	DB.AutoMigrate(&ReplyNotify{})
-	ctx := context.Background()
-	err := CreateReplyNotify(ctx, []*ReplyNotify{
+	cg := &config.Config{
+		Ctx: context.Background(),
+		Tx:  DB,
+	}
+	err := CreateReplyNotify(cg, []*ReplyNotify{
 		{
 			Notify: Notify{
 				UserName: "Grteen-test",
@@ -27,7 +31,7 @@ func TestReplyNotify(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := QueryReplyNotify(ctx, []int32{1})
+	res, err := QueryReplyNotify(cg, []int32{1})
 	if err != nil {
 		t.Error(err)
 	}

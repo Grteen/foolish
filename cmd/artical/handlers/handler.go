@@ -617,17 +617,38 @@ func (s *ArticalServiceImpl) QueryAllStarFolder(ctx context.Context, req *artica
 	return resp, nil
 }
 
+// 弃用
 // 删除收藏夹
-func (s *ArticalServiceImpl) DeleteStarFolder(ctx context.Context, req *articaldemo.DeleteStarFolderRequest) (*articaldemo.DeleteStarFolderResponse, error) {
-	resp := new(articaldemo.DeleteStarFolderResponse)
+// func (s *ArticalServiceImpl) DeleteStarFolder(ctx context.Context, req *articaldemo.DeleteStarFolderRequest) (*articaldemo.DeleteStarFolderResponse, error) {
+// 	resp := new(articaldemo.DeleteStarFolderResponse)
+
+// 	// 检测参数
+// 	if req.ID <= 0 {
+// 		resp.Resp = pack.BuildResp(errno.ParamErr)
+// 		return resp, nil
+// 	}
+
+// 	err := service.NewArticalService(ctx).DeleteStarFolder(req)
+// 	if err != nil {
+// 		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+// 		return resp, nil
+// 	}
+
+// 	resp.Resp = pack.BuildResp(errno.Success)
+// 	return resp, nil
+// }
+
+// 删除收藏夹并将所有收藏移至默认收藏夹
+func (s *ArticalServiceImpl) DeleteStarFolderAndMove(ctx context.Context, req *articaldemo.DeleteStarFolderAndMoveRequest) (*articaldemo.DeleteStarFolderAndMoveResponse, error) {
+	resp := new(articaldemo.DeleteStarFolderAndMoveResponse)
 
 	// 检测参数
-	if req.ID <= 0 {
+	if req.StarFolderID <= 0 || len(req.Username) == 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
 
-	err := service.NewArticalService(ctx).DeleteStarFolder(req)
+	err := service.NewArticalService(ctx).DeleteStarFolderAndMove(req)
 	if err != nil {
 		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
 		return resp, nil

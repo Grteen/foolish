@@ -1,9 +1,9 @@
 package db
 
 import (
+	"be/pkg/config"
 	"be/pkg/constants"
 	"be/pkg/errno"
-	"context"
 	"time"
 )
 
@@ -31,26 +31,26 @@ func (*ReplyNotify) TableName() string {
 }
 
 // 创建回复消息
-func CreateReplyNotify(ctx context.Context, rtfs []*ReplyNotify) error {
-	if err := DB.WithContext(ctx).Create(rtfs).Error; err != nil {
+func CreateReplyNotify(cg *config.Config, rtfs []*ReplyNotify) error {
+	if err := cg.Tx.WithContext(cg.Ctx).Create(rtfs).Error; err != nil {
 		return errno.ServiceFault
 	}
 	return nil
 }
 
 // 查询某人的 回复消息id
-func QueryAllReplyNotify(ctx context.Context, username string, limit int32, offset int32) ([]int32, error) {
+func QueryAllReplyNotify(cg *config.Config, username string, limit int32, offset int32) ([]int32, error) {
 	res := make([]int32, 0)
-	if err := DB.WithContext(ctx).Model(&ReplyNotify{}).Select("id").Where("username = ?", username).Order("updatedAt DESC").Limit(int(limit)).Offset(int(offset)).Find(&res).Error; err != nil {
+	if err := cg.Tx.WithContext(cg.Ctx).Model(&ReplyNotify{}).Select("id").Where("username = ?", username).Order("updatedAt DESC").Limit(int(limit)).Offset(int(offset)).Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil
 }
 
 // 查询回复消息
-func QueryReplyNotify(ctx context.Context, ids []int32) ([]*ReplyNotify, error) {
+func QueryReplyNotify(cg *config.Config, ids []int32) ([]*ReplyNotify, error) {
 	res := make([]*ReplyNotify, 0)
-	if err := DB.WithContext(ctx).Where("id in ?", ids).Order("updatedAt DESC").Find(&res).Error; err != nil {
+	if err := cg.Tx.WithContext(cg.Ctx).Where("id in ?", ids).Order("updatedAt DESC").Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil

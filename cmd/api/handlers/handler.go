@@ -150,6 +150,26 @@ type QueryReplyNotifyParma struct {
 	IDs []int32 `form:"IDs"`
 }
 
+type ArticalInfo struct {
+	ID          int32  `json:"ID"`
+	CreatedAt   string `json:"createdAt"`
+	Title       string `json:"title"`
+	Author      string `json:"author"`
+	Description string `json:"description"`
+	LikeNum     int32  `json:"likeNum"`
+	StarNum     int32  `json:"starNum"`
+	SeenNum     int32  `json:"seenNum"`
+	Cover       string `json:"cover"`
+}
+
+type Seen struct {
+	// CreatedAt string         `json:"createdAt"`
+	Today     []*ArticalInfo `json:"tody"`
+	Yesterday []*ArticalInfo `json:"yesterday"`
+	Week      []*ArticalInfo `json:"week"`
+	Weekago   []*ArticalInfo `json:"weekago"`
+}
+
 // 将 articaldemo.Artical 转化为 articaldemo.RdbArtical
 func ChangeArticalToRdbArtical(arts []*articaldemo.Artical) []*articaldemo.RdbArtical {
 	res := make([]*articaldemo.RdbArtical, 0)
@@ -164,6 +184,25 @@ func ChangeArticalToRdbArtical(arts []*articaldemo.Artical) []*articaldemo.RdbAr
 			StarNum:     art.StarNum,
 			SeenNum:     art.SeenNum,
 			CreatedAt:   art.CreatedAt,
+			Cover:       art.Cover,
+		})
+	}
+	return res
+}
+
+// 将 articaldemo.Artical 转化为 ArticalInfo
+func ChangeArticalToArticalInfo(arts []*articaldemo.Artical) []*ArticalInfo {
+	res := make([]*ArticalInfo, 0)
+	for _, art := range arts {
+		res = append(res, &ArticalInfo{
+			ID:          art.ID,
+			CreatedAt:   art.CreatedAt,
+			Title:       art.Title,
+			Author:      art.Author,
+			Description: art.Description,
+			LikeNum:     art.LikeNum,
+			StarNum:     art.StarNum,
+			SeenNum:     art.SeenNum,
 			Cover:       art.Cover,
 		})
 	}

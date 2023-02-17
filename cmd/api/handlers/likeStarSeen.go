@@ -13,13 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ArticalInfo struct {
-	ID          int32  `json:"ID"`
-	Title       string `json:"title"`
-	Author      string `json:"author"`
-	Description string `json:"description"`
-}
-
 // tp = 0  Like 请求
 // tp = 2  Seen 请求
 func GiveLikeStar(ctx *gin.Context, tp int32) {
@@ -256,11 +249,11 @@ func QueryAllSeen(ctx *gin.Context) {
 		return
 	}
 
-	pack.SendData(ctx, errno.Success, map[string][]*ArticalInfo{
-		"today":     artinfos[0],
-		"yesterday": artinfos[1],
-		"week":      artinfos[2],
-		"weekago":   artinfos[3],
+	pack.SendData(ctx, errno.Success, &Seen{
+		Today:     artinfos[0],
+		Yesterday: artinfos[1],
+		Week:      artinfos[2],
+		Weekago:   artinfos[3],
 	})
 }
 
@@ -282,14 +275,7 @@ func QueryArticalInfoOfSeen(ids []int32, userName string) ([][]*ArticalInfo, err
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, pack.Tz)
 	yesterday := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, pack.Tz)
 	weekago := time.Date(now.Year(), now.Month(), now.Day()-7, 0, 0, 0, 0, pack.Tz)
-	changeToArticalInfo := func(art *articaldemo.Artical) *ArticalInfo {
-		return &ArticalInfo{
-			ID:          art.ID,
-			Title:       art.Title,
-			Author:      art.Author,
-			Description: art.Description,
-		}
-	}
+
 	for _, art := range arts {
 		s, err := rpc.QueryLikeStar(context.Background(), &articaldemo.QueryLikeStarRequest{
 			UserName:  userName,
@@ -305,13 +291,13 @@ func QueryArticalInfoOfSeen(ids []int32, userName string) ([][]*ArticalInfo, err
 			return nil, errno.ServiceFault
 		}
 		if theTime.After(today) || theTime.Equal(today) {
-			artinfos[0] = append(artinfos[0], changeToArticalInfo(art))
+			artinfos[0] = append(artinfos[0], ChangeArticalToArticalInfo([]*articaldemo.Artical{art})...)
 		} else if (theTime.After(yesterday) || theTime.Equal(yesterday)) && theTime.Before(today) {
-			artinfos[1] = append(artinfos[1], changeToArticalInfo(art))
+			artinfos[1] = append(artinfos[1], ChangeArticalToArticalInfo([]*articaldemo.Artical{art})...)
 		} else if (theTime.After(weekago) || theTime.Equal(weekago)) && theTime.Before(yesterday) {
-			artinfos[2] = append(artinfos[2], changeToArticalInfo(art))
+			artinfos[2] = append(artinfos[2], ChangeArticalToArticalInfo([]*articaldemo.Artical{art})...)
 		} else if theTime.Before(weekago) {
-			artinfos[3] = append(artinfos[3], changeToArticalInfo(art))
+			artinfos[3] = append(artinfos[3], ChangeArticalToArticalInfo([]*articaldemo.Artical{art})...)
 		} else {
 			return nil, errno.ServiceFault
 		}
@@ -514,6 +500,7 @@ func QueryStar(ctx *gin.Context) {
 		return
 	}
 
+	artinfos := make([]*ArticalInfo, 0)
 	// 查询对应文章的文章信息
 	for _, star := range stars {
 		art, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
@@ -523,12 +510,10 @@ func QueryStar(ctx *gin.Context) {
 			pack.SendResponse(ctx, errno.ConvertErr(err))
 			return
 		}
-		star.Author = art[0].Author
-		star.Title = art[0].Title
-		star.Description = art[0].Description
+		artinfos = append(artinfos, ChangeArticalToArticalInfo([]*articaldemo.Artical{art[0]})...)
 	}
 
-	pack.SendData(ctx, errno.Success, stars)
+	pack.SendData(ctx, errno.Success, artinfos)
 }
 
 func DeleteStarFolder(ctx *gin.Context) {
@@ -568,8 +553,9 @@ func DeleteStarFolder(ctx *gin.Context) {
 		return
 	}
 
-	err = rpc.DeleteStarFolder(context.Background(), &articaldemo.DeleteStarFolderRequest{
-		ID: p.FolderID,
+	err = rpc.DeleteStarFolderAndMove(context.Background(), &articaldemo.DeleteStarFolderAndMoveRequest{
+		Username:     sfs[0].Username,
+		StarFolderID: p.FolderID,
 	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))

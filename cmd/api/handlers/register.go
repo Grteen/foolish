@@ -3,6 +3,7 @@ package handlers
 import (
 	"be/cmd/api/pack"
 	"be/cmd/api/rpc"
+	"be/grpc/articaldemo"
 	"be/grpc/userdemo"
 	"be/pkg/errno"
 	"context"
@@ -57,6 +58,17 @@ func Register(ctx *gin.Context) {
 		Email:    u.Email,
 	})
 
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 创建用户的默认收藏夹
+	err = rpc.CreateStarFolder(context.Background(), &articaldemo.CreateStarFolderRequest{
+		UserName:   u.Name,
+		FolderName: "默认",
+		IsDefault:  true,
+	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return

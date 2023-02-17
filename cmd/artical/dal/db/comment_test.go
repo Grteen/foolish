@@ -1,6 +1,7 @@
 package db
 
 import (
+	"be/pkg/config"
 	"context"
 	"fmt"
 	"testing"
@@ -10,8 +11,11 @@ func TestComment(t *testing.T) {
 	MySQLInit()
 	DB.AutoMigrate(&Comment{})
 
-	ctx := context.Background()
-	_, err := CreateComment(ctx, []*Comment{
+	cg := &config.Config{
+		Ctx: context.Background(),
+		Tx:  DB,
+	}
+	_, err := CreateComment(cg, []*Comment{
 		{
 			UserName:    "Grteen-test",
 			ArticalID:   3,
@@ -28,14 +32,14 @@ func TestComment(t *testing.T) {
 		t.Error(err)
 	}
 
-	cm, err := QueryComment(ctx, []int32{5, 6, 7})
+	cm, err := QueryComment(cg, []int32{5, 6, 7})
 	if err != nil {
 		t.Error(err)
 	}
 
 	fmt.Println(cm)
 
-	err = UpdateComment(ctx, &Comment{
+	err = UpdateComment(cg, &Comment{
 		ID:          2,
 		UserName:    "Grteen-test",
 		ArticalID:   3,
@@ -46,17 +50,17 @@ func TestComment(t *testing.T) {
 		t.Error(err)
 	}
 
-	cms, err := QueryCommentByArticalID(ctx, 3)
+	cms, err := QueryCommentByArticalID(cg, 3)
 	if err != nil {
 		t.Error(err)
 	}
 
 	fmt.Println(cms[0], cms[1])
 
-	if err = DeleteComment(ctx, 1); err != nil {
+	if err = DeleteComment(cg, 1); err != nil {
 		t.Error(err)
 	}
-	if err = DeleteComment(ctx, 2); err != nil {
+	if err = DeleteComment(cg, 2); err != nil {
 		t.Error(err)
 	}
 
@@ -66,9 +70,12 @@ func TestReply(t *testing.T) {
 	MySQLInit()
 	DB.AutoMigrate(&Comment{})
 
-	ctx := context.Background()
+	cg := &config.Config{
+		Ctx: context.Background(),
+		Tx:  DB,
+	}
 	// var m uint = 1
-	// err := CreateComment(ctx, []*Comment{
+	// err := CreateComment(cg, []*Comment{
 	// 	{
 	// 		UserName:    "Grteen-test",
 	// 		ArticalID:   3,
@@ -86,13 +93,15 @@ func TestReply(t *testing.T) {
 	// 	t.Error(err)
 	// }
 
-	res, err := QueryComment(ctx, []int32{1})
+	res, err := QueryComment(cg, []int32{1})
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(res[0].Reply)
+	if len(res) != 0 {
+		fmt.Println(res[0].Reply)
+	}
 
-	// err = DeleteComment(ctx, 1)
+	// err = DeleteComment(cg, 1)
 	// if err != nil {
 	// 	t.Error(err)
 	// }

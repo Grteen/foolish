@@ -4,6 +4,7 @@ import (
 	"be/cmd/artical/dal/db"
 	"be/cmd/artical/dal/rdb"
 	"be/grpc/articaldemo"
+	"be/pkg/config"
 	"context"
 )
 
@@ -16,7 +17,7 @@ func NewArticalService(ctx context.Context) *ArticalService {
 }
 
 func (s *ArticalService) CreateArtical(req *articaldemo.CreateArticalRequest) error {
-	return db.CreateArtical(s.ctx, []*db.Artical{
+	return db.CreateArtical(config.NewConfig(s.ctx, db.DB), []*db.Artical{
 		{
 			Author:      req.Author,
 			Title:       req.Title,
@@ -32,16 +33,16 @@ func (s *ArticalService) CreateArtical(req *articaldemo.CreateArticalRequest) er
 }
 
 func (s *ArticalService) QueryArtical(req *articaldemo.QueryArticalRequest) ([]*db.Artical, error) {
-	return db.QueryArtical(s.ctx, req.IDs)
+	return db.QueryArtical(config.NewConfig(s.ctx, db.DB), req.IDs)
 }
 
 func (s *ArticalService) DeleteArtical(req *articaldemo.DeleteArticalRequest) error {
-	return db.DeleteArtical(s.ctx, req.ID)
+	return db.DeleteArtical(config.NewConfig(s.ctx, db.DB), req.ID)
 }
 
 // 不更新作者
 func (s *ArticalService) UpdateArtical(req *articaldemo.UpdateArticalRequest) error {
-	return db.UpdateArtical(s.ctx, &db.Artical{
+	return db.UpdateArtical(config.NewConfig(s.ctx, db.DB), &db.Artical{
 		ID:          uint(req.ArticalID),
 		Title:       req.Title,
 		Text:        req.Text,
@@ -51,7 +52,7 @@ func (s *ArticalService) UpdateArtical(req *articaldemo.UpdateArticalRequest) er
 }
 
 func (s *ArticalService) QueryArticalByAuthor(req *articaldemo.QueryArticalByAuthorRequest) ([]int32, error) {
-	return db.QueryArticalByAuthor(s.ctx, req.Author)
+	return db.QueryArticalByAuthor(config.NewConfig(s.ctx, db.DB), req.Author)
 }
 
 func (s *ArticalService) RdbSetArtical(req *articaldemo.RdbSetArticalRequest) error {

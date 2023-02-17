@@ -18,7 +18,7 @@ func (s *SearchServiceImpl) SearchArtical(ctx context.Context, req *searchdemo.S
 	resp := new(searchdemo.SearchArticalResponse)
 
 	// 检测参数
-	if len(req.Keyword) == 0 || len(req.Keyword) >= 30 || req.Limit <= 0 || req.Limit > 20 || req.Offset < 0 {
+	if len(req.Keyword) >= 30 || req.Limit < 0 || req.Limit > 20 || req.Offset < 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"be/pkg/config"
 	"context"
 	"fmt"
 	"testing"
@@ -13,7 +14,12 @@ func TestArtical(t *testing.T) {
 	DB.AutoMigrate(&Like{})
 	DB.AutoMigrate(&Comment{})
 
-	err := CreateArtical(context.Background(), []*Artical{
+	cg := &config.Config{
+		Ctx: context.Background(),
+		Tx:  DB,
+	}
+
+	err := CreateArtical(cg, []*Artical{
 		{Title: "title1", Author: "Grteen", Text: "this is a good text", Cover: "here", Description: "OK"},
 	})
 
@@ -21,7 +27,7 @@ func TestArtical(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := QueryArtical(context.Background(), []int32{10, 11, 12})
+	res, err := QueryArtical(cg, []int32{10, 11, 12})
 	if err != nil {
 		t.Error(err)
 	}
@@ -32,7 +38,7 @@ func TestArtical(t *testing.T) {
 
 	fmt.Println(res)
 
-	err = DeleteArtical(context.Background(), 7)
+	err = DeleteArtical(cg, 7)
 	if err != nil {
 		t.Error(err)
 	}

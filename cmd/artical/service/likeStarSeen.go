@@ -4,7 +4,10 @@ import (
 	"be/cmd/artical/dal/db"
 	"be/cmd/artical/dal/rdb"
 	"be/grpc/articaldemo"
+	"be/pkg/config"
 	"be/pkg/errno"
+
+	"gorm.io/gorm"
 )
 
 func (s *ArticalService) CreateLikeStar(req *articaldemo.CreateLikeStarRequest) error {
@@ -21,7 +24,7 @@ func (s *ArticalService) CreateLikeStar(req *articaldemo.CreateLikeStarRequest) 
 	} else {
 		return errno.ServiceFault
 	}
-	return db.CreateLikeStar(s.ctx, []*db.LikeStar{
+	return db.CreateLikeStar(config.NewConfig(s.ctx, db.DB), []*db.LikeStar{
 		{
 			UserName:  req.UserName,
 			ArticalID: uint(req.ArticalID),
@@ -43,7 +46,7 @@ func (s *ArticalService) DeleteLikeStar(req *articaldemo.DeleteLikeStarRequest) 
 	} else {
 		return errno.ServiceFault
 	}
-	return db.DeleteLikeStar(s.ctx, &db.LikeStar{
+	return db.DeleteLikeStar(config.NewConfig(s.ctx, db.DB), &db.LikeStar{
 		UserName:  req.UserName,
 		ArticalID: uint(req.ArticalID),
 	}, itf)
@@ -64,7 +67,7 @@ func (s *ArticalService) UpdateLikeStarTime(req *articaldemo.UpdateLikeStarTimeR
 		return errno.ServiceFault
 	}
 
-	return db.UpdateLikeStarTime(s.ctx, &db.LikeStar{
+	return db.UpdateLikeStarTime(config.NewConfig(s.ctx, db.DB), &db.LikeStar{
 		UserName:  req.Likestar.UserName,
 		ArticalID: uint(req.Likestar.ArticalID),
 	}, req.UpdateTime.AsTime(), itf)
@@ -84,7 +87,7 @@ func (s *ArticalService) QueryLikeStar(req *articaldemo.QueryLikeStarRequest) ([
 	} else {
 		return nil, errno.ServiceFault
 	}
-	res, err := db.QueryLikeStar(s.ctx, &db.LikeStar{
+	res, err := db.QueryLikeStar(config.NewConfig(s.ctx, db.DB), &db.LikeStar{
 		UserName:  req.UserName,
 		ArticalID: uint(req.ArticalID),
 	}, itf)
@@ -115,7 +118,7 @@ func (s *ArticalService) QueryAllLikeStar(req *articaldemo.QueryAllLikeStarReque
 	} else {
 		return nil, errno.ServiceFault
 	}
-	res, err := db.QueryAllLikeStar(s.ctx, req.UserName, itf)
+	res, err := db.QueryAllLikeStar(config.NewConfig(s.ctx, db.DB), req.UserName, itf)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +132,7 @@ func (s *ArticalService) RdbIncreaseitf(req *articaldemo.RdbIncreaseitfRequest) 
 
 // 创建收藏
 func (s *ArticalService) CreateStar(req *articaldemo.CreateStarRequest) error {
-	return db.CreateStar(s.ctx, []*db.Star{
+	return db.CreateStar(config.NewConfig(s.ctx, db.DB), []*db.Star{
 		{
 			UserName:  req.Username,
 			ArticalID: uint(req.ArticalID),
@@ -140,7 +143,7 @@ func (s *ArticalService) CreateStar(req *articaldemo.CreateStarRequest) error {
 
 // 创建收藏夹
 func (s *ArticalService) CreateStarFolder(req *articaldemo.CreateStarFolderRequest) error {
-	return db.CreateStarFolder(s.ctx, []*db.StarFolder{
+	return db.CreateStarFolder(config.NewConfig(s.ctx, db.DB), []*db.StarFolder{
 		{
 			UserName:   req.UserName,
 			FolderName: req.FolderName,
@@ -151,25 +154,51 @@ func (s *ArticalService) CreateStarFolder(req *articaldemo.CreateStarFolderReque
 
 // 查询收藏夹
 func (s *ArticalService) QueryStarFolder(req *articaldemo.QueryStarFolderRequest) ([]*db.StarFolder, error) {
-	return db.QueryStarFolder(s.ctx, req.IDs)
+	return db.QueryStarFolder(config.NewConfig(s.ctx, db.DB), req.IDs)
 }
 
 // 查询所有的收藏夹
 func (s *ArticalService) QueryAllStarFolder(req *articaldemo.QueryAllStarFolderRequest) ([]*db.StarFolder, error) {
-	return db.QueryAllStarFolder(s.ctx, req.UserName)
+	return db.QueryAllStarFolder(config.NewConfig(s.ctx, db.DB), req.UserName)
 }
 
 // 查询收藏夹的所有收藏
 func (s *ArticalService) QueryAllStar(req *articaldemo.QueryAllStarRequest) ([]*db.Star, error) {
-	return db.QueryAllStar(s.ctx, req.StarFolderID, req.Limit, req.Offset)
+	return db.QueryAllStar(config.NewConfig(s.ctx, db.DB), req.StarFolderID, req.Limit, req.Offset)
 }
 
 // 删除收藏夹
 func (s *ArticalService) DeleteStarFolder(req *articaldemo.DeleteStarFolderRequest) error {
-	return db.DeleteStarFolder(s.ctx, req.ID)
+	return db.DeleteStarFolder(config.NewConfig(s.ctx, db.DB), req.ID)
 }
 
 // 更新收藏夹
 func (s *ArticalService) UpdateStarFolder(req *articaldemo.UpdateStarFolderRequest) error {
-	return db.UpdateStarFolder(s.ctx, req.StarFolder.ID, req.StarFolder.FolderName)
+	return db.UpdateStarFolder(config.NewConfig(s.ctx, db.DB), req.StarFolder.ID, req.StarFolder.FolderName)
+}
+
+func (s *ArticalService) DeleteStarFolderAndMove(req *articaldemo.DeleteStarFolderAndMoveRequest) error {
+	return db.DB.Transaction(func(tx *gorm.DB) error {
+		// 查询原收藏夹的所有收藏
+		stars, err := db.QueryAllStar(config.NewConfig(s.ctx, tx), req.StarFolderID, 0, 0)
+		if err != nil {
+			return errno.ServiceFault
+		}
+		// 查询某人收藏夹
+		id, err := db.QueryDefaultFolder(config.NewConfig(s.ctx, tx), req.Username)
+		if err != nil {
+			return errno.ServiceFault
+		}
+		// 移动收藏
+		for _, star := range stars {
+			if err := db.UpdateStarFolderOwner(config.NewConfig(s.ctx, tx), int32(star.ID), id); err != nil {
+				return errno.ServiceFault
+			}
+		}
+		// 删除收藏夹
+		if err := db.DeleteStarFolder(config.NewConfig(s.ctx, tx), req.StarFolderID); err != nil {
+			return errno.ServiceFault
+		}
+		return nil
+	})
 }

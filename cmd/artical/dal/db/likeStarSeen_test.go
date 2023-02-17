@@ -1,7 +1,7 @@
 package db
 
 import (
-	"be/pkg/constants"
+	"be/pkg/config"
 	"context"
 	"fmt"
 	"testing"
@@ -13,9 +13,12 @@ func TestLike(t *testing.T) {
 	DB.AutoMigrate(&Star{})
 	DB.AutoMigrate(&Seen{})
 
-	ctx := context.WithValue(context.Background(), constants.LikeStarModel, &Star{})
+	cg := &config.Config{
+		Ctx: context.Background(),
+		Tx:  DB,
+	}
 
-	err := CreateLikeStar(ctx, []*LikeStar{
+	err := CreateLikeStar(cg, []*LikeStar{
 		{
 			UserName:  "Grteen-test",
 			ArticalID: 3,
@@ -26,7 +29,7 @@ func TestLike(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := QueryLikeStar(ctx, &LikeStar{
+	res, err := QueryLikeStar(cg, &LikeStar{
 		UserName:  "Grteen-test",
 		ArticalID: 3,
 	}, &Like{})
@@ -37,7 +40,7 @@ func TestLike(t *testing.T) {
 
 	fmt.Println(res[0])
 
-	err = DeleteLikeStar(ctx, &LikeStar{
+	err = DeleteLikeStar(cg, &LikeStar{
 		UserName:  "Grteen-test",
 		ArticalID: 3,
 	}, &Like{})
@@ -54,8 +57,11 @@ func TestStar(t *testing.T) {
 	DB.AutoMigrate(&Seen{})
 	DB.AutoMigrate(&StarFolder{})
 
-	ctx := context.Background()
-	err := CreateStarFolder(ctx, []*StarFolder{
+	cg := &config.Config{
+		Ctx: context.Background(),
+		Tx:  DB,
+	}
+	err := CreateStarFolder(cg, []*StarFolder{
 		{
 			UserName:   "Grteen-test",
 			FolderName: "test o",
@@ -64,7 +70,7 @@ func TestStar(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = CreateStar(ctx, []*Star{
+	err = CreateStar(cg, []*Star{
 		{
 			UserName:  "Grteen-test",
 			ArticalID: 16,
@@ -75,25 +81,25 @@ func TestStar(t *testing.T) {
 		t.Error(err)
 	}
 
-	res, err := QueryAllStarFolder(ctx, "Grteen-test")
+	res, err := QueryAllStarFolder(cg, "Grteen-test")
 	if err != nil {
 		t.Error(err)
 	}
 	fmt.Println(res[0])
 
-	s, err := QueryAllStar(ctx, 1, 20, 0)
+	s, err := QueryAllStar(cg, 1, 20, 0)
 	if err != nil {
 		t.Error(err)
 	}
 	fmt.Println(s)
 
-	temp, err := QueryLikeStar(ctx, &LikeStar{
+	temp, err := QueryLikeStar(cg, &LikeStar{
 		UserName:  "Grteen-test",
 		ArticalID: 16,
 	}, &Star{})
 	fmt.Println(temp)
 
-	err = DeleteLikeStar(ctx, &LikeStar{
+	err = DeleteLikeStar(cg, &LikeStar{
 		UserName:  "Grteen-test",
 		ArticalID: 16,
 	}, &Star{})

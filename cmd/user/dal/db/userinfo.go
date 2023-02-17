@@ -1,9 +1,9 @@
 package db
 
 import (
+	"be/pkg/config"
 	"be/pkg/constants"
 	"be/pkg/errno"
-	"context"
 	"time"
 )
 
@@ -25,34 +25,34 @@ func (uf *UserInfo) TableName() string {
 }
 
 // 创建用户信息 uf
-func CreateUserInfo(ctx context.Context, uf *UserInfo) error {
-	if err := DB.WithContext(ctx).Create(uf).Error; err != nil {
+func CreateUserInfo(cg *config.Config, uf *UserInfo) error {
+	if err := cg.Tx.WithContext(cg.Ctx).Create(uf).Error; err != nil {
 		return errno.ServiceFault
 	}
 	return nil
 }
 
 // 更新用户信息为 uf
-func UpdateUserInfo(ctx context.Context, uf *UserInfo) error {
-	if err := DB.WithContext(ctx).Where("username = ?", uf.UserName).Updates(*uf).Error; err != nil {
+func UpdateUserInfo(cg *config.Config, uf *UserInfo) error {
+	if err := cg.Tx.WithContext(cg.Ctx).Where("username = ?", uf.UserName).Updates(*uf).Error; err != nil {
 		return errno.ServiceFault
 	}
 	return nil
 }
 
 // 根据 userName 查询用户信息
-func QueryUserInfo(ctx context.Context, userName string) ([]*UserInfo, error) {
+func QueryUserInfo(cg *config.Config, userName string) ([]*UserInfo, error) {
 	res := make([]*UserInfo, 0)
-	if err := DB.WithContext(ctx).Where("username = ?", userName).Find(&res).Error; err != nil {
+	if err := cg.Tx.WithContext(cg.Ctx).Where("username = ?", userName).Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil
 }
 
 // 根据 userName 查询用户头像
-func QueryAvator(ctx context.Context, userName string) ([]string, error) {
+func QueryAvator(cg *config.Config, userName string) ([]string, error) {
 	res := make([]string, 0)
-	if err := DB.WithContext(ctx).Model(&UserInfo{}).Select("avator").Where("username = ?", userName).Find(&res).Error; err != nil {
+	if err := cg.Tx.WithContext(cg.Ctx).Model(&UserInfo{}).Select("avator").Where("username = ?", userName).Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil

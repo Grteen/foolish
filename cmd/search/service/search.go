@@ -3,6 +3,7 @@ package service
 import (
 	"be/cmd/search/dal/db"
 	"be/grpc/searchdemo"
+	"be/pkg/config"
 	"context"
 )
 
@@ -15,5 +16,5 @@ func NewSearchService(ctx context.Context) *SearchService {
 }
 
 func (s *SearchService) SearchArtical(req *searchdemo.SearchArticalRequest) ([]int32, error) {
-	return db.Search(s.ctx, req.Keyword, req.Limit, req.Offset)
+	return db.Search(config.NewConfig(s.ctx, db.DB), req.Keyword, req.Limit, req.Offset)
 }

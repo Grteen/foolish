@@ -1,6 +1,7 @@
 package db
 
 import (
+	"be/pkg/config"
 	"context"
 	"fmt"
 	"testing"
@@ -9,7 +10,11 @@ import (
 func TestUser(t *testing.T) {
 	MySQLInit()
 	DB.AutoMigrate(&User{})
-	err := CreateUser(context.Background(), []*User{
+	cg := &config.Config{
+		Ctx: context.Background(),
+		Tx:  DB,
+	}
+	err := CreateUser(cg, []*User{
 		{
 			UserName: "Grteen1",
 			PassWord: "123456",
@@ -21,13 +26,13 @@ func TestUser(t *testing.T) {
 		t.Error(err)
 	}
 
-	u, err := QueryUser(context.Background(), "Grteen1")
+	u, err := QueryUser(cg, "Grteen1")
 	if err != nil {
 		t.Error(err)
 	}
 	fmt.Println(u[0])
 
-	err = DeleteUser(context.Background(), "Grteen1")
+	err = DeleteUser(cg, "Grteen1")
 	if err != nil {
 		t.Error(err)
 	}
@@ -36,17 +41,21 @@ func TestUser(t *testing.T) {
 func TestSubscribe(t *testing.T) {
 	MySQLInit()
 	DB.AutoMigrate(&User{})
-	err := CreateUser(context.Background(), []*User{
+	cg := &config.Config{
+		Ctx: context.Background(),
+		Tx:  DB,
+	}
+	err := CreateUser(cg, []*User{
 		{
-			UserName: "Grteen114514",
+			UserName: "Grteen777",
 			PassWord: "123456",
-			Email:    "not unique.com",
+			Email:    "not good  unique.com",
 
 			Subscribe: []*User{
 				{
-					UserName: "Grteen1437",
+					UserName: "Grteen1437666",
 					PassWord: "123456",
-					Email:    "ok.com",
+					Email:    "ok of unique.com",
 				},
 			},
 		},

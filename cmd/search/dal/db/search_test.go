@@ -1,6 +1,7 @@
 package db
 
 import (
+	"be/pkg/config"
 	"context"
 	"fmt"
 	"testing"
@@ -8,8 +9,8 @@ import (
 
 func TestSearch(t *testing.T) {
 	MySQLInit()
-	ctx := context.Background()
-	res, err := Search(ctx, "Grteen", 15, 1)
+	cg := &config.Config{Ctx: context.Background(), Tx: DB}
+	res, err := Search(cg, "Grteen", 15, 1)
 	if err != nil {
 		t.Error(err)
 	}

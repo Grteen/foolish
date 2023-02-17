@@ -277,8 +277,8 @@ func CreateStarFolder(ctx context.Context, req *articaldemo.CreateStarFolderRequ
 	return nil
 }
 
-func DeleteStarFolder(ctx context.Context, req *articaldemo.DeleteStarFolderRequest) error {
-	resp, err := articalClient.DeleteStarFolder(ctx, req)
+func DeleteStarFolderAndMove(ctx context.Context, req *articaldemo.DeleteStarFolderAndMoveRequest) error {
+	resp, err := articalClient.DeleteStarFolderAndMove(ctx, req)
 	if err != nil {
 		return err
 	}

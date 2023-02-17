@@ -3,6 +3,7 @@ package service
 import (
 	"be/cmd/notify/dal/db"
 	"be/grpc/notifydemo"
+	"be/pkg/config"
 	"context"
 )
 
@@ -16,7 +17,7 @@ func NewNotifyService(ctx context.Context) *NotifyService {
 
 // 创建回复通知
 func (s *NotifyService) CreateReplyNotify(req *notifydemo.CreateReplyNotifyRequest) error {
-	return db.CreateReplyNotify(s.ctx, []*db.ReplyNotify{
+	return db.CreateReplyNotify(config.NewConfig(s.ctx, db.DB), []*db.ReplyNotify{
 		{
 			Notify: db.Notify{
 				UserName: req.Replyntf.UserName,
@@ -34,10 +35,10 @@ func (s *NotifyService) CreateReplyNotify(req *notifydemo.CreateReplyNotifyReque
 
 // 根据 ID 查询回复消息
 func (s *NotifyService) QueryReplyNotify(req *notifydemo.QueryReplyNotifyRequest) ([]*db.ReplyNotify, error) {
-	return db.QueryReplyNotify(s.ctx, req.IDs)
+	return db.QueryReplyNotify(config.NewConfig(s.ctx, db.DB), req.IDs)
 }
 
 // 查询某人的 回复消息id
 func (s *NotifyService) QueryAllReplyNotify(req *notifydemo.QueryAllReplyNotifyRequest) ([]int32, error) {
-	return db.QueryAllReplyNotify(s.ctx, req.UserName, req.Limit, req.Offset)
+	return db.QueryAllReplyNotify(config.NewConfig(s.ctx, db.DB), req.UserName, req.Limit, req.Offset)
 }

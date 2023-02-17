@@ -4,6 +4,7 @@ import (
 	"be/cmd/user/dal/db"
 	"be/cmd/user/dal/rdb"
 	"be/grpc/userdemo"
+	"be/pkg/config"
 	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
@@ -24,7 +25,7 @@ func NewUserService(ctx context.Context) *UserService {
 
 func (s *UserService) CreateUser(req *userdemo.CreateUserRequest) error {
 	// 查询 userName 是否存在
-	users, err := db.QueryUser(s.ctx, req.UserName)
+	users, err := db.QueryUser(config.NewConfig(s.ctx, db.DB), req.UserName)
 	if err != nil {
 		return err
 	}
@@ -33,7 +34,7 @@ func (s *UserService) CreateUser(req *userdemo.CreateUserRequest) error {
 	}
 
 	// 查询 email 是否存在
-	e_users, err := db.QueryUserByEmail(s.ctx, req.Email)
+	e_users, err := db.QueryUserByEmail(config.NewConfig(s.ctx, db.DB), req.Email)
 	if err != nil {
 		return err
 	}
@@ -55,7 +56,7 @@ func (s *UserService) CreateUser(req *userdemo.CreateUserRequest) error {
 		return errno.ServiceFault
 	}
 
-	return db.CreateUser(s.ctx, []*db.User{
+	return db.CreateUser(config.NewConfig(s.ctx, db.DB), []*db.User{
 		{
 			UserName: req.UserName,
 			PassWord: passWord,
@@ -74,7 +75,7 @@ func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) (string, error) 
 
 	if emailReg.MatchString(req.UserNameOrEmail) {
 		// 匹配成功 账户为邮箱
-		e_users, err := db.QueryUserByEmail(s.ctx, req.UserNameOrEmail)
+		e_users, err := db.QueryUserByEmail(config.NewConfig(s.ctx, db.DB), req.UserNameOrEmail)
 		if err != nil {
 			return "", err
 		}
@@ -87,7 +88,7 @@ func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) (string, error) 
 		u = *e_users[0]
 	} else if userPwReg.MatchString(req.UserNameOrEmail) {
 		// 匹配成功 账户为用户名
-		users, err := db.QueryUser(s.ctx, req.UserNameOrEmail)
+		users, err := db.QueryUser(config.NewConfig(s.ctx, db.DB), req.UserNameOrEmail)
 		if err != nil {
 			return "", err
 		}
@@ -113,7 +114,7 @@ func (s *UserService) CheckUser(req *userdemo.CheckUserRequest) (string, error) 
 
 // 根据 userName 查询用户 主要用于查询 粉丝数 关注数 和文章数
 func (s *UserService) QueryUser(req *userdemo.QueryUserRequest) ([]*db.User, error) {
-	return db.QueryUser(s.ctx, req.User)
+	return db.QueryUser(config.NewConfig(s.ctx, db.DB), req.User)
 }
 
 // 将 RdbUser 存储在 redis 中

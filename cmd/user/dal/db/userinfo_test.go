@@ -1,6 +1,7 @@
 package db
 
 import (
+	"be/pkg/config"
 	"context"
 	"fmt"
 	"testing"
@@ -10,8 +11,11 @@ func TestUserInfo(t *testing.T) {
 	MySQLInit()
 	DB.AutoMigrate(&UserInfo{})
 	DB.AutoMigrate(&User{})
-
-	err := CreateUserInfo(context.Background(), &UserInfo{
+	cg := &config.Config{
+		Ctx: context.Background(),
+		Tx:  DB,
+	}
+	err := CreateUserInfo(cg, &UserInfo{
 		UserName: "Grteen",
 	})
 
@@ -26,12 +30,12 @@ func TestUserInfo(t *testing.T) {
 		UserAvator:  "127.0.0.1/here",
 	}
 
-	err = UpdateUserInfo(context.Background(), uf)
+	err = UpdateUserInfo(cg, uf)
 	if err != nil {
 		t.Error(err)
 	}
 
-	res, err := QueryUserInfo(context.Background(), uf.UserName)
+	res, err := QueryUserInfo(cg, uf.UserName)
 	if err != nil {
 		t.Error(err)
 	}
