@@ -246,17 +246,6 @@ func GetArtical(ctx *gin.Context) {
 		return
 	}
 
-	// 将未查询到的文章全部缓存
-	for _, art := range res {
-		err := rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
-			RdbArtical: ChangeArticalToRdbArtical([]*articaldemo.Artical{art})[0],
-		})
-		if err != nil {
-			pack.SendResponse(ctx, errno.ConvertErr(err))
-			return
-		}
-	}
-
 	setAvator := func(art *articaldemo.RdbArtical) error {
 		res, err := rpc.QueryAvator(context.Background(), &userdemo.QueryAvatorRequest{
 			UserName: art.Author,
@@ -280,21 +269,36 @@ func GetArtical(ctx *gin.Context) {
 		}
 	}
 
+	// 将未查询到的文章全部缓存
+	for _, art := range rdbres {
+		err := rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
+			RdbArtical: art,
+		})
+		if err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
+	}
+
 	pack.SendData(ctx, errno.Success, rdbres)
 }
 
 func GetArticalIDsByAuthor(ctx *gin.Context) {
-	author := ctx.Param("author")
+	var p GetArticalIDsByAuthorParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, err)
+		return
+	}
 
-	// 名称不合法
-	if len(author) == 0 {
+	// 检测参数
+	if len(p.Author) == 0 || len(p.Field) == 0 || len(p.Order) == 0 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
 
 	// 查询该作者是否存在
 	_, err := rpc.QueryUserInfo(context.Background(), &userdemo.QueryUserInfoRequest{
-		UserName: author,
+		UserName: p.Author,
 	})
 
 	if err != nil {
@@ -302,8 +306,25 @@ func GetArticalIDsByAuthor(ctx *gin.Context) {
 		return
 	}
 
+	var fieldTemp = map[string]string{
+		"like": "likeNum",
+		"star": "starNum",
+		"seen": "seenNum",
+		"time": "updatedAt",
+	}
+
+	var orderTemp = map[string]string{
+		"ASC":  "ASC",
+		"DESC": "DESC",
+	}
+
+	field := fieldTemp[p.Field]
+	order := orderTemp[p.Order]
+
 	ids, err := rpc.QueryArticalByAuthor(context.Background(), &articaldemo.QueryArticalByAuthorRequest{
-		Author: author,
+		Author: p.Author,
+		Field:  field,
+		Order:  order,
 	})
 
 	if err != nil {

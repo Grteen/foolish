@@ -113,8 +113,8 @@ func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.
 func (s *ArticalServiceImpl) QueryArticalByAuthor(ctx context.Context, req *articaldemo.QueryArticalByAuthorRequest) (*articaldemo.QueryArticalByAuthorResponse, error) {
 	resp := new(articaldemo.QueryArticalByAuthorResponse)
 
-	// 作者名称为空
-	if len(req.Author) == 0 {
+	// 检测参数
+	if len(req.Author) == 0 || len(req.Field) == 0 || len(req.Order) == 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
@@ -370,8 +370,6 @@ func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.
 		return resp, nil
 	}
 
-	resp.Resp = pack.BuildResp(errno.Success)
-
 	for _, cm := range cms {
 		reply := make([]*articaldemo.Comment, 0)
 		for _, rp := range cm.Reply {
@@ -408,6 +406,7 @@ func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.
 		})
 	}
 
+	resp.Resp = pack.BuildResp(errno.Success)
 	return resp, nil
 }
 
@@ -486,16 +485,53 @@ func (s *ArticalServiceImpl) RdbGetArtical(ctx context.Context, req *articaldemo
 	resp.Ungot = ungot
 	for _, art := range arts {
 		resp.RdbArticals = append(resp.RdbArticals, &articaldemo.RdbArtical{
-			ID:          int32(art.ID),
-			CreatedAt:   art.CreatedAt,
-			Title:       art.Title,
-			Author:      art.Author,
-			Text:        art.Text,
-			Description: art.Description,
-			LikeNum:     art.LikeNum,
-			StarNum:     art.StarNum,
-			SeenNum:     art.SeenNum,
-			Cover:       art.Cover,
+			ID:           int32(art.ID),
+			CreatedAt:    art.CreatedAt,
+			Title:        art.Title,
+			Author:       art.Author,
+			Text:         art.Text,
+			Description:  art.Description,
+			LikeNum:      art.LikeNum,
+			StarNum:      art.StarNum,
+			SeenNum:      art.SeenNum,
+			Cover:        art.Cover,
+			AuthorAvator: art.AuthorAvator,
+		})
+	}
+
+	return resp, nil
+}
+
+// redis 获取文章 不获取 Text 的版本
+func (s *ArticalServiceImpl) RdbGetArticalEx(ctx context.Context, req *articaldemo.RdbGetArticalRequest) (*articaldemo.RdbGetArticalResponse, error) {
+	resp := new(articaldemo.RdbGetArticalResponse)
+
+	// IDs 为 空
+	if len(req.IDs) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	arts, ungot, err := service.NewArticalService(ctx).RdbGetArticalEx(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.Ungot = ungot
+	for _, art := range arts {
+		resp.RdbArticals = append(resp.RdbArticals, &articaldemo.RdbArtical{
+			ID:           int32(art.ID),
+			CreatedAt:    art.CreatedAt,
+			Title:        art.Title,
+			Author:       art.Author,
+			Description:  art.Description,
+			LikeNum:      art.LikeNum,
+			StarNum:      art.StarNum,
+			SeenNum:      art.SeenNum,
+			Cover:        art.Cover,
+			AuthorAvator: art.AuthorAvator,
 		})
 	}
 
@@ -683,7 +719,7 @@ func (s *ArticalServiceImpl) QueryAllStar(ctx context.Context, req *articaldemo.
 	resp := new(articaldemo.QueryAllStarResponse)
 
 	// 检测参数
-	if req.StarFolderID <= 0 || req.Limit <= 0 || req.Offset < 0 {
+	if req.StarFolderID <= 0 || req.Limit < 0 || req.Offset < 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}

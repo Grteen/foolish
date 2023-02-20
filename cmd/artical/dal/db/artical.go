@@ -110,9 +110,9 @@ func UpdateArtical(cg *config.Config, art *Artical) error {
 }
 
 // 根据 Author 查询文章
-func QueryArticalByAuthor(cg *config.Config, author string) ([]int32, error) {
+func QueryArticalByAuthor(cg *config.Config, author, field, order string) ([]int32, error) {
 	res := make([]int32, 0)
-	if err := cg.Tx.Model(&Artical{}).WithContext(cg.Ctx).Select("id").Where("author = ?", author).Find(&res).Error; err != nil {
+	if err := cg.Tx.Model(&Artical{}).WithContext(cg.Ctx).Select("id").Where("author = ?", author).Order(field + " " + order).Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil

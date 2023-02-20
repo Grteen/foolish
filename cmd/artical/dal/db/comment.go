@@ -40,7 +40,7 @@ func CreateComment(cg *config.Config, cms []*Comment) ([]int32, error) {
 // 根据 ID 查询评论
 func QueryComment(cg *config.Config, id []int32) ([]*Comment, error) {
 	res := make([]*Comment, 0)
-	if err := cg.Tx.WithContext(cg.Ctx).Preload("Reply").Where("id in ?", id).Order("updatedAt DESC").Find(&res).Error; err != nil {
+	if err := cg.Tx.WithContext(cg.Ctx).Preload("Reply").Where("id in ?", id).Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil
@@ -70,7 +70,7 @@ func UpdateComment(cg *config.Config, cm *Comment) error {
 	return nil
 }
 
-// 根据 ArticalID 查看 master 评论 并按照时间降序返回
+// 根据 ArticalID 查看 master
 func QueryCommentByArticalID(cg *config.Config, articalID int32) ([]int32, error) {
 	res := make([]int32, 0)
 	if err := cg.Tx.WithContext(cg.Ctx).Model(&Comment{}).Select("id").Where("articalID = ?", articalID).Where("master is null").Find(&res).Error; err != nil {

@@ -238,6 +238,20 @@ func RdbGetArtical(ctx context.Context, req *articaldemo.RdbGetArticalRequest) (
 	return resp.RdbArticals, resp.Ungot, nil
 }
 
+// 不获取 Text 的版本
+func RdbGetArticalEx(ctx context.Context, req *articaldemo.RdbGetArticalRequest) ([]*articaldemo.RdbArtical, []int32, error) {
+	resp, err := articalClient.RdbGetArticalEx(ctx, req)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.RdbArticals, resp.Ungot, nil
+}
+
 func RdbIncreaseitf(ctx context.Context, req *articaldemo.RdbIncreaseitfRequest) error {
 	resp, err := articalClient.RdbIncreaseitf(ctx, req)
 	if err != nil {

@@ -57,3 +57,17 @@ func QueryAllReplyNotify(ctx context.Context, req *notifydemo.QueryAllReplyNotif
 
 	return resp.IDs, nil
 }
+
+// 将回复通知设置为已读
+func ReadReplyNotify(ctx context.Context, req *notifydemo.ReadReplyNotifyRequest) error {
+	resp, err := notifyClient.ReadReplyNotify(ctx, req)
+	if err != nil {
+		return errno.ConvertErr(err)
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}

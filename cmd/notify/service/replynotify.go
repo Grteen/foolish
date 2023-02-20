@@ -42,3 +42,8 @@ func (s *NotifyService) QueryReplyNotify(req *notifydemo.QueryReplyNotifyRequest
 func (s *NotifyService) QueryAllReplyNotify(req *notifydemo.QueryAllReplyNotifyRequest) ([]int32, error) {
 	return db.QueryAllReplyNotify(config.NewConfig(s.ctx, db.DB), req.UserName, req.Limit, req.Offset)
 }
+
+// 根据ID 更新回复通知为已阅读
+func (s *NotifyService) ReadReplyNotify(req *notifydemo.ReadReplyNotifyRequest) error {
+	return db.UpdateReplyNotify(config.NewConfig(s.ctx, db.DB), req.ID)
+}

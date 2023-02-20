@@ -52,7 +52,7 @@ func (s *ArticalService) UpdateArtical(req *articaldemo.UpdateArticalRequest) er
 }
 
 func (s *ArticalService) QueryArticalByAuthor(req *articaldemo.QueryArticalByAuthorRequest) ([]int32, error) {
-	return db.QueryArticalByAuthor(config.NewConfig(s.ctx, db.DB), req.Author)
+	return db.QueryArticalByAuthor(config.NewConfig(s.ctx, db.DB), req.Author, req.Field, req.Order)
 }
 
 func (s *ArticalService) RdbSetArtical(req *articaldemo.RdbSetArticalRequest) error {
@@ -65,10 +65,11 @@ func (s *ArticalService) RdbSetArtical(req *articaldemo.RdbSetArticalRequest) er
 			Text:        req.RdbArtical.Text,
 			Description: req.RdbArtical.Description,
 
-			LikeNum: req.RdbArtical.LikeNum,
-			StarNum: req.RdbArtical.StarNum,
-			SeenNum: req.RdbArtical.SeenNum,
-			Cover:   req.RdbArtical.Cover,
+			LikeNum:      req.RdbArtical.LikeNum,
+			StarNum:      req.RdbArtical.StarNum,
+			SeenNum:      req.RdbArtical.SeenNum,
+			Cover:        req.RdbArtical.Cover,
+			AuthorAvator: req.RdbArtical.AuthorAvator,
 		},
 	})
 }
@@ -79,4 +80,9 @@ func (s *ArticalService) RdbDelArtical(req *articaldemo.RdbDelArticalRequest) er
 
 func (s *ArticalService) RdbGetArtical(req *articaldemo.RdbGetArticalRequest) ([]*rdb.RdbArtical, []int32, error) {
 	return rdb.GetArtical(s.ctx, req.IDs)
+}
+
+// 不获取 Text 的版本
+func (s *ArticalService) RdbGetArticalEx(req *articaldemo.RdbGetArticalRequest) ([]*rdb.RdbArtical, []int32, error) {
+	return rdb.GetArticalInfo(s.ctx, req.IDs)
 }

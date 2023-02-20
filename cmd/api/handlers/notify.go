@@ -84,3 +84,28 @@ func QueryReplyNotify(ctx *gin.Context) {
 
 	pack.SendData(ctx, errno.Success, ntfs)
 }
+
+// 将回复通知设定为已读
+func ReadReplyNotify(ctx *gin.Context) {
+	var p ReadReplyNotifyParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	// 检测参数
+	if p.ID <= 0 {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	err := rpc.ReadReplyNotify(context.Background(), &notifydemo.ReadReplyNotifyRequest{
+		ID: p.ID,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	pack.SendResponse(ctx, errno.Success)
+}

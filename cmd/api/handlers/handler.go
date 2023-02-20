@@ -55,6 +55,12 @@ type GetArticalParma struct {
 	IDs []int32 `form:"IDs"`
 }
 
+type GetArticalIDsByAuthorParma struct {
+	Author string `form:"author"`
+	Field  string `form:"field"`
+	Order  string `form:"order"`
+}
+
 type LikeParma struct {
 	UserName  string `form:"username"`
 	ArticalID int32  `form:"articalID"`
@@ -162,9 +168,13 @@ type ArticalInfo struct {
 	Cover       string `json:"cover"`
 }
 
+type ReadReplyNotifyParma struct {
+	ID int32 `form:"ID"`
+}
+
 type Seen struct {
 	// CreatedAt string         `json:"createdAt"`
-	Today     []*ArticalInfo `json:"tody"`
+	Today     []*ArticalInfo `json:"today"`
 	Yesterday []*ArticalInfo `json:"yesterday"`
 	Week      []*ArticalInfo `json:"week"`
 	Weekago   []*ArticalInfo `json:"weekago"`
@@ -192,6 +202,25 @@ func ChangeArticalToRdbArtical(arts []*articaldemo.Artical) []*articaldemo.RdbAr
 
 // 将 articaldemo.Artical 转化为 ArticalInfo
 func ChangeArticalToArticalInfo(arts []*articaldemo.Artical) []*ArticalInfo {
+	res := make([]*ArticalInfo, 0)
+	for _, art := range arts {
+		res = append(res, &ArticalInfo{
+			ID:          art.ID,
+			CreatedAt:   art.CreatedAt,
+			Title:       art.Title,
+			Author:      art.Author,
+			Description: art.Description,
+			LikeNum:     art.LikeNum,
+			StarNum:     art.StarNum,
+			SeenNum:     art.SeenNum,
+			Cover:       art.Cover,
+		})
+	}
+	return res
+}
+
+// 将 articaldemo.RdbArtical 转化为 ArticalInfo
+func ChangeRdbArticalToArticalInfo(arts []*articaldemo.RdbArtical) []*ArticalInfo {
 	res := make([]*ArticalInfo, 0)
 	for _, art := range arts {
 		res = append(res, &ArticalInfo{

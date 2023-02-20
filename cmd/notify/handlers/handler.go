@@ -88,3 +88,23 @@ func (s *NotifyServiceImpl) QueryReplyNotify(ctx context.Context, req *notifydem
 	}
 	return resp, nil
 }
+
+// 根据ID 更新回复通知为已阅读
+func (s *NotifyServiceImpl) ReadReplyNotify(ctx context.Context, req *notifydemo.ReadReplyNotifyRequest) (*notifydemo.ReadReplyNotifyResponse, error) {
+	resp := new(notifydemo.ReadReplyNotifyResponse)
+
+	// 检测参数
+	if req.ID <= 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewNotifyService(ctx).ReadReplyNotify(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}

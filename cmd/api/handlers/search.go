@@ -7,7 +7,6 @@ import (
 	"be/grpc/searchdemo"
 	"be/pkg/errno"
 	"context"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,15 +31,44 @@ func SearchArtical(ctx *gin.Context) {
 	})
 
 	artinfos := make([]*ArticalInfo, 0)
-	fmt.Println(IDs)
-	arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+	// 查询缓存
+	rdbarts, ungot, err := rpc.RdbGetArticalEx(context.Background(), &articaldemo.RdbGetArticalRequest{
 		IDs: IDs,
 	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
-	artinfos = append(artinfos, ChangeArticalToArticalInfo(arts)...)
+	if len(ungot) != 0 {
+		// 没有查到
+		arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+			IDs: IDs,
+		})
+		if err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
+		rdbarts = append(rdbarts, ChangeArticalToRdbArtical(arts)...)
+		// 缓存
+		for _, art := range arts {
+			rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
+				RdbArtical: &articaldemo.RdbArtical{
+					ID:        art.ID,
+					CreatedAt: art.CreatedAt,
+					Title:     art.Title,
+					Author:    art.Author,
+					// Text: art.Text,
+					Description: art.Description,
+					LikeNum:     art.LikeNum,
+					StarNum:     art.StarNum,
+					SeenNum:     art.SeenNum,
+					Cover:       art.Cover,
+				},
+			})
+		}
+	}
+
+	artinfos = append(artinfos, ChangeRdbArticalToArticalInfo(rdbarts)...)
 
 	pack.SendData(ctx, errno.Success, artinfos)
 }

@@ -264,11 +264,22 @@ func QueryArticalInfoOfSeen(ids []int32, userName string) ([][]*ArticalInfo, err
 		artinfos[i] = make([]*ArticalInfo, 0)
 	}
 
-	arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+	// 查询 redis
+	rdbarts, ungot, err := rpc.RdbGetArticalEx(context.Background(), &articaldemo.RdbGetArticalRequest{
 		IDs: ids,
 	})
 	if err != nil {
 		return nil, errno.ConvertErr(err)
+	}
+	if len(ungot) != 0 {
+		// 有未查询到的
+		arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+			IDs: ungot,
+		})
+		if err != nil {
+			return nil, errno.ConvertErr(err)
+		}
+		rdbarts = append(rdbarts, ChangeArticalToRdbArtical(arts)...)
 	}
 
 	now := time.Now()
@@ -276,7 +287,7 @@ func QueryArticalInfoOfSeen(ids []int32, userName string) ([][]*ArticalInfo, err
 	yesterday := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, pack.Tz)
 	weekago := time.Date(now.Year(), now.Month(), now.Day()-7, 0, 0, 0, 0, pack.Tz)
 
-	for _, art := range arts {
+	for _, art := range rdbarts {
 		s, err := rpc.QueryLikeStar(context.Background(), &articaldemo.QueryLikeStarRequest{
 			UserName:  userName,
 			ArticalID: art.ID,
@@ -291,16 +302,42 @@ func QueryArticalInfoOfSeen(ids []int32, userName string) ([][]*ArticalInfo, err
 			return nil, errno.ServiceFault
 		}
 		if theTime.After(today) || theTime.Equal(today) {
-			artinfos[0] = append(artinfos[0], ChangeArticalToArticalInfo([]*articaldemo.Artical{art})...)
+			artinfos[0] = append(artinfos[0], ChangeRdbArticalToArticalInfo([]*articaldemo.RdbArtical{art})...)
 		} else if (theTime.After(yesterday) || theTime.Equal(yesterday)) && theTime.Before(today) {
-			artinfos[1] = append(artinfos[1], ChangeArticalToArticalInfo([]*articaldemo.Artical{art})...)
+			artinfos[1] = append(artinfos[1], ChangeRdbArticalToArticalInfo([]*articaldemo.RdbArtical{art})...)
 		} else if (theTime.After(weekago) || theTime.Equal(weekago)) && theTime.Before(yesterday) {
-			artinfos[2] = append(artinfos[2], ChangeArticalToArticalInfo([]*articaldemo.Artical{art})...)
+			artinfos[2] = append(artinfos[2], ChangeRdbArticalToArticalInfo([]*articaldemo.RdbArtical{art})...)
 		} else if theTime.Before(weekago) {
-			artinfos[3] = append(artinfos[3], ChangeArticalToArticalInfo([]*articaldemo.Artical{art})...)
+			artinfos[3] = append(artinfos[3], ChangeRdbArticalToArticalInfo([]*articaldemo.RdbArtical{art})...)
 		} else {
 			return nil, errno.ServiceFault
 		}
+	}
+
+	for _, art := range rdbarts {
+		// 查询头像
+		avator, err := rpc.QueryAvator(context.Background(), &userdemo.QueryAvatorRequest{
+			UserName: art.Author,
+		})
+		if err != nil {
+			return nil, errno.ConvertErr(err)
+		}
+		// 缓存
+		rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
+			RdbArtical: &articaldemo.RdbArtical{
+				ID:        art.ID,
+				CreatedAt: art.CreatedAt,
+				Title:     art.Title,
+				Author:    art.Author,
+				// Text: art.Text,
+				Description:  art.Description,
+				LikeNum:      art.LikeNum,
+				StarNum:      art.StarNum,
+				SeenNum:      art.SeenNum,
+				Cover:        art.Cover,
+				AuthorAvator: avator[0],
+			},
+		})
 	}
 
 	return artinfos, nil
@@ -463,7 +500,7 @@ func QueryStar(ctx *gin.Context) {
 		return
 	}
 
-	if p.StarFolderID <= 0 || p.Offset < 0 || p.Limit <= 0 {
+	if p.StarFolderID <= 0 || p.Offset < 0 || p.Limit < 0 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
@@ -500,18 +537,55 @@ func QueryStar(ctx *gin.Context) {
 		return
 	}
 
+	if len(stars) == 0 {
+		pack.SendData(ctx, errno.Success, []int32{})
+		return
+	}
+
 	artinfos := make([]*ArticalInfo, 0)
-	// 查询对应文章的文章信息
+	ids := make([]int32, 0)
 	for _, star := range stars {
-		art, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
-			IDs: []int32{star.ArtcalID},
+		ids = append(ids, star.ArtcalID)
+	}
+
+	// 查询对应文章的文章信息
+	rdbarts, ungot, err := rpc.RdbGetArticalEx(context.Background(), &articaldemo.RdbGetArticalRequest{
+		IDs: ids,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+	if len(ungot) != 0 {
+		// 有未查询到的
+		arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+			IDs: ungot,
 		})
 		if err != nil {
 			pack.SendResponse(ctx, errno.ConvertErr(err))
 			return
 		}
-		artinfos = append(artinfos, ChangeArticalToArticalInfo([]*articaldemo.Artical{art[0]})...)
+		rdbarts = append(rdbarts, ChangeArticalToRdbArtical(arts)...)
+		// 缓存
+		for _, art := range arts {
+			rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
+				RdbArtical: &articaldemo.RdbArtical{
+					ID:        art.ID,
+					CreatedAt: art.CreatedAt,
+					Title:     art.Title,
+					Author:    art.Author,
+					// Text: art.Text,
+					Description: art.Description,
+					LikeNum:     art.LikeNum,
+					StarNum:     art.StarNum,
+					SeenNum:     art.SeenNum,
+					Cover:       art.Cover,
+				},
+			})
+		}
 	}
+
+	artinfos = append(artinfos, ChangeRdbArticalToArticalInfo(rdbarts)...)
 
 	pack.SendData(ctx, errno.Success, artinfos)
 }

@@ -55,3 +55,29 @@ func QueryReplyNotify(cg *config.Config, ids []int32) ([]*ReplyNotify, error) {
 	}
 	return res, nil
 }
+
+// 更新回复消息 为已阅读
+func UpdateReplyNotify(cg *config.Config, id int32) error {
+	if err := cg.Tx.WithContext(cg.Ctx).Model(&ReplyNotify{}).Where("id = ?", id).Update("isread", true).Error; err != nil {
+		return errno.ServiceFault
+	}
+	return nil
+}
+
+// // 文章发布消息 (来自关注)
+// type PublishNotify struct {
+// 	Notify
+// 	ArticalID int32 `json:"articalID" gorm:"column:articalID; not null"`
+// }
+
+// func (*PublishNotify) TableName() string {
+// 	return constants.PublishNotifyTableName
+// }
+
+// // 创建文章发布消息
+// func CreatePublishNotify(cg *config.Config, ptfs []*PublishNotify) error {
+// 	if err := cg.Tx.WithContext(cg.Ctx).Create(ptfs).Error; err != nil {
+// 		return errno.ServiceFault
+// 	}
+// 	return nil
+// }
