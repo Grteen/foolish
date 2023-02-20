@@ -47,6 +47,7 @@ type ArticalServiceClient interface {
 	RdbSetArtical(ctx context.Context, in *RdbSetArticalRequest, opts ...grpc.CallOption) (*RdbSetArticalResponse, error)
 	RdbDelArtical(ctx context.Context, in *RdbDelArticalRequest, opts ...grpc.CallOption) (*RdbDelArticalResponse, error)
 	RdbGetArtical(ctx context.Context, in *RdbGetArticalRequest, opts ...grpc.CallOption) (*RdbGetArticalResponse, error)
+	RdbGetArticalEx(ctx context.Context, in *RdbGetArticalRequest, opts ...grpc.CallOption) (*RdbGetArticalResponse, error)
 	RdbIncreaseitf(ctx context.Context, in *RdbIncreaseitfRequest, opts ...grpc.CallOption) (*RdbIncreaseitfResponse, error)
 }
 
@@ -283,6 +284,15 @@ func (c *articalServiceClient) RdbGetArtical(ctx context.Context, in *RdbGetArti
 	return out, nil
 }
 
+func (c *articalServiceClient) RdbGetArticalEx(ctx context.Context, in *RdbGetArticalRequest, opts ...grpc.CallOption) (*RdbGetArticalResponse, error) {
+	out := new(RdbGetArticalResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/RdbGetArticalEx", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *articalServiceClient) RdbIncreaseitf(ctx context.Context, in *RdbIncreaseitfRequest, opts ...grpc.CallOption) (*RdbIncreaseitfResponse, error) {
 	out := new(RdbIncreaseitfResponse)
 	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/RdbIncreaseitf", in, out, opts...)
@@ -321,6 +331,7 @@ type ArticalServiceServer interface {
 	RdbSetArtical(context.Context, *RdbSetArticalRequest) (*RdbSetArticalResponse, error)
 	RdbDelArtical(context.Context, *RdbDelArticalRequest) (*RdbDelArticalResponse, error)
 	RdbGetArtical(context.Context, *RdbGetArticalRequest) (*RdbGetArticalResponse, error)
+	RdbGetArticalEx(context.Context, *RdbGetArticalRequest) (*RdbGetArticalResponse, error)
 	RdbIncreaseitf(context.Context, *RdbIncreaseitfRequest) (*RdbIncreaseitfResponse, error)
 	mustEmbedUnimplementedArticalServiceServer()
 }
@@ -403,6 +414,9 @@ func (UnimplementedArticalServiceServer) RdbDelArtical(context.Context, *RdbDelA
 }
 func (UnimplementedArticalServiceServer) RdbGetArtical(context.Context, *RdbGetArticalRequest) (*RdbGetArticalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RdbGetArtical not implemented")
+}
+func (UnimplementedArticalServiceServer) RdbGetArticalEx(context.Context, *RdbGetArticalRequest) (*RdbGetArticalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RdbGetArticalEx not implemented")
 }
 func (UnimplementedArticalServiceServer) RdbIncreaseitf(context.Context, *RdbIncreaseitfRequest) (*RdbIncreaseitfResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RdbIncreaseitf not implemented")
@@ -870,6 +884,24 @@ func _ArticalService_RdbGetArtical_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArticalService_RdbGetArticalEx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RdbGetArticalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticalServiceServer).RdbGetArticalEx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/articaldemo.ArticalService/RdbGetArticalEx",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticalServiceServer).RdbGetArticalEx(ctx, req.(*RdbGetArticalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ArticalService_RdbIncreaseitf_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RdbIncreaseitfRequest)
 	if err := dec(in); err != nil {
@@ -994,6 +1026,10 @@ var ArticalService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RdbGetArtical",
 			Handler:    _ArticalService_RdbGetArtical_Handler,
+		},
+		{
+			MethodName: "RdbGetArticalEx",
+			Handler:    _ArticalService_RdbGetArticalEx_Handler,
 		},
 		{
 			MethodName: "RdbIncreaseitf",

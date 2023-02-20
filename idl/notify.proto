@@ -47,8 +47,17 @@ message QueryAllReplyNotifyResponse {
     repeated int32 IDs = 2;
 }
 
+message ReadReplyNotifyRequest {
+    int32 ID = 1;
+}
+
+message ReadReplyNotifyResponse {
+    Resp resp = 1;
+}
+
 service NotifyService {
     rpc CreateReplyNotify (CreateReplyNotifyRequest) returns (CreateReplyNotifyResponse){}
     rpc QueryReplyNotify (QueryReplyNotifyRequest) returns (QueryReplyNotifyResponse){}
     rpc QueryAllReplyNotify (QueryAllReplyNotifyRequest) returns (QueryAllReplyNotifyResponse){}
+    rpc ReadReplyNotify (ReadReplyNotifyRequest) returns (ReadReplyNotifyResponse){}
 }

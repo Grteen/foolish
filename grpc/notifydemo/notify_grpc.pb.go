@@ -25,6 +25,7 @@ type NotifyServiceClient interface {
 	CreateReplyNotify(ctx context.Context, in *CreateReplyNotifyRequest, opts ...grpc.CallOption) (*CreateReplyNotifyResponse, error)
 	QueryReplyNotify(ctx context.Context, in *QueryReplyNotifyRequest, opts ...grpc.CallOption) (*QueryReplyNotifyResponse, error)
 	QueryAllReplyNotify(ctx context.Context, in *QueryAllReplyNotifyRequest, opts ...grpc.CallOption) (*QueryAllReplyNotifyResponse, error)
+	ReadReplyNotify(ctx context.Context, in *ReadReplyNotifyRequest, opts ...grpc.CallOption) (*ReadReplyNotifyResponse, error)
 }
 
 type notifyServiceClient struct {
@@ -62,6 +63,15 @@ func (c *notifyServiceClient) QueryAllReplyNotify(ctx context.Context, in *Query
 	return out, nil
 }
 
+func (c *notifyServiceClient) ReadReplyNotify(ctx context.Context, in *ReadReplyNotifyRequest, opts ...grpc.CallOption) (*ReadReplyNotifyResponse, error) {
+	out := new(ReadReplyNotifyResponse)
+	err := c.cc.Invoke(ctx, "/notifydemo.NotifyService/ReadReplyNotify", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NotifyServiceServer is the server API for NotifyService service.
 // All implementations must embed UnimplementedNotifyServiceServer
 // for forward compatibility
@@ -69,6 +79,7 @@ type NotifyServiceServer interface {
 	CreateReplyNotify(context.Context, *CreateReplyNotifyRequest) (*CreateReplyNotifyResponse, error)
 	QueryReplyNotify(context.Context, *QueryReplyNotifyRequest) (*QueryReplyNotifyResponse, error)
 	QueryAllReplyNotify(context.Context, *QueryAllReplyNotifyRequest) (*QueryAllReplyNotifyResponse, error)
+	ReadReplyNotify(context.Context, *ReadReplyNotifyRequest) (*ReadReplyNotifyResponse, error)
 	mustEmbedUnimplementedNotifyServiceServer()
 }
 
@@ -84,6 +95,9 @@ func (UnimplementedNotifyServiceServer) QueryReplyNotify(context.Context, *Query
 }
 func (UnimplementedNotifyServiceServer) QueryAllReplyNotify(context.Context, *QueryAllReplyNotifyRequest) (*QueryAllReplyNotifyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryAllReplyNotify not implemented")
+}
+func (UnimplementedNotifyServiceServer) ReadReplyNotify(context.Context, *ReadReplyNotifyRequest) (*ReadReplyNotifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadReplyNotify not implemented")
 }
 func (UnimplementedNotifyServiceServer) mustEmbedUnimplementedNotifyServiceServer() {}
 
@@ -152,6 +166,24 @@ func _NotifyService_QueryAllReplyNotify_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NotifyService_ReadReplyNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadReplyNotifyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotifyServiceServer).ReadReplyNotify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/notifydemo.NotifyService/ReadReplyNotify",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotifyServiceServer).ReadReplyNotify(ctx, req.(*ReadReplyNotifyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NotifyService_ServiceDesc is the grpc.ServiceDesc for NotifyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +202,10 @@ var NotifyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryAllReplyNotify",
 			Handler:    _NotifyService_QueryAllReplyNotify_Handler,
+		},
+		{
+			MethodName: "ReadReplyNotify",
+			Handler:    _NotifyService_ReadReplyNotify_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

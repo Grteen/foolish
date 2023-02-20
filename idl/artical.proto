@@ -64,6 +64,8 @@ message QueryArticalResponse {
 
 message QueryArticalByAuthorRequest {
     string author = 1;
+    string field = 2;
+    string order = 3;
 }
 
 message QueryArticalByAuthorResponse {
@@ -354,5 +356,6 @@ service ArticalService {
     rpc RdbSetArtical (RdbSetArticalRequest) returns (RdbSetArticalResponse){}
     rpc RdbDelArtical (RdbDelArticalRequest) returns (RdbDelArticalResponse){}
     rpc RdbGetArtical (RdbGetArticalRequest) returns (RdbGetArticalResponse){}
+    rpc RdbGetArticalEx (RdbGetArticalRequest) returns (RdbGetArticalResponse){}
     rpc RdbIncreaseitf (RdbIncreaseitfRequest) returns (RdbIncreaseitfResponse){}
 }
