@@ -113,71 +113,16 @@ func QueryUserInfo(ctx *gin.Context) {
 		return
 	}
 
-	// 查询缓存
-	rdbres, ungot, err := rpc.RdbGetUser(context.Background(), &userdemo.RdbGetUserRequest{
-		Users: []string{p.UserName},
-	})
-
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
-	}
-
-	if len(ungot) == 0 {
-		// 全部查询到了
-		pack.SendData(ctx, errno.Success, rdbres[0])
-		return
-	}
-
-	res, err := rpc.QueryUserInfo(context.Background(), &userdemo.QueryUserInfoRequest{
-		UserName: ungot[0],
-	})
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
-	}
-
-	uf := &struct {
-		UserName    string `json:"userName"`
-		NickName    string `json:"nickName"`
-		Description string `json:"description"`
-		Avator      string `json:"userAvator"`
-		SubNum      int32  `json:"subNum"`
-		FanNum      int32  `json:"fanNum"`
-		ArtNum      int32  `json:"artNum"`
-	}{UserName: res.UserName, NickName: res.NickName, Description: res.Description, Avator: res.UserAvator}
-
-	// 查询 订阅数 粉丝数 和 文章数
+	// 查询用户
 	us, err := rpc.QueryUser(context.Background(), &userdemo.QueryUserRequest{
-		User: ungot[0],
+		User: p.UserName,
 	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
 
-	uf.SubNum = us[0].SubNum
-	uf.FanNum = us[0].FanNum
-	uf.ArtNum = us[0].ArtNum
-
-	// 全部缓存
-	err = rpc.RdbSetUser(context.Background(), &userdemo.RdbSetUserRequest{
-		RdbUser: &userdemo.RdbUser{
-			UserName:    uf.UserName,
-			NickName:    uf.NickName,
-			Description: uf.Description,
-			UserAvator:  uf.Avator,
-			SubNum:      uf.SubNum,
-			FanNum:      uf.FanNum,
-			ArtNum:      uf.ArtNum,
-		},
-	})
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
-	}
-
-	pack.SendData(ctx, errno.Success, uf)
+	pack.SendData(ctx, errno.Success, us)
 }
 
 // 根据当前 Cookie 查询 UserName

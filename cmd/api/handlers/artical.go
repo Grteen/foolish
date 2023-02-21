@@ -9,7 +9,6 @@ import (
 	"be/pkg/errno"
 	"context"
 	"html"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -82,12 +81,10 @@ func DeleteArtical(ctx *gin.Context) {
 	arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
 		IDs: []int32{p.ArticalID},
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
-
 	// 没有查到文章
 	if len(arts) == 0 {
 		pack.SendResponse(ctx, errno.NoSuchArticalErr)
@@ -104,23 +101,12 @@ func DeleteArtical(ctx *gin.Context) {
 	err = rpc.DeleteArtical(context.Background(), &articaldemo.DeleteArticalRequest{
 		ID: p.ArticalID,
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
 
-	// 删除文章缓存
-	err = rpc.RdbDelArtical(context.Background(), &articaldemo.RdbDelArticalRequest{
-		ID: p.ArticalID,
-	})
-
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
-	}
-
-	// 更新缓存
+	// 更新作者文章数缓存
 	err = rpc.RdbIncreaseItfUser(context.Background(), &userdemo.RdbIncreaseItfRequest{
 		UserName: arts[0].Author,
 		Val:      -1,
@@ -151,12 +137,10 @@ func UpdateArtical(ctx *gin.Context) {
 	arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
 		IDs: []int32{p.ArticalID},
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
-
 	// 没有查到文章
 	if len(arts) == 0 {
 		pack.SendResponse(ctx, errno.NoSuchArticalErr)
@@ -188,24 +172,6 @@ func UpdateArtical(ctx *gin.Context) {
 		return
 	}
 
-	// 更新缓存
-	err = rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
-		RdbArtical: &articaldemo.RdbArtical{
-			ID:          p.ArticalID,
-			CreatedAt:   arts[0].CreatedAt,
-			Title:       p.Title,
-			Text:        p.Text,
-			Description: p.Description,
-			Cover:       p.Cover,
-			Author:      arts[0].Author,
-		},
-	})
-
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
-	}
-
 	pack.SendResponse(ctx, errno.Success)
 }
 
@@ -217,70 +183,19 @@ func GetArtical(ctx *gin.Context) {
 	}
 
 	if len(p.IDs) <= 0 {
-		log.Print(len(p.IDs))
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
 
-	rdbres, ungot, err := rpc.RdbGetArtical(context.Background(), &articaldemo.RdbGetArticalRequest{
+	res, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
 		IDs: p.IDs,
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
 
-	if len(ungot) == 0 {
-		// 全部查询到了
-		pack.SendData(ctx, errno.Success, rdbres)
-		return
-	}
-
-	res, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
-		IDs: ungot,
-	})
-
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
-	}
-
-	setAvator := func(art *articaldemo.RdbArtical) error {
-		res, err := rpc.QueryAvator(context.Background(), &userdemo.QueryAvatorRequest{
-			UserName: art.Author,
-		})
-		if err != nil {
-			return errno.ConvertErr(err)
-		}
-		if len(res) == 0 {
-			return errno.ServiceFault
-		}
-		art.AuthorAvator = res[0]
-		return nil
-	}
-
-	rdbres = append(rdbres, ChangeArticalToRdbArtical(res)...)
-	// 查询文章作者头像
-	for _, art := range rdbres {
-		if err := setAvator(art); err != nil {
-			pack.SendResponse(ctx, errno.ConvertErr(err))
-			return
-		}
-	}
-
-	// 将未查询到的文章全部缓存
-	for _, art := range rdbres {
-		err := rpc.RdbSetArtical(context.Background(), &articaldemo.RdbSetArticalRequest{
-			RdbArtical: art,
-		})
-		if err != nil {
-			pack.SendResponse(ctx, errno.ConvertErr(err))
-			return
-		}
-	}
-
-	pack.SendData(ctx, errno.Success, rdbres)
+	pack.SendData(ctx, errno.Success, res)
 }
 
 func GetArticalIDsByAuthor(ctx *gin.Context) {

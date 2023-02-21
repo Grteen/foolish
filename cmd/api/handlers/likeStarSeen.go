@@ -60,32 +60,6 @@ func GiveLikeStar(ctx *gin.Context, tp int32) {
 		return
 	}
 
-	// 更新缓存
-	var field string
-	if tp == 0 {
-		// Like
-		field = constants.RdbArticalFieldLikeNum
-	} else if tp == 1 {
-		// Star
-		field = constants.RdbArticalFieldStarNum
-	} else if tp == 2 {
-		// Seen
-		// Seen 请求 不更新缓存
-		pack.SendResponse(ctx, errno.Success)
-		return
-	} else {
-		pack.SendResponse(ctx, errno.ServiceFault)
-		return
-	}
-
-	err = rpc.RdbIncreaseitf(context.Background(), &articaldemo.RdbIncreaseitfRequest{
-		ArticalID: p.ArticalID,
-		Val:       1,
-		Field:     field,
-	})
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-	}
 	pack.SendResponse(ctx, errno.Success)
 }
 
@@ -107,12 +81,10 @@ func DeleteLikeStar(ctx *gin.Context, tp int32) {
 	res, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
 		IDs: []int32{p.ArticalID},
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
-
 	if len(res) == 0 {
 		pack.SendResponse(ctx, errno.NoSuchArticalErr)
 		return
@@ -130,33 +102,10 @@ func DeleteLikeStar(ctx *gin.Context, tp int32) {
 		UserName:  p.UserName,
 		Type:      tp,
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
-
-	// 更新缓存
-	var field string
-	if tp == 0 {
-		// Like
-		field = constants.RdbArticalFieldLikeNum
-	} else if tp == 1 {
-		// Star
-		field = constants.RdbArticalFieldStarNum
-	} else if tp == 2 {
-		// Seen
-		field = constants.RdbArticalFieldSeenNum
-	} else {
-		pack.SendResponse(ctx, errno.ServiceFault)
-		return
-	}
-
-	err = rpc.RdbIncreaseitf(context.Background(), &articaldemo.RdbIncreaseitfRequest{
-		ArticalID: p.ArticalID,
-		Val:       -1,
-		Field:     field,
-	})
 
 	pack.SendResponse(ctx, errno.Success)
 }

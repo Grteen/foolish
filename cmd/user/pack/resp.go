@@ -21,6 +21,11 @@ func BuildResp(err error) *userdemo.Resp {
 	return createResp(s)
 }
 
+// 用 Resp 创建 resp
+func BuildRespByResp(code int64, message string) *userdemo.Resp {
+	return &userdemo.Resp{StatusCode: code, StatusMessage: message}
+}
+
 func createResp(err errno.Errno) *userdemo.Resp {
 	return &userdemo.Resp{StatusCode: err.ErrCode, StatusMessage: err.ErrMsg}
 }

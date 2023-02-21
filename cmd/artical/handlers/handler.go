@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"be/cmd/artical/dal/rdb"
 	"be/cmd/artical/pack"
 	"be/cmd/artical/service"
 	"be/grpc/articaldemo"
+	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
 	"html"
@@ -36,7 +38,7 @@ func (s *ArticalServiceImpl) CreateArtical(ctx context.Context, req *articaldemo
 	return resp, nil
 }
 
-// 根据 ID 删除文章
+// 根据 ID 删除文章 已缓存
 func (s *ArticalServiceImpl) DeleteArtical(ctx context.Context, req *articaldemo.DeleteArticalRequest) (*articaldemo.DeleteArticalResponse, error) {
 	resp := new(articaldemo.DeleteArticalResponse)
 
@@ -52,11 +54,20 @@ func (s *ArticalServiceImpl) DeleteArtical(ctx context.Context, req *articaldemo
 		return resp, nil
 	}
 
+	// 删除文章缓存
+	err = service.NewArticalService(ctx).RdbDelArtical(&articaldemo.RdbDelArticalRequest{
+		ID: req.ID,
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
 	resp.Resp = pack.BuildResp(errno.Success)
 	return resp, nil
 }
 
-// 根据文章 ID 更新文章 不更新作者
+// 根据文章 ID 更新文章 不更新作者 已缓存
 func (s *ArticalServiceImpl) UpdateArtical(ctx context.Context, req *articaldemo.UpdateArticalRequest) (*articaldemo.UpdateArticalResponse, error) {
 	resp := new(articaldemo.UpdateArticalResponse)
 
@@ -72,10 +83,42 @@ func (s *ArticalServiceImpl) UpdateArtical(ctx context.Context, req *articaldemo
 		return resp, nil
 	}
 
+	// 查询缓存 如果不存在就不更新
+	rdbarts, _, err := service.NewArticalService(ctx).RdbGetArtical(&articaldemo.RdbGetArticalRequest{
+		IDs: []int32{req.ArticalID},
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+	if len(rdbarts) != 0 {
+		// 更新缓存
+		err = service.NewArticalService(ctx).RdbSetArtical(&articaldemo.RdbSetArticalRequest{
+			RdbArtical: &articaldemo.RdbArtical{
+				ID:           req.ArticalID,
+				CreatedAt:    rdbarts[0].CreatedAt,
+				Title:        req.Title,
+				Author:       rdbarts[0].Author,
+				Description:  req.Description,
+				Text:         req.Text,
+				Cover:        req.Cover,
+				LikeNum:      rdbarts[0].LikeNum,
+				StarNum:      rdbarts[0].StarNum,
+				SeenNum:      rdbarts[0].SeenNum,
+				AuthorAvator: rdbarts[0].AuthorAvator,
+			},
+		})
+		if err != nil {
+			resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+			return resp, nil
+		}
+	}
+
 	resp.Resp = pack.BuildResp(errno.Success)
 	return resp, nil
 }
 
+// 已缓存
 func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.QueryArticalRequest) (*articaldemo.QueryArticalResponse, error) {
 	resp := new(articaldemo.QueryArticalResponse)
 
@@ -85,14 +128,40 @@ func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.
 		return resp, nil
 	}
 
-	arts, err := service.NewArticalService(ctx).QueryArtical(req)
+	// 查询缓存
+	rdbarts, ungot, err := service.NewArticalService(ctx).RdbGetArtical(&articaldemo.RdbGetArticalRequest{
+		IDs: req.IDs,
+	})
 	if err != nil {
-		resp.Resp = pack.BuildResp(err)
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+	if len(ungot) != 0 {
+		req.IDs = ungot
+		arts, err := service.NewArticalService(ctx).QueryArtical(req)
+		if err != nil {
+			resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+			return resp, nil
+		}
+		rdbarts = append(rdbarts, ChangeArticalToRdbArtical(arts)...)
+		// 查询文章作者头像
+		for _, art := range rdbarts {
+			if err := setAvatorToRdbArtical(ctx, art); err != nil {
+				resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+				return resp, nil
+			}
+		}
+	}
+
+	// 将未查询到的文章全部缓存
+	err = rdb.SetArtical(context.Background(), rdbarts)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
 		return resp, nil
 	}
 
 	resp.Resp = pack.BuildResp(errno.Success)
-	for _, art := range arts {
+	for _, art := range rdbarts {
 		resp.Artical = append(resp.Artical, &articaldemo.Artical{
 			ID:          int32(art.ID),
 			Author:      art.Author,
@@ -102,7 +171,7 @@ func (s *ArticalServiceImpl) QueryArtical(ctx context.Context, req *articaldemo.
 			LikeNum:     art.LikeNum,
 			StarNum:     art.StarNum,
 			SeenNum:     art.SeenNum,
-			CreatedAt:   art.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
+			CreatedAt:   art.CreatedAt,
 			Cover:       art.Cover,
 		})
 	}
@@ -131,6 +200,7 @@ func (s *ArticalServiceImpl) QueryArticalByAuthor(ctx context.Context, req *arti
 	return resp, nil
 }
 
+// 创建点赞收藏观看历史 已缓存
 func (s *ArticalServiceImpl) CreateLikeStar(ctx context.Context, req *articaldemo.CreateLikeStarRequest) (*articaldemo.CreateLikeStarResponse, error) {
 	resp := new(articaldemo.CreateLikeStarResponse)
 
@@ -189,10 +259,38 @@ func (s *ArticalServiceImpl) CreateLikeStar(ctx context.Context, req *articaldem
 		return resp, nil
 	}
 
+	// 更新缓存
+	var field string
+	if req.Type == 0 {
+		// Like
+		field = constants.RdbArticalFieldLikeNum
+	} else if req.Type == 1 {
+		// Star
+		field = constants.RdbArticalFieldStarNum
+	} else if req.Type == 2 {
+		// Seen
+		// Seen 请求 不更新缓存
+		resp.Resp = pack.BuildResp(errno.Success)
+		return resp, nil
+	} else {
+		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		return resp, nil
+	}
+	err = service.NewArticalService(ctx).RdbIncreaseitf(&articaldemo.RdbIncreaseitfRequest{
+		ArticalID: req.ArticalID,
+		Val:       1,
+		Field:     field,
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
 	resp.Resp = pack.BuildResp(errno.Success)
 	return resp, nil
 }
 
+// 删除点赞收藏 已缓存
 func (s *ArticalServiceImpl) DeleteLikeStar(ctx context.Context, req *articaldemo.DeleteLikeStarRequest) (*articaldemo.DeleteLikeStarResponse, error) {
 	resp := new(articaldemo.DeleteLikeStarResponse)
 
@@ -232,7 +330,43 @@ func (s *ArticalServiceImpl) DeleteLikeStar(ctx context.Context, req *articaldem
 
 	err = service.NewArticalService(ctx).DeleteLikeStar(req)
 	if err != nil {
-		resp.Resp = pack.BuildResp(err)
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	// 更新缓存
+	var field string
+	if req.Type == 0 {
+		// Like
+		field = constants.RdbArticalFieldLikeNum
+	} else if req.Type == 1 {
+		// Star
+		field = constants.RdbArticalFieldStarNum
+	} else if req.Type == 2 {
+		// Seen
+		field = constants.RdbArticalFieldSeenNum
+	} else {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+	err = service.NewArticalService(ctx).RdbIncreaseitf(&articaldemo.RdbIncreaseitfRequest{
+		ArticalID: req.ArticalID,
+		Val:       -1,
+		Field:     field,
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	// 删除缓存
+	err = service.NewArticalService(ctx).RdbDelLikeStar(&articaldemo.RdbDelLikeStarRequest{
+		ArticalID: req.ArticalID,
+		UserName:  req.UserName,
+		Type:      req.Type,
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
 		return resp, nil
 	}
 
@@ -240,7 +374,7 @@ func (s *ArticalServiceImpl) DeleteLikeStar(ctx context.Context, req *articaldem
 	return resp, nil
 }
 
-// 查询 某用户 是否 有对于 某文章的 收藏 （点赞）(历史记录)
+// 查询 某用户 是否 有对于 某文章的 收藏 （点赞）(历史记录) 已缓存
 func (s *ArticalServiceImpl) QueryLikeStar(ctx context.Context, req *articaldemo.QueryLikeStarRequest) (*articaldemo.QueryLikeStarResponse, error) {
 	resp := new(articaldemo.QueryLikeStarResponse)
 
@@ -250,19 +384,44 @@ func (s *ArticalServiceImpl) QueryLikeStar(ctx context.Context, req *articaldemo
 		return resp, nil
 	}
 
-	res, err := service.NewArticalService(ctx).QueryLikeStar(req)
+	// 查询缓存
+	exist, updatedAt, err := service.NewArticalService(ctx).RdbGetLikeStar(&articaldemo.RdbGetLikeStarRequest{
+		UserName:  req.UserName,
+		ArticalID: req.ArticalID,
+		Type:      req.Type,
+	})
 	if err != nil {
-		resp.Resp = pack.BuildResp(err)
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+	if !exist {
+		// 不存在或未缓存
+		res, err := service.NewArticalService(ctx).QueryLikeStar(req)
+		if err != nil {
+			resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+			return resp, nil
+		}
+		updatedAt = res[0].UpdatedAt.In(pack.Tz).Format(pack.TimeLayout)
+	}
+
+	// 更新缓存
+	err = service.NewArticalService(ctx).RdbSetLikeStar(&articaldemo.RdbSetLikeStarRequest{
+		UserName:  req.UserName,
+		ArticalID: req.ArticalID,
+		Type:      req.Type,
+		UpdatedAt: updatedAt,
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
 		return resp, nil
 	}
 
 	resp.Resp = pack.BuildResp(errno.Success)
 	resp.LikeStar = &articaldemo.LikeStar{
-		UserName:  res[0].UserName,
-		ArticalID: int32(res[0].ArticalID),
-		UpdatedAt: res[0].UpdatedAt.In(pack.Tz).Format(pack.TimeLayout),
+		UserName:  req.UserName,
+		ArticalID: req.ArticalID,
+		UpdatedAt: updatedAt,
 	}
-
 	return resp, nil
 }
 

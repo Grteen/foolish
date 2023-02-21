@@ -73,6 +73,7 @@ func (s *ArticalService) UpdateLikeStarTime(req *articaldemo.UpdateLikeStarTimeR
 	}, req.UpdateTime.AsTime(), itf)
 }
 
+// 查询点赞收藏 如果不存在则返回NoLikeStarErr
 func (s *ArticalService) QueryLikeStar(req *articaldemo.QueryLikeStarRequest) ([]*db.LikeStar, error) {
 	var itf db.LikeStarInterface
 	if req.Type == 0 {
@@ -124,10 +125,6 @@ func (s *ArticalService) QueryAllLikeStar(req *articaldemo.QueryAllLikeStarReque
 	}
 
 	return res, nil
-}
-
-func (s *ArticalService) RdbIncreaseitf(req *articaldemo.RdbIncreaseitfRequest) error {
-	return rdb.IncreaseLikeStar(s.ctx, req.ArticalID, req.Val, req.Field)
 }
 
 // 创建收藏
@@ -201,4 +198,23 @@ func (s *ArticalService) DeleteStarFolderAndMove(req *articaldemo.DeleteStarFold
 		}
 		return nil
 	})
+}
+
+func (s *ArticalService) RdbIncreaseitf(req *articaldemo.RdbIncreaseitfRequest) error {
+	return rdb.IncreaseLikeStar(s.ctx, req.ArticalID, req.Val, req.Field)
+}
+
+// 设置点赞收藏缓存
+func (s *ArticalService) RdbSetLikeStar(req *articaldemo.RdbSetLikeStarRequest) error {
+	return rdb.SetLikeStar(s.ctx, req.UserName, req.ArticalID, req.Type, req.UpdatedAt)
+}
+
+// 获取点赞收藏缓存
+func (s *ArticalService) RdbGetLikeStar(req *articaldemo.RdbGetLikeStarRequest) (bool, string, error) {
+	return rdb.GetLikeStar(s.ctx, req.UserName, req.ArticalID, req.Type)
+}
+
+// 删除点赞收藏缓存
+func (s *ArticalService) RdbDelLikeStar(req *articaldemo.RdbDelLikeStarRequest) error {
+	return rdb.DelLikeStar(s.ctx, req.UserName, req.ArticalID, req.Type)
 }

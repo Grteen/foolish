@@ -4,6 +4,7 @@ import (
 	"be/cmd/artical/dal"
 	"be/cmd/artical/handlers"
 	"be/cmd/artical/pack"
+	"be/cmd/artical/rpc"
 	"be/grpc/articaldemo"
 	"net"
 
@@ -12,6 +13,7 @@ import (
 
 func Init() {
 	dal.Init()
+	rpc.Init()
 	pack.InitTimeZone()
 }
 

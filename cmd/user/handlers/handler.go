@@ -114,18 +114,97 @@ func (s *UserServiceImpl) QueryUser(ctx context.Context, req *userdemo.QueryUser
 		return resp, nil
 	}
 
-	res, err := service.NewUserService(ctx).QueryUser(req)
+	usresp, err := s.QueryUserEx(ctx, req)
 	if err != nil {
-		resp.Resp = pack.BuildResp(err)
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+	if usresp.Resp.StatusCode != 0 {
+		resp.Resp = pack.BuildRespByResp(usresp.Resp.StatusCode, usresp.Resp.StatusMessage)
+		return resp, nil
+	}
+
+	ufresp, err := s.QueryUserInfo(ctx, &userdemo.QueryUserInfoRequest{
+		UserName: req.User,
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+	if ufresp.Resp.StatusCode != 0 {
+		resp.Resp = pack.BuildRespByResp(ufresp.Resp.StatusCode, ufresp.Resp.StatusMessage)
+		return resp, nil
+	}
+
+	// 缓存用户
+	err = service.NewUserService(ctx).RdbSetUser(&userdemo.RdbSetUserRequest{
+		RdbUser: &userdemo.RdbUser{
+			UserName:    usresp.User[0].UserName,
+			NickName:    ufresp.UserInfo.NickName,
+			Description: ufresp.UserInfo.Description,
+			UserAvator:  ufresp.UserInfo.UserAvator,
+			SubNum:      usresp.User[0].SubNum,
+			FanNum:      usresp.User[0].FanNum,
+			ArtNum:      usresp.User[0].ArtNum,
+		},
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
 		return resp, nil
 	}
 
 	resp.Resp = pack.BuildResp(errno.Success)
-	for _, u := range res {
+	resp.User = append(resp.User, &userdemo.User{
+		UserName: usresp.User[0].UserName,
+		SubNum:   usresp.User[0].SubNum,
+		FanNum:   usresp.User[0].FanNum,
+		ArtNum:   usresp.User[0].ArtNum,
+		UserInfo: &userdemo.UserInfo{
+			UserName:    ufresp.UserInfo.UserName,
+			NickName:    ufresp.UserInfo.NickName,
+			Description: ufresp.UserInfo.Description,
+			UserAvator:  ufresp.UserInfo.UserAvator,
+		},
+	})
+	return resp, nil
+}
+
+// 查询用户的粉丝数 文章数 订阅数
+func (s *UserServiceImpl) QueryUserEx(ctx context.Context, req *userdemo.QueryUserRequest) (*userdemo.QueryUserResponse, error) {
+	resp := new(userdemo.QueryUserResponse)
+
+	// 账户为空
+	if len(req.User) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	// 查询缓存
+	rdbus, ungot, err := service.NewUserService(ctx).RdbGetUser(&userdemo.RdbGetUserRequest{
+		Users: []string{req.User},
+	})
+
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+	if len(ungot) != 0 {
+		req.User = ungot[0]
+		us, err := service.NewUserService(ctx).QueryUser(req)
+		if err != nil {
+			resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+			return resp, nil
+		}
+		rdbus = append(rdbus, ChangeUserToRdbUser(us)...)
+	}
+	if len(rdbus) == 0 {
+		resp.Resp = pack.BuildResp(errno.UserNotRegisterErr)
+		return resp, nil
+	}
+	resp.Resp = pack.BuildResp(errno.Success)
+	for _, u := range rdbus {
 		resp.User = append(resp.User, &userdemo.User{
 			UserName: u.UserName,
-			Email:    u.Email,
-			Password: u.PassWord,
 			SubNum:   u.SubNum,
 			FanNum:   u.FanNum,
 			ArtNum:   u.ArtNum,
@@ -135,7 +214,57 @@ func (s *UserServiceImpl) QueryUser(ctx context.Context, req *userdemo.QueryUser
 	return resp, nil
 }
 
+// 查询用户信息 如果用户不存在 返回用户还未注册错误
+// UserInfo is not the RdbUser 所以不要缓存
+func (s *UserServiceImpl) QueryUserInfo(ctx context.Context, req *userdemo.QueryUserInfoRequest) (*userdemo.QueryUserInfoResponse, error) {
+	resp := new(userdemo.QueryUserInfoResponse)
+
+	// 账户 为空
+	if len(req.UserName) == 0 {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	// 查询缓存
+	rdbufs, ungot, err := service.NewUserService(ctx).RdbGetUser(&userdemo.RdbGetUserRequest{
+		Users: []string{req.UserName},
+	})
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+	if len(ungot) != 0 {
+		req.UserName = ungot[0]
+		ufs, err := service.NewUserService(ctx).QueryUserInfo(req)
+		if err != nil {
+			resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+			return resp, nil
+		}
+		// 用户存在且没查到用户信息
+		if len(ufs) == 0 {
+			resp.Resp = pack.BuildResp(errno.ServiceFault)
+			return resp, nil
+		}
+		rdbufs = append(rdbufs, ChangeUserInfoToRdbUserInfo(ufs)...)
+	}
+	if len(rdbufs) == 0 {
+		resp.Resp = pack.BuildResp(errno.UserNotRegisterErr)
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	resp.UserInfo = &userdemo.UserInfo{
+		UserName:    rdbufs[0].UserName,
+		NickName:    rdbufs[0].NickName,
+		UserAvator:  rdbufs[0].UserAvator,
+		Description: rdbufs[0].Description,
+	}
+
+	return resp, nil
+}
+
 // 更新用户信息 如果更新失败 返回对应错误
+// UserInfo is not the RdbUser 所以不要缓存
 func (s *UserServiceImpl) UpdateUserInfo(ctx context.Context, req *userdemo.UpdateUserInfoRequest) (*userdemo.UpdateUserInfoResponse, error) {
 	resp := new(userdemo.UpdateUserInfoResponse)
 
@@ -152,39 +281,6 @@ func (s *UserServiceImpl) UpdateUserInfo(ctx context.Context, req *userdemo.Upda
 	}
 
 	resp.Resp = pack.BuildResp(errno.Success)
-	return resp, nil
-}
-
-// 查询用户信息 如果用户不存在 返回用户还未注册错误
-func (s *UserServiceImpl) QueryUserInfo(ctx context.Context, req *userdemo.QueryUserInfoRequest) (*userdemo.QueryUserInfoResponse, error) {
-	resp := new(userdemo.QueryUserInfoResponse)
-
-	// 账户 为空
-	if len(req.UserName) == 0 {
-		resp.Resp = pack.BuildResp(errno.ParamErr)
-		return resp, nil
-	}
-
-	ufs, err := service.NewUserService(ctx).QueryUserInfo(req)
-	if err != nil {
-		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
-		return resp, nil
-	}
-
-	// 用户存在且没查到用户信息
-	if len(ufs) == 0 {
-		resp.Resp = pack.BuildResp(errno.ServiceFault)
-		return resp, nil
-	}
-
-	resp.Resp = pack.BuildResp(errno.Success)
-	resp.UserInfo = &userdemo.UserInfo{
-		UserName:    ufs[0].UserName,
-		NickName:    ufs[0].NickName,
-		UserAvator:  ufs[0].UserAvator,
-		Description: ufs[0].Description,
-	}
-
 	return resp, nil
 }
 

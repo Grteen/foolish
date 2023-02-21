@@ -7,6 +7,8 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type RdbArtical struct {
@@ -70,7 +72,7 @@ func GetArtical(ctx context.Context, ids []int32) ([]*RdbArtical, []int32, error
 			constants.RdbArticalFieldAuthorAvator)
 
 		resSlice, err := rdbres.Result()
-		if err != nil {
+		if err != redis.Nil && err != nil {
 			return nil, nil, errno.ServiceFault
 		}
 
