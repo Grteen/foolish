@@ -34,6 +34,7 @@ message User {
     int32 subNum = 5;
     int32 fanNum = 6;
     int32 artNum = 7;
+    UserInfo userInfo = 8;
 }
 
 message QueryUserRequest {

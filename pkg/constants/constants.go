@@ -23,7 +23,7 @@ const (
 	AuthCookieUserName          ContextKey = "AuthCookieUserName"
 	PicUploadDir                           = "/root/nginx/image"
 	PicHttpUri                             = "http://124.70.111.92/image"
-	RdbArticalPre                          = "Artical-"
+	RdbArticalPre                          = "Artical="
 	RdbArticalFieldArtical                 = "Artical"
 	RdbArticalFieldLikeNum                 = "LikeNum"
 	RdbArticalFieldStarNum                 = "StarNum"
@@ -31,11 +31,15 @@ const (
 	RdbArticalFieldText                    = "Text"
 	RdbArticalFieldAuthorAvator            = "AuthorAvator"
 	RdbArticalExpriation                   = 60 * 10
-	RdbUserPre                             = "User-"
+	RdbUserPre                             = "User="
 	RdbUserFieldUserInfo                   = "UserInfo"
 	RdbUserFieldUserAvator                 = "Avator"
 	RdbUserFieldSubNum                     = "SubNum"
 	RdbUserFieldFanNum                     = "FanNum"
 	RdbUserFieldArtNum                     = "ArtNum"
 	RdbUserExpiration                      = 60 * 30
+	RdbLikePre                             = "Like="
+	RdbStarPre                             = "Star="
+	RdbSeenPre                             = "Seen="
+	RdbLikeStarSeenExpiration              = 60 * 5
 )

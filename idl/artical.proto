@@ -327,6 +327,38 @@ message DeleteStarFolderAndMoveResponse {
     Resp resp = 1;
 }
 
+message RdbSetLikeStarRequest {
+    string userName = 1;
+    int32 articalID = 2;
+    int32 type = 3;
+    string updatedAt = 4;
+}
+
+message RdbSetLikeStarResponse {
+    Resp resp = 1;
+}
+
+message RdbGetLikeStarRequest {
+    string userName = 1;
+    int32 articalID = 2;
+    int32 type = 3;
+}
+
+message RdbGetLikeStarResponse {
+    Resp resp = 1;
+    bool exist = 2;
+}
+
+message RdbDelLikeStarRequest {
+    string userName = 1;
+    int32 articalID = 2;
+    int32 type = 3;
+}
+
+message RdbDelLikeStarResponse {
+    Resp resp = 1;
+}
+
 service ArticalService {
     rpc CreateArtical (CreateArticalRequest) returns (CreateArticalResponse){}
     rpc DeleteArtical (DeleteArticalRequest) returns (DeleteArticalResponse){}
@@ -358,4 +390,7 @@ service ArticalService {
     rpc RdbGetArtical (RdbGetArticalRequest) returns (RdbGetArticalResponse){}
     rpc RdbGetArticalEx (RdbGetArticalRequest) returns (RdbGetArticalResponse){}
     rpc RdbIncreaseitf (RdbIncreaseitfRequest) returns (RdbIncreaseitfResponse){}
+    // rpc RdbSetLikeStar (RdbSetLikeStarRequest) returns (RdbSetLikeStarResponse){}
+    // rpc RdbGetLikeStar (RdbGetLikeStarRequest) returns (RdbGetLikeStarResponse){}
+    // rpc RdbDelLikeStar (RdbDelLikeStarRequest) returns (RdbDelLikeStarResponse){}
 }
