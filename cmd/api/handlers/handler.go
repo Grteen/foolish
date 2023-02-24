@@ -168,7 +168,7 @@ type ArticalInfo struct {
 	Cover       string `json:"cover"`
 }
 
-type ReadReplyNotifyParma struct {
+type ReadNotifyParma struct {
 	ID int32 `form:"ID"`
 }
 
@@ -178,6 +178,25 @@ type Seen struct {
 	Yesterday []*ArticalInfo `json:"yesterday"`
 	Week      []*ArticalInfo `json:"week"`
 	Weekago   []*ArticalInfo `json:"weekago"`
+}
+
+type DeleteNotifyParma struct {
+	ID int32 `form:"ID"`
+}
+
+type QueryAllLikeNotifyParma struct {
+	UserName string `form:"username"`
+	Limit    int32  `form:"limit"`
+	Offset   int32  `form:"offset"`
+}
+
+type QueryLikeNotifyParma struct {
+	IDs []int32 `form:"IDs"`
+}
+
+type SearchAllNotifyParma struct {
+	Limit  int32 `form:"limit"`
+	Offset int32 `form:"offset"`
 }
 
 // 将 articaldemo.Artical 转化为 articaldemo.RdbArtical

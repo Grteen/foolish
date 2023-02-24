@@ -52,6 +52,7 @@ func CreateComment(ctx *gin.Context) {
 	var replyed string
 	// 被回复的文章名称
 	var replyedArt string
+	master := p.Master
 
 	if p.Master != 0 {
 		// 查询是否存在评论
@@ -117,6 +118,7 @@ func CreateComment(ctx *gin.Context) {
 				Text:      p.CommentText,
 				ArticalID: p.ArticalID,
 				CommentID: ids[0],
+				Master:    master,
 			},
 		})
 		if err != nil {

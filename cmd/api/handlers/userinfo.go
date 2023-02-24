@@ -40,7 +40,7 @@ func UpdateUserInfo(ctx *gin.Context) {
 
 	// 检测参数
 	if len(u.Description) != 0 {
-		descReg := regexp.MustCompile("[^\u4e00-\u9fa5a-z0-9A-Z_\\-]")
+		descReg := regexp.MustCompile("[^\u4e00-\u9fa5a-z0-9A-Z_ \\-]")
 		if descReg.MatchString(u.Description) {
 			pack.SendResponse(ctx, errno.ParamErr)
 			return
@@ -48,7 +48,7 @@ func UpdateUserInfo(ctx *gin.Context) {
 	}
 
 	if len(u.NickName) != 0 {
-		nickReg := regexp.MustCompile("[^\u4e00-\u9fa5a-z0-9A-Z_\\-]")
+		nickReg := regexp.MustCompile("[^\u4e00-\u9fa5a-z0-9A-Z_ \\-]")
 		if nickReg.MatchString(u.NickName) {
 			pack.SendResponse(ctx, errno.ParamErr)
 			return
@@ -56,7 +56,7 @@ func UpdateUserInfo(ctx *gin.Context) {
 	}
 
 	if len(u.Avator) != 0 {
-		avatorReg := regexp.MustCompile("[^a-z0-9A-Z:/.]")
+		avatorReg := regexp.MustCompile("[^a-z0-9A-Z:/. ]")
 		if avatorReg.MatchString(u.Avator) {
 			pack.SendResponse(ctx, errno.ParamErr)
 			return

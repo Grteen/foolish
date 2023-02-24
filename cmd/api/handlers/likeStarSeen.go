@@ -4,6 +4,7 @@ import (
 	"be/cmd/api/pack"
 	"be/cmd/api/rpc"
 	"be/grpc/articaldemo"
+	"be/grpc/notifydemo"
 	"be/grpc/userdemo"
 	"be/pkg/constants"
 	"be/pkg/errno"
@@ -54,10 +55,26 @@ func GiveLikeStar(ctx *gin.Context, tp int32) {
 		ArticalID: p.ArticalID,
 		Type:      tp,
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
+	}
+
+	// 创建点赞通知
+	if tp == 0 {
+		err = rpc.CreateLikeNotify(context.Background(), &notifydemo.CreateLikeNotifyRequest{
+			Likentf: &notifydemo.LikeNotify{
+				UserName:  res[0].Author,
+				ArticalID: p.ArticalID,
+				Sender:    p.UserName,
+				Title:     "收到了点赞 : " + res[0].Title,
+				Text:      p.UserName + "点赞了你的文章 : " + res[0].Title,
+			},
+		})
+		if err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
 	}
 
 	pack.SendResponse(ctx, errno.Success)

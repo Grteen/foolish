@@ -58,9 +58,48 @@ func QueryAllReplyNotify(ctx context.Context, req *notifydemo.QueryAllReplyNotif
 	return resp.IDs, nil
 }
 
-// 将回复通知设置为已读
-func ReadReplyNotify(ctx context.Context, req *notifydemo.ReadReplyNotifyRequest) error {
-	resp, err := notifyClient.ReadReplyNotify(ctx, req)
+func CreateLikeNotify(ctx context.Context, req *notifydemo.CreateLikeNotifyRequest) error {
+	resp, err := notifyClient.CreateLikeNotify(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+func QueryLikeNotify(ctx context.Context, req *notifydemo.QueryLikeNotifyRequest) ([]*notifydemo.LikeNotify, error) {
+	resp, err := notifyClient.QueryLikeNotify(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.Ltfs, nil
+}
+
+func QueryAllLikeNotify(ctx context.Context, req *notifydemo.QueryAllLikeNotifyRequest) ([]int32, error) {
+	resp, err := notifyClient.QueryAllLikeNotify(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.IDs, nil
+}
+
+// 将通知设置为已读
+func ReadNotify(ctx context.Context, req *notifydemo.ReadNotifyRequest) error {
+	resp, err := notifyClient.ReadNotify(ctx, req)
 	if err != nil {
 		return errno.ConvertErr(err)
 	}
@@ -70,4 +109,32 @@ func ReadReplyNotify(ctx context.Context, req *notifydemo.ReadReplyNotifyRequest
 	}
 
 	return nil
+}
+
+// 将回复通知设置为 已删除
+func DeleteNotify(ctx context.Context, req *notifydemo.DeleteNotifyRequest) error {
+	resp, err := notifyClient.DeleteNotify(ctx, req)
+	if err != nil {
+		return errno.ConvertErr(err)
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+// 查询所有通知的id 并按照时间降序返回
+func SearchAllNotify(ctx context.Context, req *notifydemo.SearchAllNotifyRequest) ([]*notifydemo.AllNotify, error) {
+	resp, err := notifyClient.SearchAllNotify(ctx, req)
+	if err != nil {
+		return nil, errno.ConvertErr(err)
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.AllNotify, nil
 }

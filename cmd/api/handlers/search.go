@@ -29,6 +29,10 @@ func SearchArtical(ctx *gin.Context) {
 		Limit:   p.Limit,
 		Offset:  p.Offset,
 	})
+	if len(IDs) == 0 {
+		pack.SendData(ctx, errno.Success, nil)
+		return
+	}
 
 	artinfos := make([]*ArticalInfo, 0)
 	// 查询缓存
