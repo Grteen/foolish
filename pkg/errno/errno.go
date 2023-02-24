@@ -29,6 +29,7 @@ const (
 	NoSubscribeErrCode                    = 10020
 	NoStarFolderErrCode                   = 10021
 	DefaultFolderErrCode                  = 10022
+	NoNotifyErrCode                       = 10023
 )
 
 type Errno struct {
@@ -85,4 +86,5 @@ var (
 	NoSubscribeErr                    = NewErrNo(NoSubscribeErrCode, "No Subscribes yet")
 	NoStarFolderErr                   = NewErrNo(NoStarFolderErrCode, "No Star folders yet")
 	DefaultFolderErr                  = NewErrNo(DefaultFolderErrCode, "Can not delete default star folder")
+	NoNotifyErr                       = NewErrNo(NoNotifyErrCode, "No such notify yet")
 )

@@ -25,7 +25,12 @@ type NotifyServiceClient interface {
 	CreateReplyNotify(ctx context.Context, in *CreateReplyNotifyRequest, opts ...grpc.CallOption) (*CreateReplyNotifyResponse, error)
 	QueryReplyNotify(ctx context.Context, in *QueryReplyNotifyRequest, opts ...grpc.CallOption) (*QueryReplyNotifyResponse, error)
 	QueryAllReplyNotify(ctx context.Context, in *QueryAllReplyNotifyRequest, opts ...grpc.CallOption) (*QueryAllReplyNotifyResponse, error)
-	ReadReplyNotify(ctx context.Context, in *ReadReplyNotifyRequest, opts ...grpc.CallOption) (*ReadReplyNotifyResponse, error)
+	CreateLikeNotify(ctx context.Context, in *CreateLikeNotifyRequest, opts ...grpc.CallOption) (*CreateLikeNotifyResponse, error)
+	QueryLikeNotify(ctx context.Context, in *QueryLikeNotifyRequest, opts ...grpc.CallOption) (*QueryLikeNotifyResponse, error)
+	QueryAllLikeNotify(ctx context.Context, in *QueryAllLikeNotifyRequest, opts ...grpc.CallOption) (*QueryAllLikeNotifyResponse, error)
+	ReadNotify(ctx context.Context, in *ReadNotifyRequest, opts ...grpc.CallOption) (*ReadNotifyResponse, error)
+	DeleteNotify(ctx context.Context, in *DeleteNotifyRequest, opts ...grpc.CallOption) (*DeleteNotifyResponse, error)
+	SearchAllNotify(ctx context.Context, in *SearchAllNotifyRequest, opts ...grpc.CallOption) (*SearchAllNotifyResponse, error)
 }
 
 type notifyServiceClient struct {
@@ -63,9 +68,54 @@ func (c *notifyServiceClient) QueryAllReplyNotify(ctx context.Context, in *Query
 	return out, nil
 }
 
-func (c *notifyServiceClient) ReadReplyNotify(ctx context.Context, in *ReadReplyNotifyRequest, opts ...grpc.CallOption) (*ReadReplyNotifyResponse, error) {
-	out := new(ReadReplyNotifyResponse)
-	err := c.cc.Invoke(ctx, "/notifydemo.NotifyService/ReadReplyNotify", in, out, opts...)
+func (c *notifyServiceClient) CreateLikeNotify(ctx context.Context, in *CreateLikeNotifyRequest, opts ...grpc.CallOption) (*CreateLikeNotifyResponse, error) {
+	out := new(CreateLikeNotifyResponse)
+	err := c.cc.Invoke(ctx, "/notifydemo.NotifyService/CreateLikeNotify", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notifyServiceClient) QueryLikeNotify(ctx context.Context, in *QueryLikeNotifyRequest, opts ...grpc.CallOption) (*QueryLikeNotifyResponse, error) {
+	out := new(QueryLikeNotifyResponse)
+	err := c.cc.Invoke(ctx, "/notifydemo.NotifyService/QueryLikeNotify", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notifyServiceClient) QueryAllLikeNotify(ctx context.Context, in *QueryAllLikeNotifyRequest, opts ...grpc.CallOption) (*QueryAllLikeNotifyResponse, error) {
+	out := new(QueryAllLikeNotifyResponse)
+	err := c.cc.Invoke(ctx, "/notifydemo.NotifyService/QueryAllLikeNotify", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notifyServiceClient) ReadNotify(ctx context.Context, in *ReadNotifyRequest, opts ...grpc.CallOption) (*ReadNotifyResponse, error) {
+	out := new(ReadNotifyResponse)
+	err := c.cc.Invoke(ctx, "/notifydemo.NotifyService/ReadNotify", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notifyServiceClient) DeleteNotify(ctx context.Context, in *DeleteNotifyRequest, opts ...grpc.CallOption) (*DeleteNotifyResponse, error) {
+	out := new(DeleteNotifyResponse)
+	err := c.cc.Invoke(ctx, "/notifydemo.NotifyService/DeleteNotify", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notifyServiceClient) SearchAllNotify(ctx context.Context, in *SearchAllNotifyRequest, opts ...grpc.CallOption) (*SearchAllNotifyResponse, error) {
+	out := new(SearchAllNotifyResponse)
+	err := c.cc.Invoke(ctx, "/notifydemo.NotifyService/SearchAllNotify", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +129,12 @@ type NotifyServiceServer interface {
 	CreateReplyNotify(context.Context, *CreateReplyNotifyRequest) (*CreateReplyNotifyResponse, error)
 	QueryReplyNotify(context.Context, *QueryReplyNotifyRequest) (*QueryReplyNotifyResponse, error)
 	QueryAllReplyNotify(context.Context, *QueryAllReplyNotifyRequest) (*QueryAllReplyNotifyResponse, error)
-	ReadReplyNotify(context.Context, *ReadReplyNotifyRequest) (*ReadReplyNotifyResponse, error)
+	CreateLikeNotify(context.Context, *CreateLikeNotifyRequest) (*CreateLikeNotifyResponse, error)
+	QueryLikeNotify(context.Context, *QueryLikeNotifyRequest) (*QueryLikeNotifyResponse, error)
+	QueryAllLikeNotify(context.Context, *QueryAllLikeNotifyRequest) (*QueryAllLikeNotifyResponse, error)
+	ReadNotify(context.Context, *ReadNotifyRequest) (*ReadNotifyResponse, error)
+	DeleteNotify(context.Context, *DeleteNotifyRequest) (*DeleteNotifyResponse, error)
+	SearchAllNotify(context.Context, *SearchAllNotifyRequest) (*SearchAllNotifyResponse, error)
 	mustEmbedUnimplementedNotifyServiceServer()
 }
 
@@ -96,8 +151,23 @@ func (UnimplementedNotifyServiceServer) QueryReplyNotify(context.Context, *Query
 func (UnimplementedNotifyServiceServer) QueryAllReplyNotify(context.Context, *QueryAllReplyNotifyRequest) (*QueryAllReplyNotifyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryAllReplyNotify not implemented")
 }
-func (UnimplementedNotifyServiceServer) ReadReplyNotify(context.Context, *ReadReplyNotifyRequest) (*ReadReplyNotifyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReadReplyNotify not implemented")
+func (UnimplementedNotifyServiceServer) CreateLikeNotify(context.Context, *CreateLikeNotifyRequest) (*CreateLikeNotifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateLikeNotify not implemented")
+}
+func (UnimplementedNotifyServiceServer) QueryLikeNotify(context.Context, *QueryLikeNotifyRequest) (*QueryLikeNotifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryLikeNotify not implemented")
+}
+func (UnimplementedNotifyServiceServer) QueryAllLikeNotify(context.Context, *QueryAllLikeNotifyRequest) (*QueryAllLikeNotifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryAllLikeNotify not implemented")
+}
+func (UnimplementedNotifyServiceServer) ReadNotify(context.Context, *ReadNotifyRequest) (*ReadNotifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadNotify not implemented")
+}
+func (UnimplementedNotifyServiceServer) DeleteNotify(context.Context, *DeleteNotifyRequest) (*DeleteNotifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteNotify not implemented")
+}
+func (UnimplementedNotifyServiceServer) SearchAllNotify(context.Context, *SearchAllNotifyRequest) (*SearchAllNotifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchAllNotify not implemented")
 }
 func (UnimplementedNotifyServiceServer) mustEmbedUnimplementedNotifyServiceServer() {}
 
@@ -166,20 +236,110 @@ func _NotifyService_QueryAllReplyNotify_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NotifyService_ReadReplyNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReadReplyNotifyRequest)
+func _NotifyService_CreateLikeNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateLikeNotifyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NotifyServiceServer).ReadReplyNotify(ctx, in)
+		return srv.(NotifyServiceServer).CreateLikeNotify(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/notifydemo.NotifyService/ReadReplyNotify",
+		FullMethod: "/notifydemo.NotifyService/CreateLikeNotify",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotifyServiceServer).ReadReplyNotify(ctx, req.(*ReadReplyNotifyRequest))
+		return srv.(NotifyServiceServer).CreateLikeNotify(ctx, req.(*CreateLikeNotifyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotifyService_QueryLikeNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryLikeNotifyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotifyServiceServer).QueryLikeNotify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/notifydemo.NotifyService/QueryLikeNotify",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotifyServiceServer).QueryLikeNotify(ctx, req.(*QueryLikeNotifyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotifyService_QueryAllLikeNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllLikeNotifyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotifyServiceServer).QueryAllLikeNotify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/notifydemo.NotifyService/QueryAllLikeNotify",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotifyServiceServer).QueryAllLikeNotify(ctx, req.(*QueryAllLikeNotifyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotifyService_ReadNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadNotifyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotifyServiceServer).ReadNotify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/notifydemo.NotifyService/ReadNotify",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotifyServiceServer).ReadNotify(ctx, req.(*ReadNotifyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotifyService_DeleteNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteNotifyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotifyServiceServer).DeleteNotify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/notifydemo.NotifyService/DeleteNotify",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotifyServiceServer).DeleteNotify(ctx, req.(*DeleteNotifyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotifyService_SearchAllNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchAllNotifyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotifyServiceServer).SearchAllNotify(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/notifydemo.NotifyService/SearchAllNotify",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotifyServiceServer).SearchAllNotify(ctx, req.(*SearchAllNotifyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -204,8 +364,28 @@ var NotifyService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _NotifyService_QueryAllReplyNotify_Handler,
 		},
 		{
-			MethodName: "ReadReplyNotify",
-			Handler:    _NotifyService_ReadReplyNotify_Handler,
+			MethodName: "CreateLikeNotify",
+			Handler:    _NotifyService_CreateLikeNotify_Handler,
+		},
+		{
+			MethodName: "QueryLikeNotify",
+			Handler:    _NotifyService_QueryLikeNotify_Handler,
+		},
+		{
+			MethodName: "QueryAllLikeNotify",
+			Handler:    _NotifyService_QueryAllLikeNotify_Handler,
+		},
+		{
+			MethodName: "ReadNotify",
+			Handler:    _NotifyService_ReadNotify_Handler,
+		},
+		{
+			MethodName: "DeleteNotify",
+			Handler:    _NotifyService_DeleteNotify_Handler,
+		},
+		{
+			MethodName: "SearchAllNotify",
+			Handler:    _NotifyService_SearchAllNotify_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

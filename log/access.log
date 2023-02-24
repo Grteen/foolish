@@ -1,0 +1,4 @@
+2023/02/24 05:03:16 /root/BE/cmd/mq/pack/log_test.go:7: test of ALoger
+2023/02/24 05:39:35 /root/BE/cmd/mq/dal/rdb/log.go:30: test of access
+2023/02/24 05:43:50 /root/BE/cmd/log/pack/log_test.go:7: test of ALoger
+2023/02/24 05:44:30 /root/BE/cmd/log/dal/rdb/log.go:30: test of access again

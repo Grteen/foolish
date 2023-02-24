@@ -24,6 +24,7 @@ ErrorCode:
     10020   "Already been Subscribed"       // 还没有订阅
     10021   "No Star folders yet"       // 没有该收藏夹
     10022   "Can not delete default star folder"        // 不能删除默认收藏夹
+    10023   "No such notify yet"            // 没有该通知
 
 
 // 注册用户
@@ -81,12 +82,15 @@ GET /api/userinfo  uri
             code: 0
             data: {
                 userName    用户名
-                nickName    昵称
-                description     个人简介
-                userAvator      头像
                 subNum      订阅数
                 fanNum      粉丝数
                 artNum      文章数
+                userinfo {
+                    userName 
+                    nickName 
+                    description
+                    userAvator
+                }
             }
         }
 
@@ -198,8 +202,11 @@ GET /api/artical   form-data
         }
 
 // 查询一个用户发表的所有文章 的 ID
-GET /api/artical/:author      即/api/artical/Grteen-test
-    参数: 无
+GET /api/artical/author      
+    参数: 
+        author      // 作者
+        filed       // 排序的字段   time 发布时间 like 点赞数 star 收藏数 seen 浏览数
+        order       // 排序方式     DESC 降序 ASC 升序
     返回值: 
     如果失败: 
         json {
@@ -309,12 +316,15 @@ GET /api/star   uri
             message
             data: [         // 按照时间倒序返回
                 {
-                    ID      // 收藏ID
-                    createdAt       // 收藏时间
-                    artcalID    // 收藏的文章ID
+                    ID      // 文章ID
+                    createdAt       // 文章创建时间
                     title   // 文章标题
                     author      // 文章作者
                     description     // 文章描述
+                    likeNum
+                    starNum
+                    seenNum
+                    cover
                 }
                 {
                     ...
@@ -408,8 +418,33 @@ GET /api/seen uri
                 code: 0
                 message:
                 data: {
-                    articalIDs: [
-                        // 文章ID 数组
+                    today: [        // 今天
+                        {
+                            ID      // 文章ID
+                            createdAt   // 文章创建时间
+                            title
+                            author
+                            description
+                            likeNum
+                            starNum   
+                            seenNum
+                            cover
+                        }
+                    ]
+                    yesterday: [        // 昨天
+                        {
+                            同上
+                        }
+                    ]
+                    week: [         // 昨天 - 上周
+                        {
+                            同上
+                        }
+                    ]
+                    weekago: [      // 上周以后的
+                        {
+                            同上
+                        }
                     ]
                 }
             }
@@ -517,7 +552,7 @@ GET /api/comment/:articalID         即 /api/comment/11      (11 就是要查询
 // 搜索文章
 GET /api/search     uri
     参数:
-        keyword     // 搜索的关键词
+        keyword     // 搜索的关键词     如果keyword为空则查询所有
         limit     // 搜索几个
         offset      // 跳过几个
         // 搜索有keyword关键词的文章第 10 - 15 个   limit = 5 offset = 10
@@ -532,7 +567,20 @@ GET /api/search     uri
             code: 0
             message:
             data: [         // 按照发布时间降序排序
-                // 文章ID数组
+                {
+                    ID
+                    createdAt
+                    title
+                    author
+                    description
+                    likeNum
+                    starNum
+                    seenNum
+                    cover
+                }
+                {
+                    ...
+                }
             ]
         }
 
@@ -626,7 +674,7 @@ GET /api/notify/reply   uri
     返回值:
         如果错误:
         json {
-            code: 02 03
+            code: 02 03 23
             message
         }
         如果成功:
@@ -635,6 +683,7 @@ GET /api/notify/reply   uri
             message:
             data: [
                 {
+                    ID              // 通知的ID
                     createdAt:
                     userName:       // 收件人名字
                     sender:         // 寄件人名字
@@ -642,11 +691,96 @@ GET /api/notify/reply   uri
                     text:           // 通知文本
                     avator:         // 寄件人的头像
                     articalID:      // 被评论的文章ID 或者是被回复的评论所属的文章ID
-                    commentID:      // 评论你的评论 的评论的ID
+                    commentID:      // 评论 你的评论 的评论的ID
+                    master:         // 你的 被评论的 评论 如果为0 则表示是你的文章被评论了
+                    masterText:     // 你的 被评论的 评论 的文本   如果为空 则表示是你的文章被评论了
                     isread:         // 是否读过         如果读过就是 true
+                    isdelete:       // 是否被删除了
                 }
                 {
                     ...
                 }
             ]
         }
+
+
+// 查询某人的点赞通知       倒序排列
+GET /api/notify/alllike   uri
+    参数:
+        username
+        limit 
+        offset          // 差第10-15个 limit 5 offset 10
+    返回值: 
+        如果错误:
+        json {
+            code: 02 03 09 10
+            message
+        }
+        如果成功
+        json {
+            code: 0
+            message
+            data: [
+                // 通知ID数组 按照时间倒序排列
+            ]
+        }
+
+// 查询 某个ID 的点赞通知          
+GET /api/notify/like   uri
+    参数:
+        IDs         // ID 数组
+    返回值:
+        如果错误:
+        json {
+            code: 02 03 23
+            message
+        }
+        如果成功:
+        json {
+            code: 0
+            message:
+            data: [
+                {
+                    ID              // 通知的ID
+                    createdAt:
+                    userName:       // 收件人名字
+                    sender:         // 寄件人名字
+                    title:          // 通知标题
+                    text:           // 通知文本
+                    avator:         // 寄件人的头像
+                    articalID:      // 被点赞的文章ID
+                    isread:         // 是否读过         如果读过就是 true
+                    isdelete:       // 是否被删除了
+                }
+                {
+                    ...
+                }
+            ]
+        }
+
+// 已读回复通知
+PUT /api/notify/reply   form-data 
+    参数:
+        ID      // 回复通知的ID
+    返回值: json {
+        code: 0 02 03 10 23
+        message
+    }
+
+// 已读点赞通知
+PUT /api/notify/like   form-data 
+    参数:
+        ID      // 回复通知的ID
+    返回值: json {
+        code: 0 02 03 10 23
+        message
+    }
+
+// 删除点赞通知
+DELETE /api/notify/like    form-data
+    参数:
+        ID      // 回复通知的ID
+    返回值: json {
+        code: 0 02 03 10 23
+        message
+    }

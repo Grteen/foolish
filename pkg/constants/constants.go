@@ -18,7 +18,7 @@ const (
 	SeenTableName                          = "articalSeen"
 	StarFolderTableName                    = "starFolder"
 	ReplyNotifyTableName                   = "replyNotify"
-	PublishNotifyTableName                 = "publishNotify"
+	LikeNotifyTableName                    = "likeNotify"
 	LikeStarModel               ContextKey = "LikeStarModel"
 	AuthCookieUserName          ContextKey = "AuthCookieUserName"
 	PicUploadDir                           = "/root/nginx/image"
@@ -42,4 +42,10 @@ const (
 	RdbStarPre                             = "Star="
 	RdbSeenPre                             = "Seen="
 	RdbLikeStarSeenExpiration              = 60 * 5
+	ALogFile                               = "/root/BE/log/access.log"
+	ELogFile                               = "/root/BE/log/error.log"
+	SLogFile                               = "/root/BE/log/swap.log"
+	RdbErrorLogKey                         = "foolish--Elog"
+	RdbAccessLogKey                        = "foolish--ALog"
+	RdbSwapLogKey                          = "foolish--SLog"
 )
