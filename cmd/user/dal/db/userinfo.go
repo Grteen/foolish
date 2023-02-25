@@ -4,15 +4,14 @@ import (
 	"be/pkg/config"
 	"be/pkg/constants"
 	"be/pkg/errno"
-	"time"
+
+	"gorm.io/gorm"
 )
 
 // 显示在用户个人主页的基础信息
 type UserInfo struct {
-	ID        uint `gorm:"primarykey"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	UserName  string `json:"username" gorm:"column:username"`
+	gorm.Model
+	UserName string `json:"username" gorm:"column:username"`
 
 	NickName    string `json:"nickname" gorm:"column:nickname"`
 	Description string `json:"description" gorm:"column:description"`

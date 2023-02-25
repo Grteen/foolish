@@ -4,15 +4,12 @@ import (
 	"be/pkg/config"
 	"be/pkg/constants"
 	"be/pkg/errno"
-	"time"
 
 	"gorm.io/gorm"
 )
 
 type Artical struct {
-	ID        uint      `gorm:"primarykey"`
-	CreatedAt time.Time `json:"createdAt" gorm:"column:createdAt; not null"`
-	UpdatedAt time.Time `json:"updatedAt" gorm:"column:updatedAt; not null"`
+	gorm.Model
 
 	Title       string `json:"title" gorm:"column:title; not null"`
 	Author      string `json:"author" gorm:"column:author; not null"`
@@ -45,10 +42,10 @@ func CreateArtical(cg *config.Config, arts []*Artical) error {
 		for _, art := range arts {
 			// 作者文章数 + 1
 			if err := tx.WithContext(cg.Ctx).Model(&User{}).Where("username = ?", art.Author).Update("artNum", gorm.Expr("artNum + ?", 1)).Error; err != nil {
-				return errno.ServiceFault
+				return err
 			}
 			if err := tx.WithContext(cg.Ctx).Create(arts).Error; err != nil {
-				return errno.ServiceFault
+				return err
 			}
 		}
 		return nil
@@ -59,7 +56,7 @@ func CreateArtical(cg *config.Config, arts []*Artical) error {
 func QueryArtical(cg *config.Config, ids []int32) ([]*Artical, error) {
 	res := make([]*Artical, 0)
 	cg.Tx.Transaction(func(tx *gorm.DB) error {
-		if err := tx.WithContext(cg.Ctx).Where("id in ?", ids).Order("updatedAt DESC").Find(&res).Error; err != nil {
+		if err := tx.WithContext(cg.Ctx).Where("id in ?", ids).Order("updated_at DESC").Find(&res).Error; err != nil {
 			return errno.ServiceFault
 		}
 		return nil
@@ -74,28 +71,28 @@ func DeleteArtical(cg *config.Config, id int32) error {
 		res := make([]int32, 0)
 		// 查询该文章的所有 master 评论 并删除
 		if err := tx.WithContext(cg.Ctx).Model(&Comment{}).Select("id").Where("articalID = ?", id).Where("master is null").Order("updatedAt DESC").Find(&res).Error; err != nil {
-			return errno.ServiceFault
+			return err
 		}
 		for _, cm := range res {
 			if err := tx.WithContext(cg.Ctx).Where("master = ?", cm).Delete(&Comment{}).Error; err != nil {
-				return errno.ServiceFault
+				return err
 			}
 			if err := tx.WithContext(cg.Ctx).Where("id = ?", cm).Delete(&Comment{}).Error; err != nil {
-				return errno.ServiceFault
+				return err
 			}
 		}
 
 		// 查询文章作者
 		var author string
 		if err := tx.WithContext(cg.Ctx).Model(&Artical{}).Select("author").Where("id = ?", id).Find(&author).Error; err != nil {
-			return errno.ServiceFault
+			return err
 		}
 		// 作者文章数 - 1
 		if err := tx.WithContext(cg.Ctx).Model(&User{}).Where("username = ?", author).Update("artNum", gorm.Expr("artNum - ?", 1)).Error; err != nil {
-			return errno.ServiceFault
+			return err
 		}
 		if err := tx.WithContext(cg.Ctx).Where("id = ?", id).Delete(&Artical{}).Error; err != nil {
-			return errno.ServiceFault
+			return err
 		}
 		return nil
 	})

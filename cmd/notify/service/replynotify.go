@@ -102,7 +102,7 @@ func (s *NotifyService) DeleteNotify(req *notifydemo.DeleteNotifyRequest) error 
 
 // 查询所有通知的id 并按照时间降序返回
 func (s *NotifyService) SearchAllNotify(req *notifydemo.SearchAllNotifyRequest) ([]*db.AllNotify, error) {
-	ntfs, err := db.SearchAllNotify(config.NewConfig(s.ctx, db.DB), req.Limit, req.Offset)
+	ntfs, err := db.SearchAllNotify(config.NewConfig(s.ctx, db.DB), req.UserName, req.Limit, req.Offset)
 	if err != nil {
 		return nil, errno.ServiceFault
 	}

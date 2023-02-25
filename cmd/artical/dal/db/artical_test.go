@@ -38,7 +38,7 @@ func TestArtical(t *testing.T) {
 
 	fmt.Println(res)
 
-	err = DeleteArtical(cg, 7)
+	err = DeleteArtical(cg, 28)
 	if err != nil {
 		t.Error(err)
 	}

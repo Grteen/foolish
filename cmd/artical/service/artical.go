@@ -6,6 +6,8 @@ import (
 	"be/grpc/articaldemo"
 	"be/pkg/config"
 	"context"
+
+	"gorm.io/gorm"
 )
 
 type ArticalService struct {
@@ -43,7 +45,9 @@ func (s *ArticalService) DeleteArtical(req *articaldemo.DeleteArticalRequest) er
 // 不更新作者
 func (s *ArticalService) UpdateArtical(req *articaldemo.UpdateArticalRequest) error {
 	return db.UpdateArtical(config.NewConfig(s.ctx, db.DB), &db.Artical{
-		ID:          uint(req.ArticalID),
+		Model: gorm.Model{
+			ID: uint(req.ArticalID),
+		},
 		Title:       req.Title,
 		Text:        req.Text,
 		Description: req.Description,

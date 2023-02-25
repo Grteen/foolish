@@ -195,8 +195,9 @@ type QueryLikeNotifyParma struct {
 }
 
 type SearchAllNotifyParma struct {
-	Limit  int32 `form:"limit"`
-	Offset int32 `form:"offset"`
+	UserName string `form:"username"`
+	Limit    int32  `form:"limit"`
+	Offset   int32  `form:"offset"`
 }
 
 // 将 articaldemo.Artical 转化为 articaldemo.RdbArtical

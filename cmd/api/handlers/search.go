@@ -46,7 +46,7 @@ func SearchArtical(ctx *gin.Context) {
 	if len(ungot) != 0 {
 		// 没有查到
 		arts, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
-			IDs: IDs,
+			IDs: ungot,
 		})
 		if err != nil {
 			pack.SendResponse(ctx, errno.ConvertErr(err))

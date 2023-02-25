@@ -5,9 +5,9 @@ import (
 	"be/cmd/api/rpc"
 	"be/grpc/articaldemo"
 	"be/grpc/userdemo"
+	"be/pkg/check"
 	"be/pkg/errno"
 	"context"
-	"regexp"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,27 +26,8 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	// 密码 3-18  用户名 3-18
-	if len(u.PassWord) < 3 || len(u.PassWord) > 18 || len(u.Name) < 3 || len(u.Name) > 18 {
-		pack.SendResponse(ctx, errno.ParamErr)
-		return
-	}
-
-	// 检查参数
-	userPwReg := regexp.MustCompile("[^0-9a-zA-Z\\-_]")
-	if userPwReg.MatchString(u.Name) || userPwReg.MatchString(u.PassWord) {
-		pack.SendResponse(ctx, errno.ParamErr)
-		return
-	}
-
-	emailReg := regexp.MustCompile("[^0-9a-zA-Z@.]")
-	if emailReg.MatchString(u.Email) {
-		pack.SendResponse(ctx, errno.ParamErr)
-		return
-	}
-
-	emailReg = regexp.MustCompile(".+(@qq.com)$")
-	if !emailReg.MatchString(u.Email) {
+	// 检测参数
+	if !check.CheckUserPassWord(u.PassWord) || !check.CheckUserName(u.Name) || !check.CheckUserEmail(u.Email) {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}

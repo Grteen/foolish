@@ -10,19 +10,15 @@ import (
 )
 
 type LikeStar struct {
-	ID        uint      `gorm:"primarykey"`
-	CreatedAt time.Time `gorm:"column:createdAt; not null"`
-	UpdatedAt time.Time `gorm:"column:updatedAt; not null"`
-	UserName  string    `gorm:"column:username; not null"`
-	ArticalID uint      `gorm:"column:articalID; not null"`
+	gorm.Model
+	UserName  string `gorm:"column:username; not null"`
+	ArticalID uint   `gorm:"column:articalID; not null"`
 }
 
 type Like struct {
-	ID        uint      `gorm:"primarykey"`
-	CreatedAt time.Time `gorm:"column:createdAt; not null"`
-	UpdatedAt time.Time `gorm:"column:updatedAt; not null"`
-	UserName  string    `gorm:"column:username; not null"`
-	ArticalID uint      `gorm:"column:articalID; not null"`
+	gorm.Model
+	UserName  string `gorm:"column:username; not null"`
+	ArticalID uint   `gorm:"column:articalID; not null"`
 }
 
 func (l *Like) TableName() string {
@@ -34,12 +30,11 @@ func (l *Like) ColumnForArtical() string {
 }
 
 type StarFolder struct {
-	ID         uint      `gorm:"primarykey"`
-	CreatedAt  time.Time `gorm:"column:createdAt; not null"`
-	UserName   string    `gorm:"column:username; not null"`
-	FolderName string    `gorm:"column:foldername; not null"`
-	IsDefault  bool      `gorm:"column:isdefault; not null"`
-	Stars      []*Star   `gorm:"foreignKey:FolderID"`
+	gorm.Model
+	UserName   string  `gorm:"column:username; not null"`
+	FolderName string  `gorm:"column:foldername; not null"`
+	IsDefault  bool    `gorm:"column:isdefault; not null"`
+	Stars      []*Star `gorm:"foreignKey:FolderID"`
 }
 
 func (s *StarFolder) TableName() string {
@@ -47,12 +42,10 @@ func (s *StarFolder) TableName() string {
 }
 
 type Star struct {
-	ID        uint      `gorm:"primarykey"`
-	CreatedAt time.Time `gorm:"column:createdAt; not null"`
-	UpdatedAt time.Time `gorm:"column:updatedAt; not null"`
-	UserName  string    `gorm:"column:username; not null"`
-	ArticalID uint      `gorm:"column:articalID; not null"`
-	FolderID  uint      `gorm:"column:folderID; not null"`
+	gorm.Model
+	UserName  string `gorm:"column:username; not null"`
+	ArticalID uint   `gorm:"column:articalID; not null"`
+	FolderID  uint   `gorm:"column:folderID; not null"`
 }
 
 func (s *Star) TableName() string {
@@ -64,11 +57,9 @@ func (s *Star) ColumnForArtical() string {
 }
 
 type Seen struct {
-	ID        uint      `gorm:"primarykey"`
-	CreatedAt time.Time `gorm:"column:createdAt; not null"`
-	UpdatedAt time.Time `gorm:"column:updatedAt; not null"`
-	UserName  string    `gorm:"column:username; not null"`
-	ArticalID uint      `gorm:"column:articalID; not null"`
+	gorm.Model
+	UserName  string `gorm:"column:username; not null"`
+	ArticalID uint   `gorm:"column:articalID; not null"`
 }
 
 func (s *Seen) TableName() string {
@@ -101,7 +92,7 @@ func CreateLikeStar(cg *config.Config, likeStars []*LikeStar, itf LikeStarInterf
 
 // 更新时间 只用于 Seen
 func UpdateLikeStarTime(cg *config.Config, likeStar *LikeStar, ut time.Time, itf LikeStarInterface) error {
-	if err := cg.Tx.Model(itf).Where("username = ?", likeStar.UserName).Where("articalID = ?", likeStar.ArticalID).Update("updatedAt", ut).Error; err != nil {
+	if err := cg.Tx.Model(itf).Where("username = ?", likeStar.UserName).Where("articalID = ?", likeStar.ArticalID).Update("updated_at", ut).Error; err != nil {
 		return errno.ServiceFault
 	}
 	return nil
@@ -133,7 +124,7 @@ func QueryLikeStar(cg *config.Config, likeStar *LikeStar, itf LikeStarInterface)
 // 查询 UserName 所有的 收藏 (点赞) (历史记录) 返回文章ID
 func QueryAllLikeStar(cg *config.Config, userName string, itf LikeStarInterface) ([]int32, error) {
 	res := make([]int32, 0)
-	if err := cg.Tx.WithContext(cg.Ctx).Model(itf).Select("ArticalID").Where("username = ?", userName).Order("updatedAt DESC").Find(&res).Error; err != nil {
+	if err := cg.Tx.WithContext(cg.Ctx).Model(itf).Select("ArticalID").Where("username = ?", userName).Order("updated_at DESC").Find(&res).Error; err != nil {
 		return nil, errno.ServiceFault
 	}
 	return res, nil
@@ -193,12 +184,12 @@ func QueryStarFolder(cg *config.Config, id []int32) ([]*StarFolder, error) {
 func QueryAllStar(cg *config.Config, id int32, limit, offset int32) ([]*Star, error) {
 	res := make([]*Star, 0)
 	if limit == 0 {
-		if err := cg.Tx.WithContext(cg.Ctx).Where("folderID = ?", id).Order("updatedAt DESC").Find(&res).Error; err != nil {
-			return nil, errno.ServiceFault
+		if err := cg.Tx.WithContext(cg.Ctx).Where("folderID = ?", id).Order("updated_at DESC").Find(&res).Error; err != nil {
+			return nil, err
 		}
 	} else {
-		if err := cg.Tx.WithContext(cg.Ctx).Where("folderID = ?", id).Order("updatedAt DESC").Limit(int(limit)).Offset(int(offset)).Find(&res).Error; err != nil {
-			return nil, errno.ServiceFault
+		if err := cg.Tx.WithContext(cg.Ctx).Where("folderID = ?", id).Order("updated_at DESC").Limit(int(limit)).Offset(int(offset)).Find(&res).Error; err != nil {
+			return nil, err
 		}
 	}
 	return res, nil

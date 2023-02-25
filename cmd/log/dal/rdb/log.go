@@ -35,10 +35,10 @@ func WriteSwapLog() {
 	var err error
 	var res []string
 	for {
-		res, err = RDB.BRPop(context.Background(), 0, constants.RdbAccessLogKey).Result()
+		res, err = RDB.BRPop(context.Background(), 0, constants.RdbSwapLogKey).Result()
 		if err != nil {
 			pack.ELoger.Print(err)
 		}
-		pack.ALoger.Print(res[1])
+		pack.SLoger.Print(res[1])
 	}
 }

@@ -5,6 +5,8 @@ import (
 	"be/grpc/articaldemo"
 	"be/pkg/config"
 	"be/pkg/errno"
+
+	"gorm.io/gorm"
 )
 
 // 创建评论或是 reply
@@ -55,7 +57,9 @@ func (s *ArticalService) QueryCommentByArticalID(req *articaldemo.QueryCommentBy
 // 暂时无用
 func (s *ArticalService) UpdateComment(req *articaldemo.UpdateCommentRequest) error {
 	return db.UpdateComment(config.NewConfig(s.ctx, db.DB), &db.Comment{
-		ID:          uint(req.CommentID),
+		Model: gorm.Model{
+			ID: uint(req.CommentID),
+		},
 		CommentText: req.CommentText,
 	})
 }

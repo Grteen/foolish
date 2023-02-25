@@ -16,6 +16,7 @@ func main() {
 
 	go rdb.WriteALog()
 	go rdb.WriteELog()
+	go rdb.WriteSwapLog()
 
 	// 阻塞主线程
 	select {}

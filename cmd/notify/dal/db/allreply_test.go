@@ -13,6 +13,7 @@ func TestAllReply(t *testing.T) {
 		Ctx: context.Background(),
 		Tx:  DB,
 	}
-	res, _ := SearchAllNotify(cg, 20, 0)
+	username := "Grteen-test"
+	res, _ := SearchAllNotify(cg, username, 20, 0)
 	fmt.Println(res)
 }

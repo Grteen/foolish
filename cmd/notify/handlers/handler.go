@@ -213,7 +213,7 @@ func (s *NotifyServiceImpl) SearchAllNotify(ctx context.Context, req *notifydemo
 	resp := new(notifydemo.SearchAllNotifyResponse)
 
 	// 检测参数
-	if req.Limit < 0 || req.Offset < 0 {
+	if req.Limit < 0 || req.Offset < 0 || len(req.UserName) <= 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}

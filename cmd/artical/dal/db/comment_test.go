@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"testing"
+
+	"gorm.io/gorm"
 )
 
 func TestComment(t *testing.T) {
@@ -40,7 +42,9 @@ func TestComment(t *testing.T) {
 	fmt.Println(cm)
 
 	err = UpdateComment(cg, &Comment{
-		ID:          2,
+		Model: gorm.Model{
+			ID: 2,
+		},
 		UserName:    "Grteen-test",
 		ArticalID:   3,
 		CommentText: "New-Comment",

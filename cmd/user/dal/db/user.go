@@ -4,17 +4,16 @@ import (
 	"be/pkg/config"
 	"be/pkg/constants"
 	"be/pkg/errno"
-	"time"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID        uint `gorm:"primarykey"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	UserName  string    `json:"username" gorm:"column:username; not null; unique"`
-	Email     string    `json:"email" gorm:"column:email; unique"`
-	PassWord  string    `json:"password" gorm:"column:pw"`
-	UserInfo  *UserInfo `gorm:"foreignKey:UserName; references:UserName"`
+	gorm.Model
+	UserName string    `json:"username" gorm:"column:username; not null; unique"`
+	Email    string    `json:"email" gorm:"column:email; unique"`
+	PassWord string    `json:"password" gorm:"column:pw"`
+	UserInfo *UserInfo `gorm:"foreignKey:UserName; references:UserName"`
 
 	SubNum    int32   `json:"subNum" gorm:"column:subNum; not null"`
 	FanNum    int32   `json:"fanNum" gorm:"column:fanNum; not null"`

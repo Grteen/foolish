@@ -4,18 +4,15 @@ import (
 	"be/pkg/config"
 	"be/pkg/constants"
 	"be/pkg/errno"
-	"time"
 
 	"gorm.io/gorm"
 )
 
 type Comment struct {
-	ID          uint      `gorm:"primarykey"`
-	CreatedAt   time.Time `gorm:"column:createdAt"`
-	UpdatedAt   time.Time `gorm:"column:updatedAt"`
-	UserName    string    `gorm:"column:username"`
-	ArticalID   uint      `gorm:"column:articalID"`
-	CommentText string    `gorm:"column:comment"`
+	gorm.Model
+	UserName    string `gorm:"column:username"`
+	ArticalID   uint   `gorm:"column:articalID"`
+	CommentText string `gorm:"column:comment"`
 
 	Master *uint      `gorm:"column:master"`
 	Reply  []*Comment `gorm:"foreignkey:Master"`

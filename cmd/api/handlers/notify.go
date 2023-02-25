@@ -72,8 +72,20 @@ func QueryReplyNotify(ctx *gin.Context) {
 		return
 	}
 
+	type temp struct {
+		Type   int32       `json:"type"`
+		Notify interface{} `json:"notify"`
+	}
+	res := make([]*temp, 0)
+
 	// 查询sender头像 和被评论的文本
 	for _, ntf := range ntfs {
+		// 如果通知所属人不属于当前用户 则不返回该通知
+		err := pack.CheckAuthCookie(ctx, ntf.UserName)
+		if err != nil {
+			continue
+		}
+
 		avator, err := rpc.QueryAvator(context.Background(), &userdemo.QueryAvatorRequest{
 			UserName: ntf.Sender,
 		})
@@ -97,13 +109,13 @@ func QueryReplyNotify(ctx *gin.Context) {
 			}
 			ntf.MasterText = cmtext[0].CommentText
 		}
-	}
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
+		res = append(res, &temp{
+			Type:   0,
+			Notify: ntf,
+		})
 	}
 
-	pack.SendData(ctx, errno.Success, ntfs)
+	pack.SendData(ctx, errno.Success, res)
 }
 
 // 将回复通知设定为已读
@@ -188,8 +200,19 @@ func QueryLikeNotify(ctx *gin.Context) {
 		return
 	}
 
+	type temp struct {
+		Type   int32       `json:"type"`
+		Notify interface{} `json:"notify"`
+	}
+	res := make([]*temp, 0)
+
 	// 查询sender头像
 	for _, ltf := range ltfs {
+		// 如果通知所属人不属于当前用户 则不返回该通知
+		err := pack.CheckAuthCookie(ctx, ltf.UserName)
+		if err != nil {
+			continue
+		}
 		avator, err := rpc.QueryAvator(context.Background(), &userdemo.QueryAvatorRequest{
 			UserName: ltf.Sender,
 		})
@@ -198,8 +221,13 @@ func QueryLikeNotify(ctx *gin.Context) {
 			return
 		}
 		ltf.Avator = avator[0]
+		res = append(res, &temp{
+			Type:   1,
+			Notify: ltf,
+		})
 	}
-	pack.SendData(ctx, errno.Success, ltfs)
+
+	pack.SendData(ctx, errno.Success, res)
 }
 
 // 讲点赞通知设定为已读
@@ -231,6 +259,8 @@ func ReadNotify(ctx *gin.Context, ID int32, tp int32) {
 		return
 	}
 
+	// 通知所属人
+	var owner string
 	// 查询通知是否存在
 	if tp == 0 {
 		// reply notify
@@ -245,6 +275,7 @@ func ReadNotify(ctx *gin.Context, ID int32, tp int32) {
 			pack.SendResponse(ctx, errno.NoNotifyErr)
 			return
 		}
+		owner = ntfs[0].UserName
 	} else if tp == 1 {
 		// like notify
 		ltfs, err := rpc.QueryLikeNotify(context.Background(), &notifydemo.QueryLikeNotifyRequest{
@@ -258,12 +289,20 @@ func ReadNotify(ctx *gin.Context, ID int32, tp int32) {
 			pack.SendResponse(ctx, errno.NoNotifyErr)
 			return
 		}
+		owner = ltfs[0].UserName
 	} else {
 		pack.SendResponse(ctx, errno.ServiceFault)
 		return
 	}
 
-	err := rpc.ReadNotify(context.Background(), &notifydemo.ReadNotifyRequest{
+	// 目标账户必须与username相匹配
+	err := pack.CheckAuthCookie(ctx, owner)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	err = rpc.ReadNotify(context.Background(), &notifydemo.ReadNotifyRequest{
 		ID:   ID,
 		Type: tp,
 	})
@@ -282,6 +321,7 @@ func DeleteNotify(ctx *gin.Context, ID int32, tp int32) {
 		return
 	}
 
+	var owner string
 	// 查询通知是否存在
 	if tp == 0 {
 		// reply notify
@@ -296,6 +336,7 @@ func DeleteNotify(ctx *gin.Context, ID int32, tp int32) {
 			pack.SendResponse(ctx, errno.NoNotifyErr)
 			return
 		}
+		owner = ntfs[0].UserName
 	} else if tp == 1 {
 		// like notify
 		ltfs, err := rpc.QueryLikeNotify(context.Background(), &notifydemo.QueryLikeNotifyRequest{
@@ -309,12 +350,20 @@ func DeleteNotify(ctx *gin.Context, ID int32, tp int32) {
 			pack.SendResponse(ctx, errno.NoNotifyErr)
 			return
 		}
+		owner = ltfs[0].UserName
 	} else {
 		pack.SendResponse(ctx, errno.ServiceFault)
 		return
 	}
 
-	err := rpc.DeleteNotify(context.Background(), &notifydemo.DeleteNotifyRequest{
+	// 目标账户必须与username相匹配
+	err := pack.CheckAuthCookie(ctx, owner)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	err = rpc.DeleteNotify(context.Background(), &notifydemo.DeleteNotifyRequest{
 		ID:   ID,
 		Type: tp,
 	})
@@ -335,14 +384,22 @@ func SearchAllNotify(ctx *gin.Context) {
 	}
 
 	// 检测参数
-	if p.Limit < 0 || p.Offset < 0 {
+	if p.Limit < 0 || p.Offset < 0 || len(p.UserName) <= 0 {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
 
+	// 目标账户必须与username相匹配
+	err := pack.CheckAuthCookie(ctx, p.UserName)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
 	ntfs, err := rpc.SearchAllNotify(context.Background(), &notifydemo.SearchAllNotifyRequest{
-		Limit:  p.Limit,
-		Offset: p.Offset,
+		UserName: p.UserName,
+		Limit:    p.Limit,
+		Offset:   p.Offset,
 	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ParamErr)
@@ -366,9 +423,24 @@ func SearchAllNotify(ctx *gin.Context) {
 				pack.SendResponse(ctx, errno.ConvertErr(err))
 				return
 			}
+			if rtf[0].Master != 0 {
+				cmtext, err := rpc.QueryComment(context.Background(), &articaldemo.QueryCommentRequest{
+					CommentID: []int32{rtf[0].Master},
+				})
+				if err != nil {
+					pack.SendResponse(ctx, errno.ConvertErr(err))
+					return
+				}
+				// 没有该评论
+				if len(cmtext) == 0 {
+					pack.SendResponse(ctx, errno.NoSuchCommentErr)
+					return
+				}
+				rtf[0].MasterText = cmtext[0].CommentText
+			}
 			res = append(res, &temp{
 				Type:   ntf.NotifyType,
-				Notify: rtf,
+				Notify: rtf[0],
 			})
 		} else if ntf.NotifyType == 1 {
 			ltf, err := rpc.QueryLikeNotify(context.Background(), &notifydemo.QueryLikeNotifyRequest{
@@ -380,7 +452,7 @@ func SearchAllNotify(ctx *gin.Context) {
 			}
 			res = append(res, &temp{
 				Type:   ntf.NotifyType,
-				Notify: ltf,
+				Notify: ltf[0],
 			})
 		}
 	}

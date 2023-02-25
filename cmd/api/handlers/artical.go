@@ -225,7 +225,7 @@ func GetArticalIDsByAuthor(ctx *gin.Context) {
 		"like": "likeNum",
 		"star": "starNum",
 		"seen": "seenNum",
-		"time": "updatedAt",
+		"time": "updated_at",
 	}
 
 	var orderTemp = map[string]string{
