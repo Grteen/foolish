@@ -117,8 +117,9 @@ message AllNotify {
 }
 
 message SearchAllNotifyRequest {
-    int32 limit = 1;
-    int32 offset = 2;
+    string userName = 1;
+    int32 limit = 2;
+    int32 offset = 3;
 }
 
 message SearchAllNotifyResponse {
