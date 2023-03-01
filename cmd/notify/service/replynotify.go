@@ -29,7 +29,7 @@ func (s *NotifyService) CreateReplyNotify(req *notifydemo.CreateReplyNotifyReque
 				IsRead:   false,
 				IsDelete: false,
 			},
-			ArticalID: req.Replyntf.ArticalID,
+			TargetID:  req.Replyntf.Target.TargetID,
 			CommentID: req.Replyntf.CommentID,
 			Master:    req.Replyntf.Master,
 		},
@@ -59,7 +59,8 @@ func (s *NotifyService) CreateLikeNotify(req *notifydemo.CreateLikeNotifyRequest
 				IsRead:   false,
 				IsDelete: false,
 			},
-			ArticalID: req.Likentf.ArticalID,
+			TargetID: req.Likentf.Target.TargetID,
+			Type:     req.Likentf.Target.Type,
 		},
 	})
 }

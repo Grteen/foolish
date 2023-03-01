@@ -23,7 +23,7 @@ func TestReplyNotify(t *testing.T) {
 				Text:     "very very good good",
 				IsRead:   false,
 			},
-			ArticalID: 16,
+			TargetID:  16,
 			CommentID: 1,
 		},
 	})

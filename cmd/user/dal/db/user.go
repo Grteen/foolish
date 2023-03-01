@@ -18,6 +18,7 @@ type User struct {
 	SubNum    int32   `json:"subNum" gorm:"column:subNum; not null"`
 	FanNum    int32   `json:"fanNum" gorm:"column:fanNum; not null"`
 	ArtNum    int32   `json:"artNum" gorm:"column:artNum; not null"`
+	ActNum    int32   `json:"actNum" gorm:"column:actNum; not null"`
 	Subscribe []*User `gorm:"many2many:subscribe; foreignKey:UserName; joinForeignKey:User; References:UserName; joinReferences:Subscribe"`
 }
 

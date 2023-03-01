@@ -17,7 +17,7 @@ func (s *NotifyServiceImpl) CreateReplyNotify(ctx context.Context, req *notifyde
 	resp := new(notifydemo.CreateReplyNotifyResponse)
 
 	// 检测参数
-	if len(req.Replyntf.UserName) == 0 || len(req.Replyntf.Title) == 0 || len(req.Replyntf.Sender) == 0 || len(req.Replyntf.Text) == 0 || len(req.Replyntf.Text) > 500 || req.Replyntf.ArticalID <= 0 || req.Replyntf.CommentID <= 0 {
+	if len(req.Replyntf.UserName) == 0 || len(req.Replyntf.Title) == 0 || len(req.Replyntf.Sender) == 0 || len(req.Replyntf.Text) == 0 || len(req.Replyntf.Text) > 500 || req.Replyntf.Target.TargetID <= 0 || req.Replyntf.CommentID <= 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
@@ -82,11 +82,14 @@ func (s *NotifyServiceImpl) QueryReplyNotify(ctx context.Context, req *notifydem
 			Title:     ntf.Title,
 			Text:      ntf.Text,
 			Sender:    ntf.Sender,
-			ArticalID: ntf.ArticalID,
 			CommentID: ntf.CommentID,
 			Isread:    ntf.IsRead,
 			Isdelete:  ntf.IsDelete,
 			Master:    ntf.Master,
+			Target: &notifydemo.Target{
+				TargetID: ntf.TargetID,
+				Type:     ntf.Type,
+			},
 		})
 	}
 	return resp, nil
@@ -97,7 +100,7 @@ func (s *NotifyServiceImpl) CreateLikeNotify(ctx context.Context, req *notifydem
 	resp := new(notifydemo.CreateLikeNotifyResponse)
 
 	// 检测参数
-	if len(req.Likentf.UserName) == 0 || len(req.Likentf.Title) == 0 || len(req.Likentf.Sender) == 0 || len(req.Likentf.Text) == 0 || len(req.Likentf.Text) > 500 || req.Likentf.ArticalID <= 0 {
+	if len(req.Likentf.UserName) == 0 || len(req.Likentf.Title) == 0 || len(req.Likentf.Sender) == 0 || len(req.Likentf.Text) == 0 || len(req.Likentf.Text) > 500 || req.Likentf.Target.TargetID <= 0 {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
@@ -161,9 +164,12 @@ func (s *NotifyServiceImpl) QueryLikeNotify(ctx context.Context, req *notifydemo
 			Title:     ltf.Title,
 			Text:      ltf.Text,
 			Sender:    ltf.Sender,
-			ArticalID: ltf.ArticalID,
 			Isread:    ltf.IsRead,
 			Isdelete:  ltf.IsDelete,
+			Target: &notifydemo.Target{
+				TargetID: ltf.TargetID,
+				Type:     ltf.Type,
+			},
 		})
 	}
 	return resp, nil
