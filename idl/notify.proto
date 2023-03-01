@@ -7,6 +7,11 @@ message Resp {
     string statusMessage = 2;
 }
 
+message Target {
+    int32 targetID = 1;
+    int32 type = 2;
+}
+
 message ReplyNotify {
     int32 ID = 1;
     string createdAt = 2;
@@ -15,7 +20,7 @@ message ReplyNotify {
     string sender = 5;
     string text = 6;
     string avator = 7;
-    int32 articalID = 8;
+    Target target = 8;
     int32 commentID = 9;
     int32 master = 10;
     string masterText = 11;
@@ -31,7 +36,7 @@ message LikeNotify {
     string sender = 5;
     string text = 6;
     string avator = 7;
-    int32 articalID = 8;
+    Target target = 8;
     bool isread = 9;
     bool isdelete = 10;
 }

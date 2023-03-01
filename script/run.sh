@@ -4,4 +4,6 @@ cd /root/BE/bin
 (./artical &)
 (./search &)
 (./notify &)
+(./action &)
+(./comment &)
 (./main > gin.log &)

@@ -130,65 +130,6 @@ message QueryAllLikeStarResponse {
     repeated int32 articalIDs = 2;
 }
 
-message Comment {
-    int32 ID = 1;
-    int32 articalID = 2;
-    string userName = 3;
-    string avator = 4;
-    string commentText = 5;
-    int32 master = 6;
-    string createdAt = 7;
-
-    repeated Comment reply = 8;
-}
-
-message CreateCommentRequest {
-    int32 articalID = 1;
-    string userName = 2;
-    string commentText = 3;
-    int32 master = 4;
-}
-
-message CreateCommentResponse {
-    Resp resp = 1;
-    repeated int32 IDs = 2;
-}
-
-message QueryCommentRequest {
-    repeated int32 commentID = 1;
-}
-
-message QueryCommentResponse {
-    Resp resp = 1;
-    repeated Comment comment = 2;
-}
-
-message QueryCommentByArticalIDRequest {
-    int32 ArticalID = 1;
-}
-
-message QueryCommentByArticalIDResponse {
-    Resp resp = 1;
-    repeated int32 IDs = 2;
-}
-
-message UpdateCommentRequest {
-    int32 commentID = 1;
-    string commentText = 2;
-}
-
-message UpdateCommentResponse {
-    Resp resp = 1;
-}
-
-message DeleteCommentRequest {
-    int32 commentID = 1;
-}
-
-message DeleteCommentResponse {
-    Resp resp = 1;
-}
-
 message RdbArtical {
     int32 ID = 1;
     string createdAt = 2;
@@ -243,6 +184,7 @@ message CreateStarFolderRequest {
     string userName = 1;
     string folderName = 2;
     bool isDefault = 3;
+    int32 public = 4;
 }
 
 message CreateStarFolderResponse {
@@ -255,6 +197,7 @@ message StarFolder {
     string folderName = 3;
     string username = 4;
     bool isDefault = 5;
+    int32 public = 6;
 }
 
 message QueryStarFolderRequest {
@@ -318,6 +261,16 @@ message QueryAllStarResponse {
     repeated Star stars = 2;
 }
 
+message UpdateStarOwnerRequest {
+    string username = 1;
+    int32 articalID = 2;
+    int32 ownerID = 3;
+}
+
+message UpdateStarOwnerResponse {
+    Resp resp = 1;
+}
+
 message DeleteStarFolderAndMoveRequest {
     string username = 1;
     int32 starFolderID = 2;
@@ -378,12 +331,7 @@ service ArticalService {
     rpc QueryStarFolder (QueryStarFolderRequest) returns (QueryStarFolderResponse){}
     rpc QueryAllStarFolder (QueryAllStarFolderRequest) returns (QueryAllStarFolderResponse){}
     rpc QueryAllStar (QueryAllStarRequest) returns (QueryAllStarResponse){}
-
-    rpc CreateComment (CreateCommentRequest) returns (CreateCommentResponse){}
-    rpc UpdateComment (UpdateCommentRequest) returns (UpdateCommentResponse){}
-    rpc QueryComment (QueryCommentRequest) returns (QueryCommentResponse){}
-    rpc QueryCommentByArticalID (QueryCommentByArticalIDRequest) returns (QueryCommentByArticalIDResponse){}
-    rpc DeleteComment (DeleteCommentRequest) returns (DeleteCommentResponse){}
+    rpc UpdateStarOwner (UpdateStarOwnerRequest) returns (UpdateStarOwnerResponse){}
 
     rpc RdbSetArtical (RdbSetArticalRequest) returns (RdbSetArticalResponse){}
     rpc RdbDelArtical (RdbDelArticalRequest) returns (RdbDelArticalResponse){}

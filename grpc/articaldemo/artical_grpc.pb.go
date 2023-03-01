@@ -39,11 +39,7 @@ type ArticalServiceClient interface {
 	QueryStarFolder(ctx context.Context, in *QueryStarFolderRequest, opts ...grpc.CallOption) (*QueryStarFolderResponse, error)
 	QueryAllStarFolder(ctx context.Context, in *QueryAllStarFolderRequest, opts ...grpc.CallOption) (*QueryAllStarFolderResponse, error)
 	QueryAllStar(ctx context.Context, in *QueryAllStarRequest, opts ...grpc.CallOption) (*QueryAllStarResponse, error)
-	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error)
-	UpdateComment(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*UpdateCommentResponse, error)
-	QueryComment(ctx context.Context, in *QueryCommentRequest, opts ...grpc.CallOption) (*QueryCommentResponse, error)
-	QueryCommentByArticalID(ctx context.Context, in *QueryCommentByArticalIDRequest, opts ...grpc.CallOption) (*QueryCommentByArticalIDResponse, error)
-	DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*DeleteCommentResponse, error)
+	UpdateStarOwner(ctx context.Context, in *UpdateStarOwnerRequest, opts ...grpc.CallOption) (*UpdateStarOwnerResponse, error)
 	RdbSetArtical(ctx context.Context, in *RdbSetArticalRequest, opts ...grpc.CallOption) (*RdbSetArticalResponse, error)
 	RdbDelArtical(ctx context.Context, in *RdbDelArticalRequest, opts ...grpc.CallOption) (*RdbDelArticalResponse, error)
 	RdbGetArtical(ctx context.Context, in *RdbGetArticalRequest, opts ...grpc.CallOption) (*RdbGetArticalResponse, error)
@@ -212,45 +208,9 @@ func (c *articalServiceClient) QueryAllStar(ctx context.Context, in *QueryAllSta
 	return out, nil
 }
 
-func (c *articalServiceClient) CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*CreateCommentResponse, error) {
-	out := new(CreateCommentResponse)
-	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/CreateComment", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *articalServiceClient) UpdateComment(ctx context.Context, in *UpdateCommentRequest, opts ...grpc.CallOption) (*UpdateCommentResponse, error) {
-	out := new(UpdateCommentResponse)
-	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/UpdateComment", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *articalServiceClient) QueryComment(ctx context.Context, in *QueryCommentRequest, opts ...grpc.CallOption) (*QueryCommentResponse, error) {
-	out := new(QueryCommentResponse)
-	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/QueryComment", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *articalServiceClient) QueryCommentByArticalID(ctx context.Context, in *QueryCommentByArticalIDRequest, opts ...grpc.CallOption) (*QueryCommentByArticalIDResponse, error) {
-	out := new(QueryCommentByArticalIDResponse)
-	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/QueryCommentByArticalID", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *articalServiceClient) DeleteComment(ctx context.Context, in *DeleteCommentRequest, opts ...grpc.CallOption) (*DeleteCommentResponse, error) {
-	out := new(DeleteCommentResponse)
-	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/DeleteComment", in, out, opts...)
+func (c *articalServiceClient) UpdateStarOwner(ctx context.Context, in *UpdateStarOwnerRequest, opts ...grpc.CallOption) (*UpdateStarOwnerResponse, error) {
+	out := new(UpdateStarOwnerResponse)
+	err := c.cc.Invoke(ctx, "/articaldemo.ArticalService/UpdateStarOwner", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -323,11 +283,7 @@ type ArticalServiceServer interface {
 	QueryStarFolder(context.Context, *QueryStarFolderRequest) (*QueryStarFolderResponse, error)
 	QueryAllStarFolder(context.Context, *QueryAllStarFolderRequest) (*QueryAllStarFolderResponse, error)
 	QueryAllStar(context.Context, *QueryAllStarRequest) (*QueryAllStarResponse, error)
-	CreateComment(context.Context, *CreateCommentRequest) (*CreateCommentResponse, error)
-	UpdateComment(context.Context, *UpdateCommentRequest) (*UpdateCommentResponse, error)
-	QueryComment(context.Context, *QueryCommentRequest) (*QueryCommentResponse, error)
-	QueryCommentByArticalID(context.Context, *QueryCommentByArticalIDRequest) (*QueryCommentByArticalIDResponse, error)
-	DeleteComment(context.Context, *DeleteCommentRequest) (*DeleteCommentResponse, error)
+	UpdateStarOwner(context.Context, *UpdateStarOwnerRequest) (*UpdateStarOwnerResponse, error)
 	RdbSetArtical(context.Context, *RdbSetArticalRequest) (*RdbSetArticalResponse, error)
 	RdbDelArtical(context.Context, *RdbDelArticalRequest) (*RdbDelArticalResponse, error)
 	RdbGetArtical(context.Context, *RdbGetArticalRequest) (*RdbGetArticalResponse, error)
@@ -391,20 +347,8 @@ func (UnimplementedArticalServiceServer) QueryAllStarFolder(context.Context, *Qu
 func (UnimplementedArticalServiceServer) QueryAllStar(context.Context, *QueryAllStarRequest) (*QueryAllStarResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryAllStar not implemented")
 }
-func (UnimplementedArticalServiceServer) CreateComment(context.Context, *CreateCommentRequest) (*CreateCommentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateComment not implemented")
-}
-func (UnimplementedArticalServiceServer) UpdateComment(context.Context, *UpdateCommentRequest) (*UpdateCommentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateComment not implemented")
-}
-func (UnimplementedArticalServiceServer) QueryComment(context.Context, *QueryCommentRequest) (*QueryCommentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryComment not implemented")
-}
-func (UnimplementedArticalServiceServer) QueryCommentByArticalID(context.Context, *QueryCommentByArticalIDRequest) (*QueryCommentByArticalIDResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryCommentByArticalID not implemented")
-}
-func (UnimplementedArticalServiceServer) DeleteComment(context.Context, *DeleteCommentRequest) (*DeleteCommentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteComment not implemented")
+func (UnimplementedArticalServiceServer) UpdateStarOwner(context.Context, *UpdateStarOwnerRequest) (*UpdateStarOwnerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateStarOwner not implemented")
 }
 func (UnimplementedArticalServiceServer) RdbSetArtical(context.Context, *RdbSetArticalRequest) (*RdbSetArticalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RdbSetArtical not implemented")
@@ -740,92 +684,20 @@ func _ArticalService_QueryAllStar_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ArticalService_CreateComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateCommentRequest)
+func _ArticalService_UpdateStarOwner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateStarOwnerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArticalServiceServer).CreateComment(ctx, in)
+		return srv.(ArticalServiceServer).UpdateStarOwner(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/articaldemo.ArticalService/CreateComment",
+		FullMethod: "/articaldemo.ArticalService/UpdateStarOwner",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArticalServiceServer).CreateComment(ctx, req.(*CreateCommentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ArticalService_UpdateComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateCommentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ArticalServiceServer).UpdateComment(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/articaldemo.ArticalService/UpdateComment",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArticalServiceServer).UpdateComment(ctx, req.(*UpdateCommentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ArticalService_QueryComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryCommentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ArticalServiceServer).QueryComment(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/articaldemo.ArticalService/QueryComment",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArticalServiceServer).QueryComment(ctx, req.(*QueryCommentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ArticalService_QueryCommentByArticalID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryCommentByArticalIDRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ArticalServiceServer).QueryCommentByArticalID(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/articaldemo.ArticalService/QueryCommentByArticalID",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArticalServiceServer).QueryCommentByArticalID(ctx, req.(*QueryCommentByArticalIDRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ArticalService_DeleteComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteCommentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ArticalServiceServer).DeleteComment(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/articaldemo.ArticalService/DeleteComment",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArticalServiceServer).DeleteComment(ctx, req.(*DeleteCommentRequest))
+		return srv.(ArticalServiceServer).UpdateStarOwner(ctx, req.(*UpdateStarOwnerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -996,24 +868,8 @@ var ArticalService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ArticalService_QueryAllStar_Handler,
 		},
 		{
-			MethodName: "CreateComment",
-			Handler:    _ArticalService_CreateComment_Handler,
-		},
-		{
-			MethodName: "UpdateComment",
-			Handler:    _ArticalService_UpdateComment_Handler,
-		},
-		{
-			MethodName: "QueryComment",
-			Handler:    _ArticalService_QueryComment_Handler,
-		},
-		{
-			MethodName: "QueryCommentByArticalID",
-			Handler:    _ArticalService_QueryCommentByArticalID_Handler,
-		},
-		{
-			MethodName: "DeleteComment",
-			Handler:    _ArticalService_DeleteComment_Handler,
+			MethodName: "UpdateStarOwner",
+			Handler:    _ArticalService_UpdateStarOwner_Handler,
 		},
 		{
 			MethodName: "RdbSetArtical",
