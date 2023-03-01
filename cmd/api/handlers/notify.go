@@ -3,7 +3,7 @@ package handlers
 import (
 	"be/cmd/api/pack"
 	"be/cmd/api/rpc"
-	"be/grpc/articaldemo"
+	"be/grpc/commentdemo"
 	"be/grpc/notifydemo"
 	"be/grpc/userdemo"
 	"be/pkg/errno"
@@ -95,7 +95,7 @@ func QueryReplyNotify(ctx *gin.Context) {
 		}
 		ntf.Avator = avator[0]
 		if ntf.Master != 0 {
-			cmtext, err := rpc.QueryComment(context.Background(), &articaldemo.QueryCommentRequest{
+			cmtext, err := rpc.QueryComment(context.Background(), &commentdemo.QueryCommentRequest{
 				CommentID: []int32{ntf.Master},
 			})
 			if err != nil {
@@ -424,7 +424,7 @@ func SearchAllNotify(ctx *gin.Context) {
 				return
 			}
 			if rtf[0].Master != 0 {
-				cmtext, err := rpc.QueryComment(context.Background(), &articaldemo.QueryCommentRequest{
+				cmtext, err := rpc.QueryComment(context.Background(), &commentdemo.QueryCommentRequest{
 					CommentID: []int32{rtf[0].Master},
 				})
 				if err != nil {

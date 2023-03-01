@@ -62,6 +62,41 @@ func Login(ctx *gin.Context) {
 	pack.SendResponse(ctx, errno.Success)
 }
 
+func DeLogin(ctx *gin.Context) {
+	var p DeLoginParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	// 目标账户必须与 username 相同
+	err := pack.CheckAuthCookie(ctx, p.UserName)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 查询cookie
+	cok, err := rpc.QueryAuthCookie(context.Background(), &userdemo.QueryAuthCookieRequest{
+		Key: p.UserName,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 删除cookie
+	err = rpc.DeleteAuthCookie(context.Background(), &userdemo.DeleteAuthCookieRequest{
+		Key: cok,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	pack.SendResponse(ctx, errno.Success)
+}
+
 func setAuthCookie(ctx *gin.Context, key, value string, maxAge int) {
 	// 设置 session
 	rpc.SetAuthCookie(context.Background(), &userdemo.SetAuthCookieRequest{

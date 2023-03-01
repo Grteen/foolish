@@ -5,4 +5,6 @@ func Init() {
 	InitArticalRpc()
 	InitSearchRpc()
 	InitNotifyRpc()
+	InitActionRpc()
+	InitCommentRpc()
 }

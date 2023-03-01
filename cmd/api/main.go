@@ -21,6 +21,7 @@ func main() {
 
 	ginServer.POST("/register", handlers.Register)
 	ginServer.GET("/login", handlers.Login)
+	ginServer.DELETE("/login", middleware.AuthMidWare, handlers.DeLogin)
 	ginServer.GET("/userSelfName", handlers.QueryUserSelf)
 	ginServer.PUT("/userinfo", middleware.AuthMidWare, handlers.UpdateUserInfo)
 	ginServer.GET("/userinfo", handlers.QueryUserInfo)
@@ -46,7 +47,8 @@ func main() {
 	ginServer.DELETE("/star", middleware.AuthMidWare, handlers.DeleteStar)
 	ginServer.GET("/hasStar", middleware.AuthMidWare, handlers.HasStar)
 	ginServer.GET("/star", middleware.AuthMidWare, handlers.QueryStar)
-	ginServer.GET("/starFolder", middleware.AuthMidWare, handlers.QueryStarFolder)
+	ginServer.PUT("/star", middleware.AuthMidWare, handlers.UpdateStarOwner)
+	ginServer.GET("/starFolder", handlers.QueryStarFolder)
 	ginServer.POST("/starFolder", middleware.AuthMidWare, handlers.CreateStarFolder)
 	ginServer.PUT("/starFolder", middleware.AuthMidWare, handlers.UpdateStarFolder)
 	ginServer.DELETE("/starFolder", middleware.AuthMidWare, handlers.DeleteStarFolder)
@@ -55,7 +57,7 @@ func main() {
 
 	ginServer.POST("/comment", middleware.AuthMidWare, handlers.CreateComment)
 	ginServer.GET("/comment", handlers.QueryComment)
-	ginServer.GET("/comment/:articalID", handlers.QueryCommentByArticalID)
+	ginServer.GET("/comment/target", handlers.QueryCommentByTargetID)
 	ginServer.PUT("/comment", middleware.AuthMidWare, handlers.UpdateComment)
 	ginServer.DELETE("/comment", middleware.AuthMidWare, handlers.DeleteComment)
 
@@ -70,6 +72,15 @@ func main() {
 	ginServer.GET("/notify/like", middleware.AuthMidWare, handlers.QueryLikeNotify)
 	ginServer.PUT("/notify/like", middleware.AuthMidWare, handlers.ReadLikeNotify)
 	ginServer.DELETE("/notify/like", middleware.AuthMidWare, handlers.DeleteLikeNotify)
+
+	ginServer.GET("/action", handlers.GetAction)
+	ginServer.GET("/action/author", handlers.GetActionByAuthor)
+	ginServer.POST("/action", middleware.AuthMidWare, handlers.PublishAction)
+	ginServer.DELETE("/action", middleware.AuthMidWare, handlers.DeleteAction)
+
+	ginServer.POST("/action/like", middleware.AuthMidWare, handlers.CreateActionLike)
+	ginServer.DELETE("/action/like", middleware.AuthMidWare, handlers.DeleteActionLike)
+	ginServer.GET("/action/hasLike", middleware.AuthMidWare, handlers.QueryActionLike)
 
 	ginServer.GET("/search", handlers.SearchArtical)
 

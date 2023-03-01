@@ -6,6 +6,7 @@ import (
 	"be/grpc/articaldemo"
 	"be/grpc/notifydemo"
 	"be/grpc/userdemo"
+	"be/pkg/check"
 	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
@@ -61,19 +62,24 @@ func GiveLikeStar(ctx *gin.Context, tp int32) {
 	}
 
 	// 创建点赞通知
-	if tp == 0 {
-		err = rpc.CreateLikeNotify(context.Background(), &notifydemo.CreateLikeNotifyRequest{
-			Likentf: &notifydemo.LikeNotify{
-				UserName:  res[0].Author,
-				ArticalID: p.ArticalID,
-				Sender:    p.UserName,
-				Title:     "收到了点赞 : " + res[0].Title,
-				Text:      p.UserName + "点赞了你的文章 : " + res[0].Title,
-			},
-		})
-		if err != nil {
-			pack.SendResponse(ctx, errno.ConvertErr(err))
-			return
+	if p.UserName != res[0].Author {
+		if tp == 0 {
+			err = rpc.CreateLikeNotify(context.Background(), &notifydemo.CreateLikeNotifyRequest{
+				Likentf: &notifydemo.LikeNotify{
+					UserName: res[0].Author,
+					Sender:   p.UserName,
+					Title:    "收到了点赞 : " + res[0].Title,
+					Text:     p.UserName + "点赞了你的文章 : " + res[0].Title,
+					Target: &notifydemo.Target{
+						TargetID: p.ArticalID,
+						Type:     0,
+					},
+				},
+			})
+			if err != nil {
+				pack.SendResponse(ctx, errno.ConvertErr(err))
+				return
+			}
 		}
 	}
 
@@ -393,6 +399,81 @@ func CreateStar(ctx *gin.Context) {
 	})
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	pack.SendResponse(ctx, errno.Success)
+}
+
+// 更改某个收藏所属的收藏夹
+func UpdateStarOwner(ctx *gin.Context) {
+	var p UpdateStarOwnerParma
+	if err := ctx.ShouldBind(&p); err != nil {
+		pack.SendResponse(ctx, errno.ServiceFault)
+		return
+	}
+
+	if !check.CheckUserName(p.UserName) || !check.CheckPostiveNumber(p.ArticalID) || !check.CheckPostiveNumber(p.FolderID) {
+		pack.SendResponse(ctx, errno.ParamErr)
+		return
+	}
+
+	// 目标账户必须匹配
+	err := pack.CheckAuthCookie(ctx, p.UserName)
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	// 检查收藏夹所属人是否与username相同
+	fs, err := rpc.QueryStarFolder(context.Background(), &articaldemo.QueryStarFolderRequest{
+		IDs: []int32{p.FolderID},
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+	if len(fs) == 0 {
+		pack.SendResponse(ctx, errno.NoStarFolderErr)
+		return
+	}
+	if fs[0].Username != p.UserName {
+		pack.SendResponse(ctx, errno.PermissionDeniedErr)
+		return
+	}
+
+	// 查看是否存在文章
+	res, err := rpc.QueryArtical(context.Background(), &articaldemo.QueryArticalRequest{
+		IDs: []int32{p.ArticalID},
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+	if len(res) == 0 {
+		pack.SendResponse(ctx, errno.NoSuchArticalErr)
+		return
+	}
+
+	// 查询是否已经收藏了
+	_, err = rpc.QueryLikeStar(context.Background(), &articaldemo.QueryLikeStarRequest{
+		UserName:  p.UserName,
+		ArticalID: p.ArticalID,
+		Type:      1,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
+
+	err = rpc.UpdateStarOwner(context.Background(), &articaldemo.UpdateStarOwnerRequest{
+		Username:  p.UserName,
+		ArticalID: p.ArticalID,
+		OwnerID:   p.FolderID,
+	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
 	}
 
 	pack.SendResponse(ctx, errno.Success)
@@ -406,7 +487,7 @@ func CreateStarFolder(ctx *gin.Context) {
 		return
 	}
 
-	if len(p.FolderName) <= 0 || len(p.FolderName) >= 20 {
+	if len(p.FolderName) <= 0 || len(p.FolderName) >= 20 || !check.CheckStarFolderPublic(p.Public) {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
@@ -422,6 +503,7 @@ func CreateStarFolder(ctx *gin.Context) {
 		UserName:   p.UserName,
 		FolderName: p.FolderName,
 		IsDefault:  false,
+		Public:     p.Public,
 	})
 
 	if err != nil {
@@ -437,13 +519,6 @@ func QueryStarFolder(ctx *gin.Context) {
 	var p QueryStarFolderParma
 	if err := ctx.ShouldBind(&p); err != nil {
 		pack.SendResponse(ctx, errno.ServiceFault)
-		return
-	}
-
-	// 目标账户必须匹配
-	err := pack.CheckAuthCookie(ctx, p.UserName)
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
 	}
 
@@ -487,10 +562,14 @@ func QueryStar(ctx *gin.Context) {
 		pack.SendResponse(ctx, errno.NoStarFolderErr)
 		return
 	}
-	err = pack.CheckAuthCookie(ctx, sfs[0].Username)
-	if err != nil {
-		pack.SendResponse(ctx, errno.ConvertErr(err))
-		return
+	// 查看权限
+	if sfs[0].Public == 0 {
+		// 仅自己
+		err = pack.CheckAuthCookie(ctx, sfs[0].Username)
+		if err != nil {
+			pack.SendResponse(ctx, errno.ConvertErr(err))
+			return
+		}
 	}
 
 	stars, err := rpc.QueryAllStar(context.Background(), &articaldemo.QueryAllStarRequest{
@@ -612,7 +691,7 @@ func UpdateStarFolder(ctx *gin.Context) {
 		return
 	}
 	// 检测参数
-	if p.FolderID <= 0 || len(p.FolderName) == 0 || len(p.FolderName) >= 20 {
+	if p.FolderID <= 0 || len(p.FolderName) == 0 || len(p.FolderName) >= 20 || !check.CheckStarFolderPublic(p.Public) {
 		pack.SendResponse(ctx, errno.ParamErr)
 		return
 	}
@@ -639,6 +718,7 @@ func UpdateStarFolder(ctx *gin.Context) {
 		StarFolder: &articaldemo.StarFolder{
 			ID:         p.FolderID,
 			FolderName: p.FolderName,
+			Public:     p.Public,
 		},
 	})
 	if err != nil {

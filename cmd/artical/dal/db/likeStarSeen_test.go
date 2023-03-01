@@ -65,6 +65,7 @@ func TestStar(t *testing.T) {
 		{
 			UserName:   "Grteen-test",
 			FolderName: "test o",
+			Public:     0,
 		},
 	})
 	if err != nil {

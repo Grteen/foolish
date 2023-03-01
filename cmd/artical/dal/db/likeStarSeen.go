@@ -34,6 +34,7 @@ type StarFolder struct {
 	UserName   string  `gorm:"column:username; not null"`
 	FolderName string  `gorm:"column:foldername; not null"`
 	IsDefault  bool    `gorm:"column:isdefault; not null"`
+	Public     int32   `gorm:"column:public; not null"`
 	Stars      []*Star `gorm:"foreignKey:FolderID"`
 }
 
@@ -204,7 +205,7 @@ func DeleteStarFolder(cg *config.Config, folderID int32) error {
 }
 
 // 更改某个收藏所属的收藏夹
-func UpdateStarFolderOwner(cg *config.Config, starID int32, ownerID int32) error {
+func UpdateStarOwner(cg *config.Config, starID int32, ownerID int32) error {
 	if err := cg.Tx.WithContext(cg.Ctx).Model(&Star{}).Where("id = ?", starID).Update("folderID", ownerID).Error; err != nil {
 		return errno.ServiceFault
 	}
@@ -220,9 +221,9 @@ func QueryDefaultFolder(cg *config.Config, username string) (int32, error) {
 	return id, nil
 }
 
-// 更新收藏夹 只更新收藏夹名字
-func UpdateStarFolder(cg *config.Config, folderID int32, foldername string) error {
-	if err := cg.Tx.WithContext(cg.Ctx).Model(&StarFolder{}).Where("id = ?", folderID).Update("foldername", foldername).Error; err != nil {
+// 更新收藏夹 只更新收藏夹名字和权限
+func UpdateStarFolder(cg *config.Config, folderID int32, foldername string, public int32) error {
+	if err := cg.Tx.WithContext(cg.Ctx).Model(&StarFolder{}).Where("id = ?", folderID).Updates(map[string]interface{}{"foldername": foldername, "public": public}).Error; err != nil {
 		return errno.ServiceFault
 	}
 	return nil

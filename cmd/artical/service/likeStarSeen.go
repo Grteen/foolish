@@ -145,6 +145,7 @@ func (s *ArticalService) CreateStarFolder(req *articaldemo.CreateStarFolderReque
 			UserName:   req.UserName,
 			FolderName: req.FolderName,
 			IsDefault:  req.IsDefault,
+			Public:     req.Public,
 		},
 	})
 }
@@ -171,9 +172,10 @@ func (s *ArticalService) DeleteStarFolder(req *articaldemo.DeleteStarFolderReque
 
 // 更新收藏夹
 func (s *ArticalService) UpdateStarFolder(req *articaldemo.UpdateStarFolderRequest) error {
-	return db.UpdateStarFolder(config.NewConfig(s.ctx, db.DB), req.StarFolder.ID, req.StarFolder.FolderName)
+	return db.UpdateStarFolder(config.NewConfig(s.ctx, db.DB), req.StarFolder.ID, req.StarFolder.FolderName, req.StarFolder.Public)
 }
 
+// 删除收藏夹并将其中的收藏移动到默认收藏夹
 func (s *ArticalService) DeleteStarFolderAndMove(req *articaldemo.DeleteStarFolderAndMoveRequest) error {
 	return db.DB.Transaction(func(tx *gorm.DB) error {
 		// 查询原收藏夹的所有收藏
@@ -188,12 +190,35 @@ func (s *ArticalService) DeleteStarFolderAndMove(req *articaldemo.DeleteStarFold
 		}
 		// 移动收藏
 		for _, star := range stars {
-			if err := db.UpdateStarFolderOwner(config.NewConfig(s.ctx, tx), int32(star.ID), id); err != nil {
+			if err := db.UpdateStarOwner(config.NewConfig(s.ctx, tx), int32(star.ID), id); err != nil {
 				return errno.ServiceFault
 			}
 		}
 		// 删除收藏夹
 		if err := db.DeleteStarFolder(config.NewConfig(s.ctx, tx), req.StarFolderID); err != nil {
+			return errno.ServiceFault
+		}
+		return nil
+	})
+}
+
+// 更改收藏所属的收藏夹
+func (s *ArticalService) UpdateStarOwner(req *articaldemo.UpdateStarOwnerRequest) error {
+	return db.DB.Transaction(func(tx *gorm.DB) error {
+		// 查询该收藏
+		star, err := db.QueryLikeStar(config.NewConfig(s.ctx, tx), &db.LikeStar{
+			UserName:  req.Username,
+			ArticalID: uint(req.ArticalID),
+		}, &db.Star{})
+		if err != nil {
+			return errno.ServiceFault
+		}
+		if len(star) == 0 {
+			return errno.NoStarErr
+		}
+
+		err = db.UpdateStarOwner(config.NewConfig(s.ctx, tx), int32(star[0].ID), req.OwnerID)
+		if err != nil {
 			return errno.ServiceFault
 		}
 		return nil

@@ -15,6 +15,10 @@ type LoginParma struct {
 	PassWord    string `form:"password"`
 }
 
+type DeLoginParma struct {
+	UserName string `form:"username"`
+}
+
 type UpdateUserInfoParma struct {
 	UserName    string `form:"username"`
 	NickName    string `form:"nickname"`
@@ -69,6 +73,7 @@ type LikeParma struct {
 type CreateStarFolderParma struct {
 	UserName   string `form:"username"`
 	FolderName string `form:"foldername"`
+	Public     int32  `form:"public"`
 }
 
 type DeleteStarFolderParma struct {
@@ -78,9 +83,16 @@ type DeleteStarFolderParma struct {
 type UpdateStarFolderParma struct {
 	FolderID   int32  `form:"starfolderID"`
 	FolderName string `form:"foldername"`
+	Public     int32  `form:"public"`
 }
 
 type CreateStarParma struct {
+	UserName  string `form:"username"`
+	ArticalID int32  `form:"articalID"`
+	FolderID  int32  `form:"starfolderID"`
+}
+
+type UpdateStarOwnerParma struct {
 	UserName  string `form:"username"`
 	ArticalID int32  `form:"articalID"`
 	FolderID  int32  `form:"starfolderID"`
@@ -98,17 +110,19 @@ type QueryStarParma struct {
 
 type CommentParma struct {
 	UserName    string `form:"username"`
-	ArticalID   int32  `form:"articalID"`
+	TargetID    int32  `form:"targetID"`
 	CommentText string `form:"commentText"`
 	Master      int32  `form:"master"`
+	Type        int32  `form:"type"`
 }
 
 type QueryCommentParma struct {
 	ComentIDs []int32 `form:"commentIDs"`
 }
 
-type QueryCommentByArticalIDParma struct {
-	ArticalID int32 `form:"commentID"`
+type QueryCommentByTargetIDParma struct {
+	TargetID int32 `form:"targetID"`
+	Type     int32 `form:"type"`
 }
 
 type DeleteCommentParma struct {
@@ -198,6 +212,48 @@ type SearchAllNotifyParma struct {
 	UserName string `form:"username"`
 	Limit    int32  `form:"limit"`
 	Offset   int32  `form:"offset"`
+}
+
+type PublishActionParma struct {
+	Author   string   `form:"author"`
+	Text     string   `form:"text"`
+	PicFiles []string `form:"picfiles"`
+}
+
+type DeleteActionParma struct {
+	ID int32 `form:"ID"`
+}
+
+type GetActionParma struct {
+	IDs []int32 `form:"IDs"`
+}
+
+type GetActionByAuthorParma struct {
+	Author string `form:"author"`
+	Field  string `form:"field"`
+	Order  string `form:"order"`
+}
+
+type CreateActionLikeParma struct {
+	UserName string `form:"username"`
+	ActionID int32  `form:"actionID"`
+}
+
+type DeleteActionLikeParma struct {
+	UserName string `form:"username"`
+	ActionID int32  `form:"actionID"`
+}
+
+type QueryActionLikeParma struct {
+	UserName string `form:"username"`
+	ActionID int32  `form:"actionID"`
+}
+
+type ActionCommentParma struct {
+	UserName    string `form:"username"`
+	ActionID    int32  `form:"actionID"`
+	CommentText string `form:"commentText"`
+	Master      int32  `form:"master"`
 }
 
 // 将 articaldemo.Artical 转化为 articaldemo.RdbArtical

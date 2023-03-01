@@ -21,9 +21,8 @@ type Artical struct {
 	StarNum int32 `gorm:"column:starNum; not null"`
 	SeenNum int32 `gorm:"column:seenNum; not null"`
 
-	Liked   []*Like    `gorm:"foreignKey:ArticalID"`
-	Stared  []*Star    `gorm:"foreignKey:ArticalID"`
-	Comment []*Comment `gorm:"foreignKey:ArticalID"`
+	Liked  []*Like `gorm:"foreignKey:ArticalID"`
+	Stared []*Star `gorm:"foreignKey:ArticalID"`
 }
 
 func (art *Artical) TableName() string {
@@ -36,17 +35,21 @@ func (u *User) TableName() string {
 	return constants.UserTableName
 }
 
+type Comment struct{}
+
+func (cm *Comment) TableName() string {
+	return constants.CommentTableName
+}
+
 // 创建文章
 func CreateArtical(cg *config.Config, arts []*Artical) error {
 	return cg.Tx.Transaction(func(tx *gorm.DB) error {
-		for _, art := range arts {
-			// 作者文章数 + 1
-			if err := tx.WithContext(cg.Ctx).Model(&User{}).Where("username = ?", art.Author).Update("artNum", gorm.Expr("artNum + ?", 1)).Error; err != nil {
-				return err
-			}
-			if err := tx.WithContext(cg.Ctx).Create(arts).Error; err != nil {
-				return err
-			}
+		// 作者文章数增加
+		if err := tx.WithContext(cg.Ctx).Model(&User{}).Where("username = ?", arts[0].Author).Update("artNum", gorm.Expr("artNum + ?", len(arts))).Error; err != nil {
+			return errno.ServiceFault
+		}
+		if err := tx.WithContext(cg.Ctx).Create(arts).Error; err != nil {
+			return errno.ServiceFault
 		}
 		return nil
 	})
@@ -56,7 +59,7 @@ func CreateArtical(cg *config.Config, arts []*Artical) error {
 func QueryArtical(cg *config.Config, ids []int32) ([]*Artical, error) {
 	res := make([]*Artical, 0)
 	cg.Tx.Transaction(func(tx *gorm.DB) error {
-		if err := tx.WithContext(cg.Ctx).Where("id in ?", ids).Order("updated_at DESC").Find(&res).Error; err != nil {
+		if err := tx.WithContext(cg.Ctx).Where("id in ?", ids).Find(&res).Error; err != nil {
 			return errno.ServiceFault
 		}
 		return nil

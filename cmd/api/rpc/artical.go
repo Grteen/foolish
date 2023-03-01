@@ -136,69 +136,6 @@ func QueryAllLikeStar(ctx context.Context, req *articaldemo.QueryAllLikeStarRequ
 	return resp.ArticalIDs, nil
 }
 
-func CreateComment(ctx context.Context, req *articaldemo.CreateCommentRequest) ([]int32, error) {
-	resp, err := articalClient.CreateComment(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.Resp.StatusCode != 0 {
-		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
-	}
-
-	return resp.IDs, nil
-}
-
-func QueryComment(ctx context.Context, req *articaldemo.QueryCommentRequest) ([]*articaldemo.Comment, error) {
-	resp, err := articalClient.QueryComment(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	if resp.Resp.StatusCode != 0 {
-		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
-	}
-
-	return resp.Comment, nil
-}
-
-func QueryCommentByArticalID(ctx context.Context, req *articaldemo.QueryCommentByArticalIDRequest) ([]int32, error) {
-	resp, err := articalClient.QueryCommentByArticalID(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-	if resp.Resp.StatusCode != 0 {
-		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
-	}
-
-	return resp.IDs, nil
-}
-
-func DeleteComment(ctx context.Context, req *articaldemo.DeleteCommentRequest) error {
-	resp, err := articalClient.DeleteComment(ctx, req)
-	if err != nil {
-		return err
-	}
-
-	if resp.Resp.StatusCode != 0 {
-		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
-	}
-
-	return nil
-}
-
-func UpdateComment(ctx context.Context, req *articaldemo.UpdateCommentRequest) error {
-	resp, err := articalClient.UpdateComment(ctx, req)
-	if err != nil {
-		return err
-	}
-
-	if resp.Resp.StatusCode != 0 {
-		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
-	}
-
-	return nil
-}
-
 func RdbSetArtical(ctx context.Context, req *articaldemo.RdbSetArticalRequest) error {
 	resp, err := articalClient.RdbSetArtical(ctx, req)
 	if err != nil {
@@ -354,4 +291,17 @@ func QueryAllStar(ctx context.Context, req *articaldemo.QueryAllStarRequest) ([]
 	}
 
 	return resp.Stars, nil
+}
+
+func UpdateStarOwner(ctx context.Context, req *articaldemo.UpdateStarOwnerRequest) error {
+	resp, err := articalClient.UpdateStarOwner(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
 }

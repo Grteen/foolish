@@ -5,6 +5,7 @@ import (
 	"be/cmd/artical/pack"
 	"be/cmd/artical/service"
 	"be/grpc/articaldemo"
+	"be/pkg/check"
 	"be/pkg/constants"
 	"be/pkg/errno"
 	"context"
@@ -446,150 +447,6 @@ func (s *ArticalServiceImpl) QueryAllLikeStar(ctx context.Context, req *articald
 	return resp, nil
 }
 
-// 创建评论或是 reply
-// 如果 master 不为 0 则为 reply
-func (s *ArticalServiceImpl) CreateComment(ctx context.Context, req *articaldemo.CreateCommentRequest) (*articaldemo.CreateCommentResponse, error) {
-	resp := new(articaldemo.CreateCommentResponse)
-
-	// 评论者为空 ArticalID 不合法 文本 > 500 master < 0
-	if len(req.UserName) == 0 || len(req.CommentText) > 500 || req.ArticalID <= 0 || req.Master < 0 {
-		resp.Resp = pack.BuildResp(errno.ParamErr)
-		return resp, nil
-	}
-
-	ids, err := service.NewArticalService(ctx).CreateComment(req)
-	if err != nil {
-		resp.Resp = pack.BuildResp(err)
-		return resp, nil
-	}
-
-	resp.Resp = pack.BuildResp(errno.Success)
-	resp.IDs = ids
-	return resp, nil
-}
-
-// 根据 ID 更新评论 不更新 评论者和被评论的文章
-func (s *ArticalServiceImpl) UpdateComment(ctx context.Context, req *articaldemo.UpdateCommentRequest) (*articaldemo.UpdateCommentResponse, error) {
-	resp := new(articaldemo.UpdateCommentResponse)
-
-	// CommentID 不合法
-	if req.CommentID <= 0 {
-		resp.Resp = pack.BuildResp(errno.ParamErr)
-		return resp, nil
-	}
-
-	err := service.NewArticalService(context.Background()).UpdateComment(&articaldemo.UpdateCommentRequest{
-		CommentID:   req.CommentID,
-		CommentText: req.CommentText,
-	})
-	if err != nil {
-		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
-		return resp, nil
-	}
-
-	resp.Resp = pack.BuildResp(errno.Success)
-	return resp, nil
-}
-
-// 根据 ID 删除评论及其所有 reply
-func (s *ArticalServiceImpl) DeleteComment(ctx context.Context, req *articaldemo.DeleteCommentRequest) (*articaldemo.DeleteCommentResponse, error) {
-	resp := new(articaldemo.DeleteCommentResponse)
-
-	// ArticalID 不合法
-	if req.CommentID <= 0 {
-		resp.Resp = pack.BuildResp(errno.ParamErr)
-		return resp, nil
-	}
-
-	err := service.NewArticalService(context.Background()).DeleteComment(&articaldemo.DeleteCommentRequest{
-		CommentID: req.CommentID,
-	})
-	if err != nil {
-		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
-		return resp, nil
-	}
-
-	resp.Resp = pack.BuildResp(errno.Success)
-	return resp, nil
-}
-
-// 根据 ID 查询评论 返回该评论及其所有回复
-func (s *ArticalServiceImpl) QueryComment(ctx context.Context, req *articaldemo.QueryCommentRequest) (*articaldemo.QueryCommentResponse, error) {
-	resp := new(articaldemo.QueryCommentResponse)
-
-	// CommentID 为空
-	if len(req.CommentID) == 0 {
-		resp.Resp = pack.BuildResp(errno.ParamErr)
-		return resp, nil
-	}
-
-	cms, err := service.NewArticalService(ctx).QueryComment(req)
-	if err != nil {
-		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
-		return resp, nil
-	}
-
-	for _, cm := range cms {
-		reply := make([]*articaldemo.Comment, 0)
-		for _, rp := range cm.Reply {
-			// reply 绝对有 master
-			if rp.Master == nil {
-				resp.Resp = pack.BuildResp(errno.ConvertErr(err))
-				return resp, nil
-			}
-			reply = append(reply, &articaldemo.Comment{
-				ID:          int32(rp.ID),
-				ArticalID:   int32(rp.ArticalID),
-				UserName:    rp.UserName,
-				CommentText: rp.CommentText,
-				CreatedAt:   rp.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
-				Master:      int32(*rp.Master),
-			})
-		}
-
-		var temp int32 = 0
-		// 如果查询的目标是 reply
-		if cm.Master != nil {
-			temp = int32(*cm.Master)
-		}
-
-		resp.Comment = append(resp.Comment, &articaldemo.Comment{
-			ID:          int32(cm.ID),
-			ArticalID:   int32(cm.ArticalID),
-			UserName:    cm.UserName,
-			CommentText: cm.CommentText,
-			CreatedAt:   cm.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
-
-			Master: temp,
-			Reply:  reply,
-		})
-	}
-
-	resp.Resp = pack.BuildResp(errno.Success)
-	return resp, nil
-}
-
-func (s *ArticalServiceImpl) QueryCommentByArticalID(ctx context.Context, req *articaldemo.QueryCommentByArticalIDRequest) (*articaldemo.QueryCommentByArticalIDResponse, error) {
-	resp := new(articaldemo.QueryCommentByArticalIDResponse)
-
-	// Artical ID 非法
-	if req.ArticalID <= 0 {
-		resp.Resp = pack.BuildResp(errno.ParamErr)
-		return resp, nil
-	}
-
-	ids, err := service.NewArticalService(ctx).QueryCommentByArticalID(req)
-	if err != nil {
-		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
-		return resp, nil
-	}
-
-	resp.Resp = pack.BuildResp(errno.Success)
-	resp.IDs = ids
-
-	return resp, nil
-}
-
 // redis 缓存文章
 func (s *ArticalServiceImpl) RdbSetArtical(ctx context.Context, req *articaldemo.RdbSetArticalRequest) (*articaldemo.RdbSetArticalResponse, error) {
 	resp := new(articaldemo.RdbSetArticalResponse)
@@ -741,7 +598,7 @@ func (s *ArticalServiceImpl) CreateStarFolder(ctx context.Context, req *articald
 	resp := new(articaldemo.CreateStarFolderResponse)
 
 	// 检测参数
-	if len(req.UserName) == 0 || len(req.FolderName) == 0 || len(req.FolderName) >= 20 {
+	if len(req.UserName) == 0 || len(req.FolderName) == 0 || len(req.FolderName) >= 20 || !check.CheckStarFolderPublic(req.Public) {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
@@ -778,6 +635,7 @@ func (s *ArticalServiceImpl) QueryStarFolder(ctx context.Context, req *articalde
 			FolderName: f.FolderName,
 			Username:   f.UserName,
 			IsDefault:  f.IsDefault,
+			Public:     f.Public,
 		})
 	}
 	return resp, nil
@@ -807,6 +665,7 @@ func (s *ArticalServiceImpl) QueryAllStarFolder(ctx context.Context, req *artica
 			FolderName: f.FolderName,
 			Username:   f.UserName,
 			IsDefault:  f.IsDefault,
+			Public:     f.Public,
 		})
 	}
 	return resp, nil
@@ -858,7 +717,7 @@ func (s *ArticalServiceImpl) UpdateStarFolder(ctx context.Context, req *articald
 	resp := new(articaldemo.UpdateStarFolderResponse)
 
 	// 检测参数
-	if req.StarFolder.ID <= 0 || len(req.StarFolder.FolderName) == 0 || len(req.StarFolder.FolderName) >= 20 {
+	if req.StarFolder.ID <= 0 || len(req.StarFolder.FolderName) == 0 || len(req.StarFolder.FolderName) >= 20 || !check.CheckStarFolderPublic(req.StarFolder.Public) {
 		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
@@ -901,5 +760,25 @@ func (s *ArticalServiceImpl) QueryAllStar(ctx context.Context, req *articaldemo.
 			ArtcalID:  int32(star.ArticalID),
 		})
 	}
+	return resp, nil
+}
+
+// 更改某个收藏所属的收藏夹ID
+func (s *ArticalServiceImpl) UpdateStarOwner(ctx context.Context, req *articaldemo.UpdateStarOwnerRequest) (*articaldemo.UpdateStarOwnerResponse, error) {
+	resp := new(articaldemo.UpdateStarOwnerResponse)
+
+	// 检测参数
+	if !check.CheckPostiveNumber(req.ArticalID) || !check.CheckPostiveNumber(req.OwnerID) || !check.CheckUserName(req.Username) {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewArticalService(ctx).UpdateStarOwner(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
 	return resp, nil
 }
