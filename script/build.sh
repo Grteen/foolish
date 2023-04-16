@@ -1,15 +1,15 @@
 #! /bin/bash
-cd /root/BE/cmd/api
+cd /root/foolish/cmd/api
 ./build.sh
-cd /root/BE/cmd/user
+cd /root/foolish/cmd/user
 ./build.sh
-cd /root/BE/cmd/artical
+cd /root/foolish/cmd/artical
 ./build.sh
-cd /root/BE/cmd/search
+cd /root/foolish/cmd/search
 ./build.sh
-cd /root/BE/cmd/notify
+cd /root/foolish/cmd/notify
 ./build.sh
-cd /root/BE/cmd/action
+cd /root/foolish/cmd/action
 ./build.sh
-cd /root/BE/cmd/comment
+cd /root/foolish/cmd/comment
 ./build.sh

@@ -1,4 +1,4 @@
-cd /root/BE/idl
+cd /root/foolish/idl
 
 protoc --go_out=../grpc/userdemo/ user.proto
 
@@ -24,5 +24,5 @@ protoc --go_out=../grpc/commentdemo/ comment.proto
 
 protoc --go-grpc_out=../grpc/commentdemo/ comment.proto
 
-cd /root/BE/script/bin
+cd /root/foolish/script/bin
 ./remove_tag

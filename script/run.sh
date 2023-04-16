@@ -1,5 +1,5 @@
 #! /bin/bash
-cd /root/BE/bin
+cd /root/foolish/bin
 (./user &)
 (./artical &)
 (./search &)

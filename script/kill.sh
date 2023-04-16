@@ -1,9 +1,9 @@
 #! /bin/bash
 
-cd /root/BE/script/bin
+cd /root/foolish/script/bin
 ./pid
 
-cd /root/BE/script
+cd /root/foolish/script
 cat ./pid/user.pid | xargs kill -9
 cat ./pid/artical.pid | xargs kill -9
 cat ./pid/search.pid | xargs kill -9
