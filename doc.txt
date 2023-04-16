@@ -1,0 +1,786 @@
+http://124.70.111.92
+
+ErrorCode:
+    0       "Success"  // 成功
+	10001   "Service is unable to start successfully"  // 服务没启动
+	10002   "Service can't process"     // 后端炸了
+	10003   "Wrong Parameter has been given"    // 参数有误
+	10004   "User already exists"    // 用户已经被注册
+	10005   "Email is already in use"       // 邮箱已经被注册
+	10006   "User not registered"       // 用户没有注册
+	10007   "Email not registered"      // 邮箱没有注册
+	10008   "Authentication failed"         // 登录失败 密码错误
+    10009   "Authentication Cookie expired"     // 登录 Cookie 过期
+    10010   "Permission denied"   // 没有权限
+	10011   "No such artical"       // 没有 该文章
+	10012   "No Like or Star"       // 你不可能遇见这个错误
+	10013   "No Likes yet"          // 并没有点赞
+	10014   "No Stars yet"          // 并没有收藏
+	10015   "Already been LikeStared"       // 你不可能遇见这个错误
+	10016   "Already been liked"        // 已经点赞过了
+	10017   "Already been stared"       // 已经收藏了
+    10018   "No such comment"       // 没有该评论
+    10019   "Already been Subscribed"       // 已经订阅了
+    10020   "Already been Subscribed"       // 还没有订阅
+    10021   "No Star folders yet"       // 没有该收藏夹
+    10022   "Can not delete default star folder"        // 不能删除默认收藏夹
+    10023   "No such notify yet"            // 没有该通知
+
+
+// 注册用户
+POST /api/register form-data
+    参数 : 
+        name  3-18位 字母数字 '-' '_'
+        password    3-18位字母数字 '-' '_'
+        email   必须包含@qq.com
+    返回值 : json {
+        code:   0 02 03 04 05
+        message:
+    }
+
+// 登录用户
+GET /api/login  uri
+    参数 : 
+        account  用户名或者邮箱
+        password    密码 (需要经过md5加密)
+    返回值 : json {
+        code:   0 02 03 06 07 08
+        message:
+    }
+    设置 Cookie "frostAuth"
+
+// 获取当前登录用户的 用户名
+GET /api/userSelfName
+    无参数
+    返回值:
+        如果发生错误: 
+        json {
+            code:   02 09
+            message:
+        }
+        如果没有错误:
+        json {
+            code:  0
+            message:
+            data: {
+                username:
+            }
+        }
+
+// 获取用户主页信息
+GET /api/userinfo  uri
+    参数 :
+        username    用户名
+    返回值 :
+        如果发生错误 :
+        json {
+            code: 02 03 06 09
+            message: 
+        }
+        如果没有错误 :
+        json {
+            code: 0
+            data: {
+                userName    用户名
+                subNum      订阅数
+                fanNum      粉丝数
+                artNum      文章数
+                userinfo {
+                    userName 
+                    nickName 
+                    description
+                    userAvator
+                }
+            }
+        }
+
+// 更新用户主页信息
+PUT /api/userinfo  form-data
+    参数 :
+        // 要更新的内容
+        username    用户名
+        nickname    昵称
+        description     个人简介
+        avator      头像
+    返回值 : json {
+        code: 0 02 03 06 09 10
+        message:
+    }
+
+// 上传图片
+POST /api/uploadPic  form-data
+    参数 : 
+        username    用户名
+        picname     图片名称  (时间戳 or UUID)
+        pic         二进制图片
+    返回值 : 
+        如果发生错误 :
+        json {
+            code: 02 03 09 10
+            message:
+        }
+        如果没有错误 :
+        json {
+            code: 0
+            message:
+            data: {
+                uri:    // 正常情况下为 http://124.70.111.92/image/username/picname.webp
+            }
+        }
+
+// 上传文章
+POST /api/publish   form-data
+    参数 :
+        author      作者
+        title       标题    (3<=  <= 100)
+        text        文本    (0<=  <= 5W)
+        description 描述    (5<=  <= 100)
+        cover       封面网址
+    返回值 : json {
+        code:  0 02 03 09 10
+        message: 
+    }
+
+// 删除文章
+DELETE /api/artical     uri
+    参数 :
+        articalID    文章ID
+    返回值 : json {
+        code:  0 02 03 09 10 11
+        message:
+    }
+
+// 更新文章
+PUT /api/artical    form-data
+    参数: 
+        // 作者不更新
+        articalID       要更新的目标文章ID
+        title           同Publish
+        text            同Publish
+        description     同Publish
+        cover       封面网址
+    返回值: json {
+        code: 0 02 03 09 10 11
+        message:
+    }
+
+// 查询文章
+GET /api/artical   form-data
+    参数 :
+        IDs        文章ID数组
+    返回值 : 
+    如果失败 :
+        json {
+            code:   02 03 09 11
+            message:
+        }
+    如果成功 :
+        json {
+            code: 0
+            message:
+            data: [
+                {
+                    ID:     // 文章ID
+                    createdAt        // 创建时间
+                    title:      // 文章标题
+                    author:     // 文章作者
+                    text:       // 文章内容
+                    description // 描述
+                    cover       // 封面图片网址
+                    likeNum     // 文章点赞总数
+                    starNum     // 文章收藏总数
+                    seenNum     // 文章浏览总数
+                    authorAvator        // 文章作者脑袋
+                },
+                {
+
+                },
+                {
+                    ....
+                }
+            ]
+        }
+
+// 查询一个用户发表的所有文章 的 ID
+GET /api/artical/author      
+    参数: 
+        author      // 作者
+        filed       // 排序的字段   time 发布时间 like 点赞数 star 收藏数 seen 浏览数
+        order       // 排序方式     DESC 降序 ASC 升序
+    返回值: 
+    如果失败: 
+        json {
+            code: 02 03 06
+            message:
+        }
+    如果成功:
+        json {
+            code: 0
+            message:
+            data: [
+                // 文章ID数组
+            ]
+        }
+
+// 点赞
+POST /api/like   form-data or uri
+    参数:
+        username        点赞的人
+        articalID       点赞的文章ID
+    返回值: json {
+        code: 0 02 03 09 10 11 16
+        message:
+    }  
+
+// 取消点赞
+DELETE  /api/like   form-data or uri
+    参数:
+        username        取消点赞的人
+        articalID       取消点赞的文章ID
+    返回值: json {
+        code: 0 02 03 09 10 11 13
+        message:
+    }
+
+// 查看某个用户是否有某个文章的点赞
+GET     /api/hasLike   uri
+    参数:
+        username
+        articalID       
+    返回值:
+    如果错误:
+        json {
+            code:   02 03 09 10 11
+            message
+        }
+    如果没错:
+        json {
+            code: 0
+            message
+            data: true      // 如果是 true 就说明有点赞收藏了  如果是 false 说明没有点赞收藏
+        }
+
+// 查看某人的所有收藏夹
+GET /api/starFolder     uri 
+    参数:
+        username    某人
+    返回值:
+        失败:
+        json {
+            code: 02 03 09 10
+            message:
+        }
+        成功:
+        json {
+            code: 0
+            message: 
+            data: [
+                {
+                    ID:         // 收藏夹ID
+                    createdAt:      // 创建时间
+                    folderName:     // 收藏夹名称
+                    username:
+                    isDefault:      // 是否是默认收藏夹 true 就是默认收藏夹   默认收藏夹不能删除
+                }
+                {
+                    ...
+                }
+            ]
+        }
+
+// 创建收藏夹
+POST /api/starFolder    form-data
+    参数:
+        username        某人
+        foldername      收藏夹名称      0 < < 20
+    返回值: json {
+        code: 0 02 03 09 10
+        message
+    }
+
+// 查看某个收藏夹里所有收藏
+GET /api/star   uri
+    参数:
+        starfolderID    收藏夹ID
+        limit
+        offset
+    返回值: 
+        失败:    
+        json {
+            code: 02 03 09 10 21
+            message
+        }
+        成功:
+        json {
+            code: 0
+            message
+            data: [         // 按照时间倒序返回
+                {
+                    ID      // 文章ID
+                    createdAt       // 文章创建时间
+                    title   // 文章标题
+                    author      // 文章作者
+                    description     // 文章描述
+                    likeNum
+                    starNum
+                    seenNum
+                    cover
+                }
+                {
+                    ...
+                }
+            ]
+        }
+
+// 更新收藏夹名字
+PUT /api/starFolder  form-data or uri
+    参数:
+        starfolderID        // 收藏夹ID
+        foldername          // 要更新的名称
+    返回值: json {
+        code: 0 02 03 09 10 21
+        message
+    }
+
+// 删除收藏夹
+DELETE /api/starFolder  form-data or uri
+    参数:
+        starfolderID        // 收藏夹ID
+    返回值: json {
+        code: 0 02 03 09 10 21 22
+        message
+    }
+
+// 收藏
+POST /api/star      form-data or uri
+    参数:
+        username        收藏的人
+        articalID       收藏的文章ID
+        starfolderID    收藏夹ID
+    返回值: json {
+        code: 0 02 03 09 10 11 17 21
+        message:
+    }
+
+
+
+// 取消收藏
+DELETE  /api/star   form-data or uri
+    参数: 
+        username        取消收藏的人
+        articalID       取消收藏的文章ID
+    返回值: json {
+        code: 0 02 03 09 10 11 14
+        message:
+    }
+
+// 查看某个用户是否有某个文章的收藏
+GET     /api/hasStar   uri
+    参数:
+        username
+        articalID       
+    返回值:
+    如果错误:
+        json {
+            code:   02 03 09 10 11
+            message
+        }
+    如果没错:
+        json {
+            code: 0
+            message
+            data: true      // 如果是 true 就说明有点赞收藏了  如果是 false 说明没有点赞收藏
+        }
+
+// 添加一次浏览记录
+POST /api/seen uri
+    参数:
+        username        浏览的人
+        articalID       浏览的文章ID
+    返回值: json {          // 同一个用户多次浏览 会返回 0 并且不记录在 目标的文章的 总浏览数之中
+        code: 0 02 03 09 10 11
+        message:
+    }
+    
+
+// 获取用户 浏览历史  按照时间降序排列
+GET /api/seen uri 
+    参数:
+        username        查询的人
+        返回值:
+        如果有错误:
+            json {
+                code:   02 03 06 10
+                message:
+            }
+        如果成功:
+            json {
+                code: 0
+                message:
+                data: {
+                    today: [        // 今天
+                        {
+                            ID      // 文章ID
+                            createdAt   // 文章创建时间
+                            title
+                            author
+                            description
+                            likeNum
+                            starNum   
+                            seenNum
+                            cover
+                        }
+                    ]
+                    yesterday: [        // 昨天
+                        {
+                            同上
+                        }
+                    ]
+                    week: [         // 昨天 - 上周
+                        {
+                            同上
+                        }
+                    ]
+                    weekago: [      // 上周以后的
+                        {
+                            同上
+                        }
+                    ]
+                }
+            }
+
+// 评论
+POST /api/comment  form-data
+    参数:
+        username    提交评论的人
+        articalID   被评论的文章ID
+        commentText     评论内容  <= 500字
+        master      // 如果该评论为回复 请将 master 设置为 被回复的评论 ID   如果该评论不是回复 则将master设为 0 或者不设置
+    返回值: json {
+        code: 02 03 09 10 11 18
+        message:
+    }
+
+// 根据 评论 ID 获取 评论内容
+GET /api/comment  form-data
+    参数:
+        commentIDs      // 评论 ID 的数组
+    返回值: 
+        如果错误：
+            json {
+                code: 02 03 
+                message:
+            }
+        如果成功
+            json {
+                code: 0
+                message:
+                data: [     // 只返回能够查到的评论 如果传入的 ID 数组中有 ID 不存在 则不返回该 ID 对应的评论
+                    {
+                        ID      // 评论ID
+                        articalID       // 评论的文章ID
+                        userName        // 评论的用户
+                        avator          // 用户的头
+                        commentText     // 评论的内容
+                        createdAt        // 创建时间
+                        master          // 如果有 说明该条评论为回复
+                        reply: [        // 回复数组
+                            {
+                                ID
+                                articalID
+                                userName
+                                avator
+                                commentText
+                                createdAt       
+                                master      // 撅对有 
+                            },
+                            {
+                                ....
+                            }
+                        ]
+                    },
+                    {
+
+                    },
+                    {
+                        ....
+                    }
+                ]
+            }
+
+// 根据评论 ID 删除评论 及其所有回复
+DELETE /api/comment uri
+    参数:
+        commentID       // 评论 ID
+    返回值: json {
+        code: 02 03 09 10 18
+        message:
+    }
+
+// 根据评论 ID 更新评论  不更新 被评论的文章ID 和 评论者
+PUT /api/comment form-data
+    参数:
+        commentID       // 评论 ID
+        commentText     // 评论内容
+    返回值: json {
+        code: 02 03 09 10 18
+        message:
+    }
+    
+
+// 获取某一个文章的所有评论 ID   只返回 master 评论  不返回 master 评论的回复
+// 所以 只要把返回结果的数组 塞进 GET /api/comment 里就行了
+// 按照时间降序排序
+GET /api/comment/:articalID         即 /api/comment/11      (11 就是要查询的文章的ID)
+    参数:
+        无
+    返回值: 
+    如果失败: 
+        json {
+            code: 02 03 11
+            message:
+        }
+    如果成功:
+        json {
+            code: 0
+            message:
+            data: [
+                // 评论ID数组
+            ]
+        }
+
+// 搜索文章
+GET /api/search     uri
+    参数:
+        keyword     // 搜索的关键词     如果keyword为空则查询所有
+        limit     // 搜索几个
+        offset      // 跳过几个
+        // 搜索有keyword关键词的文章第 10 - 15 个   limit = 5 offset = 10
+    返回值:
+    如果失败:
+        json {
+            code: 02 03
+            message:
+        }
+    如果成功:
+        json {
+            code: 0
+            message:
+            data: [         // 按照发布时间降序排序
+                {
+                    ID
+                    createdAt
+                    title
+                    author
+                    description
+                    likeNum
+                    starNum
+                    seenNum
+                    cover
+                }
+                {
+                    ...
+                }
+            ]
+        }
+
+// 关注某人
+POST /api/subscribe     form-data
+    参数:
+        username        // 关注的人
+        subname         // 被关注的人
+    返回值: json {
+        code: 0 02 03 09 10 19
+        message
+    }
+
+// 取关
+DELETE /api/subscribe       form-data
+    参数:
+        username        // 取关的人
+        subname         // 被取关的人
+    返回值: json {
+        code: 0 02 03 09 10 20
+        message
+    }
+
+// 查询是否关注
+GET /api/hasSubscribe          uri
+    参数:
+        username        
+        subname
+    返回值:
+    如果失败: 
+        json {
+            code: 02 03 09 10 
+            message
+        }
+    如果成功:
+        json {
+            code: 0
+            message
+            data: true          // 如果是 true 说明已经关注了  如果是 false 说明还未关注
+        }
+
+// 查询某人的所有关注
+GET /api/subscribe      uri
+    参数:
+        username
+    返回值: json {
+        code: 02 03
+        message
+        data: [
+            // 用户名数组 表示关注的所有人的username
+        ]       
+    }
+
+// 查询某人的所有粉丝
+GET /api/fan    uri
+    参数:
+        username
+    返回值: json {
+        code: 02 03
+        message
+        data: [
+            // 用户名数组 表示所有粉丝的username
+        ]       
+    }
+
+// 查询某人的回复通知       倒序排列
+GET /api/notify/allreply   uri
+    参数:
+        username
+        limit 
+        offset          // 差第10-15个 limit 5 offset 10
+    返回值: 
+        如果错误:
+        json {
+            code: 02 03 09 10
+            message
+        }
+        如果成功
+        json {
+            code: 0
+            message
+            data: [
+                // 通知ID数组 按照时间倒序排列
+            ]
+        }
+
+// 查询 某个ID 的回复通知          
+GET /api/notify/reply   uri
+    参数:
+        IDs         // ID 数组
+    返回值:
+        如果错误:
+        json {
+            code: 02 03 23
+            message
+        }
+        如果成功:
+        json {
+            code: 0
+            message:
+            data: [
+                {
+                    ID              // 通知的ID
+                    createdAt:
+                    userName:       // 收件人名字
+                    sender:         // 寄件人名字
+                    title:          // 通知标题
+                    text:           // 通知文本
+                    avator:         // 寄件人的头像
+                    articalID:      // 被评论的文章ID 或者是被回复的评论所属的文章ID
+                    commentID:      // 评论 你的评论 的评论的ID
+                    master:         // 你的 被评论的 评论 如果为0 则表示是你的文章被评论了
+                    masterText:     // 你的 被评论的 评论 的文本   如果为空 则表示是你的文章被评论了
+                    isread:         // 是否读过         如果读过就是 true
+                    isdelete:       // 是否被删除了
+                }
+                {
+                    ...
+                }
+            ]
+        }
+
+
+// 查询某人的点赞通知       倒序排列
+GET /api/notify/alllike   uri
+    参数:
+        username
+        limit 
+        offset          // 差第10-15个 limit 5 offset 10
+    返回值: 
+        如果错误:
+        json {
+            code: 02 03 09 10
+            message
+        }
+        如果成功
+        json {
+            code: 0
+            message
+            data: [
+                // 通知ID数组 按照时间倒序排列
+            ]
+        }
+
+// 查询 某个ID 的点赞通知          
+GET /api/notify/like   uri
+    参数:
+        IDs         // ID 数组
+    返回值:
+        如果错误:
+        json {
+            code: 02 03 23
+            message
+        }
+        如果成功:
+        json {
+            code: 0
+            message:
+            data: [
+                {
+                    ID              // 通知的ID
+                    createdAt:
+                    userName:       // 收件人名字
+                    sender:         // 寄件人名字
+                    title:          // 通知标题
+                    text:           // 通知文本
+                    avator:         // 寄件人的头像
+                    articalID:      // 被点赞的文章ID
+                    isread:         // 是否读过         如果读过就是 true
+                    isdelete:       // 是否被删除了
+                }
+                {
+                    ...
+                }
+            ]
+        }
+
+// 已读回复通知
+PUT /api/notify/reply   form-data 
+    参数:
+        ID      // 回复通知的ID
+    返回值: json {
+        code: 0 02 03 10 23
+        message
+    }
+
+// 已读点赞通知
+PUT /api/notify/like   form-data 
+    参数:
+        ID      // 回复通知的ID
+    返回值: json {
+        code: 0 02 03 10 23
+        message
+    }
+
+// 删除点赞通知
+DELETE /api/notify/like    form-data
+    参数:
+        ID      // 回复通知的ID
+    返回值: json {
+        code: 0 02 03 10 23
+        message
+    }

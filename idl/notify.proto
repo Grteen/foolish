@@ -1,0 +1,183 @@
+syntax = "proto3";
+package notifydemo;
+option go_package = ".;notifydemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message Target {
+    int32 targetID = 1;
+    int32 type = 2;
+}
+
+message ReplyNotify {
+    int32 ID = 1;
+    string createdAt = 2;
+    string userName = 3;
+    string title = 4;
+    string sender = 5;
+    string text = 6;
+    string avator = 7;
+    Target target = 8;
+    int32 commentID = 9;
+    int32 master = 10;
+    string masterText = 11;
+    bool isread = 12;
+    bool isdelete = 13;
+}
+
+message LikeNotify {
+    int32 ID = 1;
+    string createdAt = 2;
+    string userName = 3;
+    string title = 4;
+    string sender = 5;
+    string text = 6;
+    string avator = 7;
+    Target target = 8;
+    bool isread = 9;
+    bool isdelete = 10;
+}
+
+message CreateReplyNotifyRequest {
+    ReplyNotify replyntf = 1;
+}
+
+message CreateReplyNotifyResponse {
+    Resp resp = 1;
+}
+
+message QueryReplyNotifyRequest {
+    repeated int32 IDs = 1;
+}
+
+message QueryReplyNotifyResponse {
+    Resp resp = 1;
+    repeated ReplyNotify ntfs = 2;
+}
+
+message QueryAllReplyNotifyRequest {
+    string userName = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message QueryAllReplyNotifyResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message CreateLikeNotifyRequest {
+    LikeNotify likentf = 1;
+}
+
+message CreateLikeNotifyResponse {
+    Resp resp = 1;
+}
+
+message QueryLikeNotifyRequest {
+    repeated int32 IDs = 1;
+}
+
+message QueryLikeNotifyResponse {
+    Resp resp = 1;
+    repeated LikeNotify ltfs = 2;
+}
+
+message QueryAllLikeNotifyRequest {
+    string userName = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message QueryAllLikeNotifyResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message ReadNotifyRequest {
+    int32 ID = 1;
+    int32 type = 2;
+}
+
+message ReadNotifyResponse {
+    Resp resp = 1;
+}
+
+message DeleteNotifyRequest {
+    int32 ID = 1;
+    int32 type = 2;
+}
+
+message DeleteNotifyResponse {
+    Resp resp = 1;
+}
+
+message AllNotify {
+    int32 ID = 1;
+    string createdAt = 2;
+    int32 notifyType = 3;
+}
+
+message SearchAllNotifyRequest {
+    string userName = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message SearchAllNotifyResponse {
+    Resp resp = 1;
+    repeated AllNotify allNotify = 2;
+}
+
+message SystemNotify {
+    int32 ID = 1;
+    string createdAt = 2;
+    string text = 3;
+}
+
+message CreateSystemNotifyRequest {
+    string text = 1;
+}
+
+message CreateSystemNotifyResponse {
+    Resp resp = 1;
+}
+
+message QuerySystemNotifyRequest {
+    repeated int32 IDs = 1;
+}
+
+message QuerySystemNotifyResponse {
+    Resp resp = 1;
+    repeated SystemNotify systemNotify = 2;
+}
+
+message QueryAllSystemNotifyRequest {
+    int32 limit = 1;
+    int32 offset = 2;
+}
+
+message QueryAllSystemNotifyResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+service NotifyService {
+    rpc CreateReplyNotify (CreateReplyNotifyRequest) returns (CreateReplyNotifyResponse){}
+    rpc QueryReplyNotify (QueryReplyNotifyRequest) returns (QueryReplyNotifyResponse){}
+    rpc QueryAllReplyNotify (QueryAllReplyNotifyRequest) returns (QueryAllReplyNotifyResponse){}
+    rpc CreateLikeNotify (CreateLikeNotifyRequest) returns (CreateLikeNotifyResponse){}
+    rpc QueryLikeNotify (QueryLikeNotifyRequest) returns (QueryLikeNotifyResponse){}
+    rpc QueryAllLikeNotify (QueryAllLikeNotifyRequest) returns (QueryAllLikeNotifyResponse){}
+    rpc ReadNotify (ReadNotifyRequest) returns (ReadNotifyResponse){}
+    rpc DeleteNotify (DeleteNotifyRequest) returns (DeleteNotifyResponse){}
+
+    rpc SearchAllNotify (SearchAllNotifyRequest) returns (SearchAllNotifyResponse){}
+
+    rpc CreateSystemNotify (CreateSystemNotifyRequest) returns (CreateSystemNotifyResponse){}
+    rpc QuerySystemNotify (QuerySystemNotifyRequest) returns (QuerySystemNotifyResponse){}
+    rpc QueryAllSystemNotify (QueryAllSystemNotifyRequest) returns (QueryAllSystemNotifyResponse){}
+}

@@ -1,0 +1,165 @@
+syntax = "proto3";
+package actiondemo;
+option go_package = ".;actiondemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message Action {
+    int32 ID = 1;
+    string author = 2;
+    string text = 3;
+    int32 likeNum = 4;
+    string createdAt = 5;
+    repeated string picfiles = 6;
+}
+
+message CreateActionRequest {
+    string author = 1;
+    string text = 2;
+    repeated string picfiles = 3;
+}
+
+message CreateActionResponse {
+    Resp resp = 1;
+}
+
+message DeleteActionRequest {
+    int32 ID = 1;
+}
+
+message DeleteActionResponse {
+    Resp resp = 1;
+}
+
+message QueryActionRequest {
+    repeated int32 IDs = 1;
+}
+
+message QueryActionResponse {
+    Resp resp = 1;
+    repeated Action actions = 2;
+}
+
+message QueryActionByAuthorRequest {
+    string author = 1;
+    string field = 2;
+    string order = 3;
+}
+
+message QueryActionByAuthorResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message ActionLike {
+    int32 ID = 1;
+    string username = 2;
+    int32 actionID = 3;
+    string createdAt = 4;
+}
+
+message CreateActionLikeRequest {
+    ActionLike actionlike = 1;
+}
+
+message CreateActionLikeResponse {
+    Resp resp = 1;
+}
+
+message DeleteActionLikeRequest {
+    string username = 1;
+    int32 actionID = 2;
+}
+
+message DeleteActionLikeResponse {
+    Resp resp = 1;
+}
+
+message QueryActionLikeRequest {
+    string username = 1;
+    int32 actionID = 2;
+}
+
+message QueryActionLikeResponse {
+    Resp resp = 1;
+    repeated ActionLike actionlikes = 2;
+}
+
+message Comment {
+    int32 ID = 1;
+    int32 actionID = 2;
+    string userName = 3;
+    string avator = 4;
+    string commentText = 5;
+    int32 master = 6;
+    string createdAt = 7;
+
+    repeated Comment reply = 8;
+}
+
+message CreateCommentRequest {
+    int32 actionID = 1;
+    string userName = 2;
+    string commentText = 3;
+    int32 master = 4;
+}
+
+message CreateCommentResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message QueryCommentRequest {
+    repeated int32 commentID = 1;
+}
+
+message QueryCommentResponse {
+    Resp resp = 1;
+    repeated Comment comment = 2;
+}
+
+message QueryCommentByActionIDRequest {
+    int32 ActionID = 1;
+}
+
+message QueryCommentByActionIDResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message UpdateCommentRequest {
+    int32 commentID = 1;
+    string commentText = 2;
+}
+
+message UpdateCommentResponse {
+    Resp resp = 1;
+}
+
+message DeleteCommentRequest {
+    int32 commentID = 1;
+}
+
+message DeleteCommentResponse {
+    Resp resp = 1;
+}
+
+service ActionService {
+    rpc CreateAction (CreateActionRequest) returns (CreateActionResponse){}
+    rpc QueryAction (QueryActionRequest) returns (QueryActionResponse){}
+    rpc DeleteAction (DeleteActionRequest) returns (DeleteActionResponse){}
+    rpc QueryActionByAuthor (QueryActionByAuthorRequest) returns (QueryActionByAuthorResponse){}
+
+    rpc CreateActionLike (CreateActionLikeRequest) returns (CreateActionLikeResponse){}
+    rpc DeleteActionLike (DeleteActionLikeRequest) returns (DeleteActionLikeResponse){}
+    rpc QueryActionLike (QueryActionLikeRequest) returns (QueryActionLikeResponse){}
+    
+    rpc CreateComment (CreateCommentRequest) returns (CreateCommentResponse){}
+    rpc UpdateComment (UpdateCommentRequest) returns (UpdateCommentResponse){}
+    rpc QueryComment (QueryCommentRequest) returns (QueryCommentResponse){}
+    rpc QueryCommentByActionID (QueryCommentByActionIDRequest) returns (QueryCommentByActionIDResponse){}
+    rpc DeleteComment (DeleteCommentRequest) returns (DeleteCommentResponse){}
+}

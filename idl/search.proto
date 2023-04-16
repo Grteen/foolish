@@ -1,0 +1,41 @@
+syntax = "proto3";
+package searchdemo;
+option go_package = ".;searchdemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message SearchArticalRequest {
+    string keyword = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message SearchArticalResponse {
+    Resp resp = 1;
+    repeated int32 articalIDs = 2;
+}
+
+message Target {
+    int32 targetID = 1;
+    int32 type = 2;
+}
+
+message SearchUserZoomRequest {
+    string author = 1;
+    string keyword = 2;
+    int32 limit = 3;
+    int32 offset = 4;
+}
+
+message SearchUserZoomResponse {
+    Resp resp = 1;
+    repeated Target targets = 2;
+}
+
+service SearchService {
+    rpc SearchArtical (SearchArticalRequest) returns (SearchArticalResponse){}
+    rpc SearchUserZoom (SearchUserZoomRequest) returns (SearchUserZoomResponse){}
+}

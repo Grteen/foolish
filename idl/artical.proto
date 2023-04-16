@@ -1,0 +1,345 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+package articaldemo;
+option go_package = ".;articaldemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message Artical {
+    int32 ID = 1;
+    string author = 2;
+    string title = 3;
+    string text = 4;
+    string description = 5;
+    int32 likeNum = 6;
+    int32 starNum = 7;
+    int32 seenNum = 8;
+    string createdAt = 9;
+    string cover = 10;
+}
+
+message CreateArticalRequest {
+    string author = 1;
+    string title = 2;
+    string text = 3;
+    string description = 4;
+    string cover = 5;
+}
+
+message CreateArticalResponse {
+    Resp resp = 1;
+}
+
+message DeleteArticalRequest {
+    int32 ID = 1;
+}
+
+message DeleteArticalResponse {
+    Resp resp = 1;
+}
+
+message UpdateArticalRequest {
+    int32 articalID = 1;
+    string title = 2;
+    string text = 3;
+    string description = 4;
+    string cover = 5;
+}
+
+message UpdateArticalResponse {
+    Resp resp = 1;
+}
+
+message QueryArticalRequest {
+    repeated int32 IDs = 1;
+}
+
+message QueryArticalResponse {
+    Resp resp = 1;
+    repeated Artical artical = 2;
+}
+
+message QueryArticalByAuthorRequest {
+    string author = 1;
+    string field = 2;
+    string order = 3;
+}
+
+message QueryArticalByAuthorResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message CreateLikeStarRequest {
+    string userName = 1;
+    int32 articalID = 2;
+    int32 type = 3;
+}
+
+message CreateLikeStarResponse {
+    Resp resp = 1;
+}
+
+message DeleteLikeStarRequest {
+    string userName = 1;
+    int32 articalID = 2;
+    int32 type = 3;
+}
+
+message DeleteLikeStarResponse {
+    Resp resp = 1;
+}
+
+message LikeStar {
+    string userName = 1;
+    int32 articalID = 2;
+    string updatedAt = 3;
+}
+
+message UpdateLikeStarTimeRequest {
+    LikeStar likestar = 1;
+    google.protobuf.Timestamp updateTime = 2;
+    int32 type = 3;
+}
+
+message UpdateLikeStarTimeResponse {
+    Resp resp = 1;
+}
+
+message QueryLikeStarRequest {
+    string userName = 1;
+    int32 articalID = 2;
+    int32 type = 3;
+}
+
+message QueryLikeStarResponse {
+    Resp resp = 1;
+    LikeStar likeStar = 2;
+}
+
+message QueryAllLikeStarRequest {
+    string userName = 1;
+    int32 Type = 2;
+}
+
+message QueryAllLikeStarResponse {
+    Resp resp = 1;
+    repeated int32 articalIDs = 2;
+}
+
+message RdbArtical {
+    int32 ID = 1;
+    string createdAt = 2;
+    string title = 3;
+    string author = 4;
+    string text = 5;
+    string description = 6;
+    int32 likeNum = 7;
+    int32 starNum = 8;
+    int32 seenNum = 9;
+    string cover = 10;
+    string authorAvator = 11;
+}
+
+message RdbSetArticalRequest {
+    RdbArtical rdbArtical = 1;
+}
+
+message RdbSetArticalResponse {
+    Resp resp = 1;
+}
+
+message RdbDelArticalRequest {
+    int32 ID = 1;
+}
+
+message RdbDelArticalResponse {
+    Resp resp = 1;
+}
+
+message RdbGetArticalRequest {
+    repeated int32 IDs = 1;
+}
+
+message RdbGetArticalResponse {
+    Resp resp = 1;
+    repeated RdbArtical rdbArticals = 2;
+    repeated int32 ungot = 3;
+}
+
+message RdbIncreaseitfRequest {
+    int32 articalID = 1;
+    int32 val = 2;
+    string field = 3;
+}
+
+message RdbIncreaseitfResponse {
+    Resp resp = 1;
+}
+
+message CreateStarFolderRequest {
+    string userName = 1;
+    string folderName = 2;
+    bool isDefault = 3;
+    int32 public = 4;
+}
+
+message CreateStarFolderResponse {
+    Resp resp = 1;
+}
+
+message StarFolder {
+    int32 ID = 1;
+    string createdAt = 2;
+    string folderName = 3;
+    string username = 4;
+    bool isDefault = 5;
+    int32 public = 6;
+}
+
+message QueryStarFolderRequest {
+    repeated int32 IDs = 1;
+}
+
+message QueryStarFolderResponse {
+    Resp resp = 1;
+    repeated StarFolder starFolders = 2;
+}
+
+message QueryAllStarFolderRequest {
+    string userName = 1;
+}
+
+message QueryAllStarFolderResponse {
+    Resp resp = 1;
+    repeated StarFolder starFolders = 2;
+}
+
+message DeleteStarFolderRequest {
+    int32 ID = 1;
+}
+
+message DeleteStarFolderResponse {
+    Resp resp = 1;
+}
+
+message UpdateStarFolderRequest {
+    StarFolder starFolder = 1;
+}
+
+message UpdateStarFolderResponse {
+    Resp resp = 1;
+}
+
+message Star {
+    int32 ID = 1;
+    string createdAt = 2;
+    int32 artcalID = 3;
+}
+
+message CreateStarRequest {
+    int32 articalID = 1;
+    int32 starFolderID = 2;
+    string username = 3;
+}
+
+message CreateStarResponse {
+    Resp resp = 1;
+}
+
+message QueryAllStarRequest {
+    int32 starFolderID = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message QueryAllStarResponse {
+    Resp resp = 1;
+    repeated Star stars = 2;
+}
+
+message UpdateStarOwnerRequest {
+    string username = 1;
+    int32 articalID = 2;
+    int32 ownerID = 3;
+}
+
+message UpdateStarOwnerResponse {
+    Resp resp = 1;
+}
+
+message DeleteStarFolderAndMoveRequest {
+    string username = 1;
+    int32 starFolderID = 2;
+}
+
+message DeleteStarFolderAndMoveResponse {
+    Resp resp = 1;
+}
+
+message RdbSetLikeStarRequest {
+    string userName = 1;
+    int32 articalID = 2;
+    int32 type = 3;
+    string updatedAt = 4;
+}
+
+message RdbSetLikeStarResponse {
+    Resp resp = 1;
+}
+
+message RdbGetLikeStarRequest {
+    string userName = 1;
+    int32 articalID = 2;
+    int32 type = 3;
+}
+
+message RdbGetLikeStarResponse {
+    Resp resp = 1;
+    bool exist = 2;
+}
+
+message RdbDelLikeStarRequest {
+    string userName = 1;
+    int32 articalID = 2;
+    int32 type = 3;
+}
+
+message RdbDelLikeStarResponse {
+    Resp resp = 1;
+}
+
+service ArticalService {
+    rpc CreateArtical (CreateArticalRequest) returns (CreateArticalResponse){}
+    rpc DeleteArtical (DeleteArticalRequest) returns (DeleteArticalResponse){}
+    rpc UpdateArtical (UpdateArticalRequest) returns (UpdateArticalResponse){}
+    rpc QueryArtical (QueryArticalRequest) returns (QueryArticalResponse){}
+    rpc QueryArticalByAuthor (QueryArticalByAuthorRequest) returns (QueryArticalByAuthorResponse){}
+    rpc QueryArticalEx (QueryArticalRequest) returns (QueryArticalResponse){}
+
+    rpc CreateLikeStar (CreateLikeStarRequest) returns (CreateLikeStarResponse){}
+    rpc DeleteLikeStar (DeleteLikeStarRequest) returns (DeleteLikeStarResponse){}
+    rpc QueryLikeStar (QueryLikeStarRequest) returns (QueryLikeStarResponse){}
+    rpc QueryAllLikeStar (QueryAllLikeStarRequest) returns (QueryAllLikeStarResponse){}
+    rpc CreateStar (CreateStarRequest) returns (CreateStarResponse){}
+    rpc CreateStarFolder (CreateStarFolderRequest) returns (CreateStarFolderResponse){}
+    rpc DeleteStarFolder (DeleteStarFolderRequest) returns (DeleteStarFolderResponse){}
+    rpc DeleteStarFolderAndMove (DeleteStarFolderAndMoveRequest) returns (DeleteStarFolderAndMoveResponse){}
+    rpc UpdateStarFolder (UpdateStarFolderRequest) returns (UpdateStarFolderResponse){}
+    rpc QueryStarFolder (QueryStarFolderRequest) returns (QueryStarFolderResponse){}
+    rpc QueryAllStarFolder (QueryAllStarFolderRequest) returns (QueryAllStarFolderResponse){}
+    rpc QueryAllStar (QueryAllStarRequest) returns (QueryAllStarResponse){}
+    rpc UpdateStarOwner (UpdateStarOwnerRequest) returns (UpdateStarOwnerResponse){}
+
+    rpc RdbSetArtical (RdbSetArticalRequest) returns (RdbSetArticalResponse){}
+    rpc RdbDelArtical (RdbDelArticalRequest) returns (RdbDelArticalResponse){}
+    rpc RdbGetArtical (RdbGetArticalRequest) returns (RdbGetArticalResponse){}
+    rpc RdbGetArticalEx (RdbGetArticalRequest) returns (RdbGetArticalResponse){}
+    rpc RdbIncreaseitf (RdbIncreaseitfRequest) returns (RdbIncreaseitfResponse){}
+    // rpc RdbSetLikeStar (RdbSetLikeStarRequest) returns (RdbSetLikeStarResponse){}
+    // rpc RdbGetLikeStar (RdbGetLikeStarRequest) returns (RdbGetLikeStarResponse){}
+    // rpc RdbDelLikeStar (RdbDelLikeStarRequest) returns (RdbDelLikeStarResponse){}
+}

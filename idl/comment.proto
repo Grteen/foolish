@@ -1,0 +1,78 @@
+syntax = "proto3";
+package commentdemo;
+option go_package = ".;commentdemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message Comment {
+    int32 ID = 1;
+    int32 targetID = 2;
+    string userName = 3;
+    string avator = 4;
+    string commentText = 5;
+    int32 master = 6;
+    string createdAt = 7;
+
+    repeated int32 reply = 8;
+    int32 type = 9;
+}
+
+message CreateCommentRequest {
+    int32 targetID = 1;
+    string userName = 2;
+    string commentText = 3;
+    int32 master = 4;
+    int32 type = 5;
+}
+
+message CreateCommentResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message QueryCommentRequest {
+    repeated int32 commentID = 1;
+}
+
+message QueryCommentResponse {
+    Resp resp = 1;
+    repeated Comment comment = 2;
+}
+
+message QueryCommentByTargetIDRequest {
+    int32 targetID = 1;
+    int32 type = 2;
+}
+
+message QueryCommentByTargetIDResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message UpdateCommentRequest {
+    int32 commentID = 1;
+    string commentText = 2;
+}
+
+message UpdateCommentResponse {
+    Resp resp = 1;
+}
+
+message DeleteCommentRequest {
+    int32 commentID = 1;
+}
+
+message DeleteCommentResponse {
+    Resp resp = 1;
+}
+
+service CommentService {
+    rpc CreateComment (CreateCommentRequest) returns (CreateCommentResponse){}
+    rpc UpdateComment (UpdateCommentRequest) returns (UpdateCommentResponse){}
+    rpc QueryComment (QueryCommentRequest) returns (QueryCommentResponse){}
+    rpc QueryCommentByTargetID (QueryCommentByTargetIDRequest) returns (QueryCommentByTargetIDResponse){}
+    rpc DeleteComment (DeleteCommentRequest) returns (DeleteCommentResponse){}
+}

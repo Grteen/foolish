@@ -1,0 +1,269 @@
+syntax = "proto3";
+package user;
+option go_package = ".;userdemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message CreateUserRequest {
+    string userName = 1;
+    string passWord = 2;
+    string email = 3;
+}
+
+message CreateUserResponse {
+    Resp resp = 1;
+}
+
+message CheckUserRequest {
+    string userNameOrEmail = 1;
+    string passWord = 2;
+}
+
+message CheckUserResponse {
+    Resp resp = 1;
+    string userName = 2;
+}
+
+message User {
+    string userName = 2;
+    string email = 3;
+    string password = 4;
+    int32 subNum = 5;
+    int32 fanNum = 6;
+    int32 artNum = 7;
+    UserInfo userInfo = 8;
+    int32 fanPublic = 9;
+    int32 subPublic = 10;
+    int32 isAdministrator = 11;
+}
+
+message QueryUserRequest {
+    string user = 1;
+}
+
+message QueryUserResponse {
+    Resp resp = 1;
+    repeated User user = 2;
+}
+
+message UpdateUserInfoRequest {
+    string userName = 1;
+    string nickName = 2;
+    string description = 3;
+    string userAvator = 4;
+}
+
+message UpdateUserInfoResponse {
+    Resp resp = 1;
+}
+
+message UserInfo {
+    string userName = 1;
+    string nickName = 2;
+    string description = 3;
+    string userAvator = 4;
+}
+
+message QueryUserInfoRequest {
+    string userName = 1;
+}
+
+message QueryUserInfoResponse {
+    Resp resp = 1;
+    UserInfo userInfo = 2;
+}
+
+message QueryAvatorRequest {
+    string userName = 1;
+}
+
+message QueryAvatorResponse {
+    Resp resp = 1;
+    repeated string avator = 2;
+}
+
+message SetAuthCookieRequest {
+    string key = 1;
+    string value = 2;
+    int64 maxAge = 3;
+}
+
+message SetAuthCookieResponse {
+    Resp resp = 1;
+}
+
+message QueryAuthCookieRequest {
+    string key = 1;
+}
+
+message QueryAuthCookieResponse {
+    Resp resp = 1;
+    string value = 2;
+}
+
+message DeleteAuthCookieRequest {
+    string key = 1;
+}
+
+message DeleteAuthCookieResponse {
+    Resp resp = 1;
+}
+
+message CreateSubscribeRequest {
+    string user = 1;
+    string sub = 2;
+}
+
+message CreateSubscribeResponse {
+    Resp resp = 1;
+}
+
+message DeleteSubscribeRequest {
+    string user = 1;
+    string sub = 2;
+}
+
+message DeleteSubscribeResponse {
+    Resp resp = 1;
+}
+
+message UserSub {
+    string user = 1;
+    string sub = 2;
+}
+
+message QuerySubscribeRequest {
+    string user = 1;
+    string sub = 2;
+}
+
+message QuerySubscribeResponse {
+    Resp resp = 1;
+    UserSub usersub = 2;
+}
+
+message QueryAllSubscribeRequest {
+    string user = 1;
+}
+
+message QueryAllSubscribeResponse {
+    Resp resp = 1;
+    repeated string subs = 2;
+}
+
+message QueryAllFansRequest {
+    string user = 1;
+}
+
+message QueryAllFansResponse {
+    Resp resp = 1;
+    repeated string fans = 2;
+}
+
+message RdbUser {
+    string userName = 1;
+    string nickName = 2;
+    string description = 3;
+    string userAvator = 4;
+    int32 subNum = 5;
+    int32 fanNum = 6;
+    int32 artNum = 7;
+    int32 fanPublic = 8;
+    int32 subPublic = 9;
+    int32 isAdministrator = 10;
+}
+
+message RdbSetUserRequest {
+    RdbUser rdbUser = 1;
+}
+
+message RdbSetUserResponse {
+    Resp resp = 1;
+}
+
+message RdbGetUserRequest {
+    repeated string users = 1;
+}
+
+message RdbGetUserResponse {
+    Resp resp = 1;
+    repeated RdbUser rdbUsers = 2;
+    repeated string ungot = 3;
+}
+
+message RdbIncreaseItfRequest {
+    string userName = 1;
+    int32 val = 2;
+    string field = 3;
+}
+
+message RdbIncreaseItfResponse {
+    Resp resp = 1;
+}
+
+message RdbSetUserPublicRequest {
+    string username = 1;
+    int32 fanPublic = 2;
+    int32 subPublic = 3;
+}
+
+message RdbSetUserPublicResponse {
+    Resp resp = 1;
+}
+
+message ArtAct {
+    int32 ID = 1;
+    string createdAt = 2;
+    int32 type = 3;
+}
+
+message SearchArtActRequest {
+    string userName = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message SearchArtActResponse {
+    Resp resp = 1;
+    repeated ArtAct artact = 2;
+}
+
+message UpdateUserPublicRequest {
+    string userName = 1;
+    int32 fanPublic = 2;
+    int32 subPublic = 3;
+}
+
+message UpdateUserPublicResponse {
+    Resp resp = 1;
+}
+
+service UserService {
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse){}
+    rpc CheckUser (CheckUserRequest) returns (CheckUserResponse){}
+    rpc QueryUser (QueryUserRequest) returns (QueryUserResponse){}
+    rpc UpdateUserPublic (UpdateUserPublicRequest) returns (UpdateUserPublicResponse){}
+
+    rpc UpdateUserInfo (UpdateUserInfoRequest) returns (UpdateUserInfoResponse){}
+    rpc QueryUserInfo (QueryUserInfoRequest) returns (QueryUserInfoResponse){}
+    rpc QueryAvator (QueryAvatorRequest) returns (QueryAvatorResponse){}
+
+    rpc SetAuthCookie (SetAuthCookieRequest) returns (SetAuthCookieResponse){}
+    rpc QueryAuthCookie (QueryAuthCookieRequest) returns (QueryAuthCookieResponse){}
+    rpc DeleteAuthCookie (DeleteAuthCookieRequest) returns (DeleteAuthCookieResponse){}
+
+    rpc CreateSubscribe (CreateSubscribeRequest) returns (CreateSubscribeResponse){}
+    rpc DeleteSubscribe (DeleteSubscribeRequest) returns (DeleteSubscribeResponse){}
+    rpc QuerySubscribe (QuerySubscribeRequest) returns (QuerySubscribeResponse){}
+    rpc QueryAllSubscribe (QueryAllSubscribeRequest) returns (QueryAllSubscribeResponse){}
+    rpc QueryAllFans (QueryAllFansRequest) returns (QueryAllFansResponse){}
+
+    rpc SearchArtAct (SearchArtActRequest) returns (SearchArtActResponse){}
+
+    rpc RdbSetUser (RdbSetUserRequest) returns (RdbSetUserResponse){}
+    rpc RdbGetUser (RdbGetUserRequest) returns (RdbGetUserResponse){}
+    rpc RdbIncreaseItf (RdbIncreaseItfRequest) returns (RdbIncreaseItfResponse){}
+}

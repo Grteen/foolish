@@ -1,0 +1,9 @@
+2023/03/08 07:38:44 /root/BE/cmd/log/dal/rdb/log.go:18: unsupported data type: map[fanPublic:1 subPublic:1]: Table not set, please set it like: db.Model(&user) or db.Table("users")
+2023/03/08 07:39:05 /root/BE/cmd/log/dal/rdb/log.go:18: unsupported data
+2023/03/08 07:40:13 /root/BE/cmd/log/dal/rdb/log.go:18: unsupported data
+2023/03/08 07:43:26 /root/BE/cmd/log/dal/rdb/log.go:18: unsupported data
+2023/03/08 07:44:35 /root/BE/cmd/log/dal/rdb/log.go:18: unsupported data
+2023/04/09 05:57:57 /root/BE/cmd/log/dal/rdb/log.go:18: ERR wrong number of arguments for 'hmset' command
+2023/04/09 05:58:03 /root/BE/cmd/log/dal/rdb/log.go:18: ERR wrong number of arguments for 'hmset' command
+2023/04/15 08:21:35 /root/BE/pkg/kafka/log.go:79: Failed to start Sarama producer: kafka: client has run out of available brokers to talk to: dial tcp 127.0.0.1:9092: connect: connection refused
+2023/04/15 08:32:48 /root/BE/pkg/kafka/log.go:79: Failed to start Sarama producer: kafka: client has run out of available brokers to talk to: dial tcp 127.0.0.1:9092: connect: connection refused

@@ -1,0 +1,1 @@
+go build -o ../../bin/comment main.go
