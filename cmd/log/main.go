@@ -2,22 +2,19 @@ package main
 
 import (
 	"be/cmd/log/dal"
-	rdb "be/cmd/log/dal/rdb"
-	"be/cmd/log/pack"
+	"be/cmd/log/dal/kafka"
+	"be/pkg/constants"
 )
 
 func Init() {
 	dal.Init()
-	pack.LogInit()
 }
 
 func main() {
 	Init()
+	// access log
+	go kafka.CreateConsumer([]string{"127.0.0.1:9092"}, []string{constants.KafkaAccessLogTopic}, constants.KafkaAccessLogGroupID)
+	go kafka.CreateConsumer([]string{"127.0.0.1:9092"}, []string{constants.KafkaErrorLogTopic}, constants.KafkaErrorLogGroupID)
 
-	go rdb.WriteALog()
-	go rdb.WriteELog()
-	go rdb.WriteSwapLog()
-
-	// 阻塞主线程
 	select {}
 }

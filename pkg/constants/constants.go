@@ -52,9 +52,9 @@ const (
 	RdbStarPre                  = "Star="
 	RdbSeenPre                  = "Seen="
 	RdbLikeStarSeenExpiration   = 60 * 5
-	ALogFile                    = "/root/BE/log/access.log"
-	ELogFile                    = "/root/BE/log/error.log"
-	SLogFile                    = "/root/BE/log/swap.log"
+	ALogFile                    = "/root/foolish/log/access.log"
+	ELogFile                    = "/root/foolish/log/error.log"
+	SLogFile                    = "/root/foolish/log/swap.log"
 	RdbErrorLogKey              = "foolish--Elog"
 	RdbAccessLogKey             = "foolish--ALog"
 	RdbSwapLogKey               = "foolish--SLog"
@@ -67,6 +67,9 @@ const (
 	RdbCommentFieldReply        = "Reply"
 	RdbCommentFieldCreatedAt    = "CreatedAt"
 
-	KafkaErrorLog  = "error_log"
-	KafkaAccessLog = "access_log"
+	KafkaConsumerVersion  = "2.1.1"
+	KafkaErrorLogTopic    = "error_log_topic"
+	KafkaAccessLogTopic   = "access_log_topic"
+	KafkaErrorLogGroupID  = "error_log_group"
+	KafkaAccessLogGroupID = "access_log_group"
 )

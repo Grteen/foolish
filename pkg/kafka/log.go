@@ -2,12 +2,16 @@ package kafka
 
 import (
 	"be/pkg/constants"
+	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/Shopify/sarama"
 )
+
+var logServer *LogServer
 
 var ALoger *log.Logger
 var ELoger *log.Logger
@@ -33,8 +37,31 @@ func LogInit() {
 	SLoger = log.New(slog, "", log.LstdFlags|log.Llongfile|log.LUTC)
 }
 
+func ErrorLog(err string) {
+	_, file, line, ok := runtime.Caller(1)
+	if !ok {
+		ELoger.Println("ErrorLog fail")
+	}
+	newerr := fmt.Sprintf("%v %v:%v: %v", time.Now(), file, line, err)
+	logServer.ErrorLog(newerr)
+}
+
+func AccessLog(str string) {
+	_, file, line, ok := runtime.Caller(1)
+	if !ok {
+		ELoger.Println("AccessLog fail")
+	}
+	newstr := fmt.Sprintf("%v %v:%v: %v", time.Now(), file, line, str)
+	logServer.AccessLog(newstr)
+}
+
 type LogServer struct {
 	LogProducer sarama.AsyncProducer
+}
+
+func Init() {
+	LogInit()
+	logServer = NewLogServer([]string{"127.0.0.1:9092"})
 }
 
 func NewLogServer(brokerList []string) *LogServer {
@@ -45,7 +72,7 @@ func NewLogServer(brokerList []string) *LogServer {
 
 func (s *LogServer) ErrorLog(err string) {
 	s.LogProducer.Input() <- &sarama.ProducerMessage{
-		Topic: constants.KafkaErrorLog,
+		Topic: constants.KafkaErrorLogTopic,
 		Key:   nil,
 		Value: sarama.StringEncoder(err),
 	}
@@ -53,7 +80,7 @@ func (s *LogServer) ErrorLog(err string) {
 
 func (s *LogServer) AccessLog(str string) {
 	s.LogProducer.Input() <- &sarama.ProducerMessage{
-		Topic: constants.KafkaAccessLog,
+		Topic: constants.KafkaAccessLogTopic,
 		Key:   nil,
 		Value: sarama.StringEncoder(str),
 	}

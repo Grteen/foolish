@@ -6,14 +6,13 @@ import (
 )
 
 func TestLog(t *testing.T) {
-	LogInit()
-	s := NewLogServer([]string{"127.0.0.1:9092"})
+	Init()
 	defer func() {
-		if err := s.Close(); err != nil {
+		if err := logServer.Close(); err != nil {
 			log.Println("Failed to close server", err)
 		}
 	}()
 
-	s.AccessLog("Hello World")
-	s.ErrorLog("Hello World Again")
+	AccessLog("Hello World")
+	ErrorLog("Hello World Again")
 }

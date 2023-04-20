@@ -1,9 +1,7 @@
 package dal
 
-import (
-	"be/cmd/log/dal/rdb"
-)
+import "be/cmd/log/dal/kafka"
 
 func Init() {
-	rdb.RedisInit()
+	kafka.Init()
 }
