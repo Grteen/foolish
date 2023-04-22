@@ -75,7 +75,6 @@ func UpdateUserInfo(ctx *gin.Context) {
 		NickName:    u.NickName,
 		UserAvator:  u.Avator,
 	})
-
 	if err != nil {
 		pack.SendResponse(ctx, errno.ConvertErr(err))
 		return
@@ -93,6 +92,10 @@ func UpdateUserInfo(ctx *gin.Context) {
 			ArtNum:      us[0].ArtNum,
 		},
 	})
+	if err != nil {
+		pack.SendResponse(ctx, errno.ConvertErr(err))
+		return
+	}
 
 	pack.SendResponse(ctx, errno.Success)
 }

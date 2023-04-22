@@ -12,10 +12,7 @@ func CheckUserName(username string) bool {
 		return false
 	}
 	userPwReg := regexp.MustCompile("[^0-9a-zA-Z\\-_]")
-	if userPwReg.MatchString(username) {
-		return false
-	}
-	return true
+	return !userPwReg.MatchString(username)
 }
 
 // 检测用户密码 （未加密） 如果合法返回 true
@@ -24,10 +21,7 @@ func CheckUserPassWord(password string) bool {
 		return false
 	}
 	userPwReg := regexp.MustCompile("[^0-9a-zA-Z\\-_]")
-	if userPwReg.MatchString(password) {
-		return false
-	}
-	return true
+	return !userPwReg.MatchString(password)
 }
 
 // 检测用户邮箱 如果合法返回true
@@ -37,10 +31,7 @@ func CheckUserEmail(email string) bool {
 		return false
 	}
 	emailReg = regexp.MustCompile(".+(@qq.com)$")
-	if !emailReg.MatchString(email) {
-		return false
-	}
-	return true
+	return emailReg.MatchString(email)
 }
 
 // 检测通知内容 如果合法返回true
@@ -50,34 +41,21 @@ func CheckNotifyText(text string) bool {
 	}
 
 	reg := regexp.MustCompile("[^\u4e00-\u9fa5a-z0-9A-Z_ ?,.;:\\[\\]\\{\\}\\-]")
-	if reg.MatchString(text) {
-		return false
-	}
-
-	return true
+	return !reg.MatchString(text)
 }
 
 // 检测输入是否为正数 如果是返回 true
 func CheckPostiveNumber(val int32) bool {
-	if val <= 0 {
-		return false
-	}
-	return true
+	return val > 0
 }
 
 func CheckZeroOrPostive(val int32) bool {
-	if val < 0 {
-		return false
-	}
-	return true
+	return val >= 0
 }
 
 // 检测输入的string长度是否合法 如果是返回 true
 func CheckStringLength(val string) bool {
-	if len(val) == 0 {
-		return false
-	}
-	return true
+	return len(val) != 0
 }
 
 // 检测输入的string数组中所有string长度是否合法 如果是返回 true
@@ -113,10 +91,7 @@ func CheckActionText(text string) bool {
 
 // 检测评论长度是否合法 如果是返回true
 func CheckCommentText(comment string) bool {
-	if len(comment) > 500 {
-		return false
-	}
-	return true
+	return len(comment) <= 500
 }
 
 // 检测收藏夹权限是否合法 如果是返回true
@@ -141,19 +116,13 @@ func CheckDesc(desc string) bool {
 		return false
 	}
 	descReg := regexp.MustCompile("[^\u4e00-\u9fa5a-z0-9A-Z_ ?,.;:\\[\\]\\{\\}\\-]")
-	if descReg.MatchString(desc) {
-		return false
-	}
 
-	return true
+	return !descReg.MatchString(desc)
 }
 
 // 检测 search 中的 keyword 如果合法 返回 true
 func CheckKeyWord(key string) bool {
-	if len(key) > 30 {
-		return false
-	}
-	return true
+	return len(key) <= 30
 }
 
 // 检测search中的limit 如果合法 返回 true
@@ -166,7 +135,17 @@ func CheckSearchLimit(limit int32) bool {
 
 // 检测offset 如果合法 返回 true
 func CheckOffset(offset int32) bool {
-	if offset < 0 {
+	return offset >= 0
+}
+
+// 检测公告参数是否合法
+func CheckPubNoticeText(text string) bool {
+	return len(text) <= 500
+}
+
+// 检测公告参数 如果合法 返回true
+func CheckPubNotice(username, text string) bool {
+	if !CheckUserName(username) || !CheckPubNoticeText(text) {
 		return false
 	}
 	return true

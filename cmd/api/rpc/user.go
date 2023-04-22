@@ -267,3 +267,59 @@ func UpdateUserPublic(ctx context.Context, req *userdemo.UpdateUserPublicRequest
 
 	return nil
 }
+
+// 创建公告
+func CreatePubNotice(ctx context.Context, req *userdemo.CreatePubNoticeRequest) error {
+	resp, err := client.CreatePubNotice(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+// 删除公告
+func DeletePubNotice(ctx context.Context, req *userdemo.DeletePubNoticeRequest) error {
+	resp, err := client.DeletePubNotice(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return nil
+}
+
+// 根据ID查询公告
+func QueryPubNotice(ctx context.Context, req *userdemo.QueryPubNoticeRequest) ([]*userdemo.PubNotice, error) {
+	resp, err := client.QueryPubNotice(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.Pubs, nil
+}
+
+// 查询某个用户的所有公告
+func QueryUserPubNotice(ctx context.Context, req *userdemo.QueryUserPubNoticeRequest) ([]int32, error) {
+	resp, err := client.QueryUserPubNotice(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Resp.StatusCode != 0 {
+		return nil, errno.NewErrNo(resp.Resp.StatusCode, resp.Resp.StatusMessage)
+	}
+
+	return resp.IDs, nil
+}

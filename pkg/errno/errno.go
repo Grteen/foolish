@@ -31,6 +31,7 @@ const (
 	DefaultFolderErrCode                  = 10022
 	NoNotifyErrCode                       = 10023
 	NoActionErrCode                       = 10024
+	NoPubNoticeErrCode                    = 10025
 )
 
 type Errno struct {
@@ -89,4 +90,5 @@ var (
 	DefaultFolderErr                  = NewErrNo(DefaultFolderErrCode, "Can not delete default star folder")
 	NoNotifyErr                       = NewErrNo(NoNotifyErrCode, "No such notify yet")
 	NoActionErr                       = NewErrNo(NoActionErrCode, "No such action yet")
+	NoPubNoticeErr                    = NewErrNo(NoPubNoticeErrCode, "No such PubNotice yet")
 )

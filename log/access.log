@@ -12,3 +12,4 @@
 2023-04-20 08:43:59.274137796 +0000 UTC m=+0.003879147 /root/foolish/pkg/kafka/log_test.go:16: Hello World
 2023/04/20 08:44:23 /root/foolish/cmd/log/dal/kafka/log.go:132: terminating: via signal
 2023/04/20 08:44:23 /root/foolish/cmd/log/dal/kafka/log.go:132: terminating: via signal
+2023-04-21 04:31:56.750280015 +0000 UTC m=+0.007471071 /root/foolish/pkg/kafka/log_test.go:16: Hello World

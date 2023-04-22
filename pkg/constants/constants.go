@@ -29,6 +29,7 @@ const (
 	AuthCookieIsAdministrator ContextKey = "AuthCookieIsAdministrator"
 	PicUploadDir                         = "/root/nginx/image"
 	PicHttpUri                           = "http://124.70.111.92/image"
+	PubNoticeTableName                   = "pubNotice"
 
 	RdbArticalPre               = "Artical="
 	RdbArticalFieldArtical      = "Artical"

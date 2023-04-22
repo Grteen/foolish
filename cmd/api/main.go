@@ -91,5 +91,10 @@ func main() {
 	ginServer.GET("/search", handlers.SearchArtical)
 	ginServer.GET("/search/user", handlers.SearchUserZoom)
 
+	ginServer.POST("/pubnotice", middleware.AuthMidWare, handlers.CreatePubNotice)
+	ginServer.DELETE("/pubnotice", middleware.AuthMidWare, handlers.DeletePubNotice)
+	ginServer.GET("/pubnotice", handlers.QueryPubNotice)
+	ginServer.GET("/pubnotice/user", handlers.QueryUserPubNotice)
+
 	ginServer.Run(":9877")
 }

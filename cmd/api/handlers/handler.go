@@ -292,6 +292,25 @@ type QuerySystemNotifyParma struct {
 	IDs []int32 `form:"IDs"`
 }
 
+type CreatePubNoticeParma struct {
+	UserName string `form:"username"`
+	Text     string `form:"text"`
+}
+
+type DeletePubNoticeParma struct {
+	ID int32 `form:"ID"`
+}
+
+type QueryPubNoticeParma struct {
+	IDs []int32 `form:"IDs"`
+}
+
+type QueryUserPubNoticeParma struct {
+	UserName string `form:"username"`
+	Limit    int32  `form:"limit"`
+	Offset   int32  `form:"offset"`
+}
+
 // 将 articaldemo.Artical 转化为 articaldemo.RdbArtical
 func ChangeArticalToRdbArtical(arts []*articaldemo.Artical) []*articaldemo.RdbArtical {
 	res := make([]*articaldemo.RdbArtical, 0)
@@ -352,7 +371,7 @@ func ChangeRdbArticalToArticalInfo(arts []*articaldemo.RdbArtical) []*ArticalInf
 
 // 查询文章info
 func QueryArticalInfo(ids []int32) ([]*ArticalInfo, error) {
-	artinfos := make([]*ArticalInfo, 4)
+	artinfos := make([]*ArticalInfo, 0)
 
 	// 查询 redis
 	rdbarts, ungot, err := rpc.RdbGetArticalEx(context.Background(), &articaldemo.RdbGetArticalRequest{

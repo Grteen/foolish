@@ -577,7 +577,7 @@ func (s *UserServiceImpl) RdbIncreaseItf(ctx context.Context, req *userdemo.RdbI
 
 	// 参数检测
 	if len(req.UserName) == 0 || len(req.Field) == 0 || req.Val <= -2 || req.Val >= 2 {
-		resp.Resp = pack.BuildResp(errno.ServiceFault)
+		resp.Resp = pack.BuildResp(errno.ParamErr)
 		return resp, nil
 	}
 
@@ -587,6 +587,88 @@ func (s *UserServiceImpl) RdbIncreaseItf(ctx context.Context, req *userdemo.RdbI
 		return resp, nil
 	}
 
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 创建公告
+func (s *UserServiceImpl) CreatePubNotice(ctx context.Context, req *userdemo.CreatePubNoticeRequest) (*userdemo.CreatePubNoticeResponse, error) {
+	resp := new(userdemo.CreatePubNoticeResponse)
+
+	// 参数检测
+	if !check.CheckPubNotice(req.UserName, req.Text) {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewUserService(ctx).CreatePubNotice(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 删除公告
+func (s *UserServiceImpl) DeletePubNotice(ctx context.Context, req *userdemo.DeletePubNoticeRequest) (*userdemo.DeletePubNoticeResponse, error) {
+	resp := new(userdemo.DeletePubNoticeResponse)
+
+	// 参数检测
+	if !check.CheckPostiveNumber(req.ID) {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	err := service.NewUserService(ctx).DeletePubNotice(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 查询某个id的公告
+func (s *UserServiceImpl) QueryPubNotice(ctx context.Context, req *userdemo.QueryPubNoticeRequest) (*userdemo.QueryPubNoticeResponse, error) {
+	resp := new(userdemo.QueryPubNoticeResponse)
+
+	// 参数检测
+	if !check.CheckPostiveArray(req.IDs) {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	pubs, err := service.NewUserService(ctx).QueryPubNotice(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.Pubs = ChangeDbPubNoticeToRPCPubNotice(pubs)
+	resp.Resp = pack.BuildResp(errno.Success)
+	return resp, nil
+}
+
+// 查询某个用户的所有公告
+func (s *UserServiceImpl) QueryUserPubNotice(ctx context.Context, req *userdemo.QueryUserPubNoticeRequest) (*userdemo.QueryUserPubNoticeResponse, error) {
+	resp := new(userdemo.QueryUserPubNoticeResponse)
+
+	// 参数检测
+	if !check.CheckUserName(req.UserName) {
+		resp.Resp = pack.BuildResp(errno.ParamErr)
+		return resp, nil
+	}
+
+	ids, err := service.NewUserService(ctx).QueryUserPubNotice(req)
+	if err != nil {
+		resp.Resp = pack.BuildResp(errno.ConvertErr(err))
+		return resp, nil
+	}
+
+	resp.IDs = ids
 	resp.Resp = pack.BuildResp(errno.Success)
 	return resp, nil
 }

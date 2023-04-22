@@ -241,6 +241,50 @@ message UpdateUserPublicResponse {
     Resp resp = 1;
 }
 
+message PubNotice {
+    int32 ID = 1;
+    string createdAt = 2;
+    string userName = 3;
+    string text = 4;
+}
+
+message CreatePubNoticeRequest {
+    string userName = 1;
+    string text = 2;
+}
+
+message CreatePubNoticeResponse {
+    Resp resp = 1;
+}
+
+message QueryPubNoticeRequest {
+    repeated int32 IDs = 1;
+}
+
+message QueryPubNoticeResponse {
+    Resp resp = 1;
+    repeated PubNotice pubs = 2;
+}
+
+message QueryUserPubNoticeRequest {
+    string userName = 1;
+    int32 limit = 2;
+    int32 offset = 3;
+}
+
+message QueryUserPubNoticeResponse {
+    Resp resp = 1;
+    repeated int32 IDs = 2;
+}
+
+message DeletePubNoticeRequest {
+    int32 ID = 1;
+}
+
+message DeletePubNoticeResponse {
+    Resp resp = 1;
+}
+
 service UserService {
     rpc CreateUser (CreateUserRequest) returns (CreateUserResponse){}
     rpc CheckUser (CheckUserRequest) returns (CheckUserResponse){}
@@ -260,6 +304,11 @@ service UserService {
     rpc QuerySubscribe (QuerySubscribeRequest) returns (QuerySubscribeResponse){}
     rpc QueryAllSubscribe (QueryAllSubscribeRequest) returns (QueryAllSubscribeResponse){}
     rpc QueryAllFans (QueryAllFansRequest) returns (QueryAllFansResponse){}
+
+    rpc CreatePubNotice (CreatePubNoticeRequest) returns (CreatePubNoticeResponse){}
+    rpc QueryPubNotice (QueryPubNoticeRequest) returns (QueryPubNoticeResponse){}
+    rpc QueryUserPubNotice (QueryUserPubNoticeRequest) returns (QueryUserPubNoticeResponse){}
+    rpc DeletePubNotice (DeletePubNoticeRequest) returns (DeletePubNoticeResponse){}
 
     rpc SearchArtAct (SearchArtActRequest) returns (SearchArtActResponse){}
 

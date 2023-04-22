@@ -3,6 +3,8 @@ package handlers
 import (
 	"be/cmd/user/dal/db"
 	"be/cmd/user/dal/rdb"
+	"be/cmd/user/pack"
+	"be/grpc/userdemo"
 )
 
 func ChangeUserInfoToRdbUserInfo(ufs []*db.UserInfo) []*rdb.RdbUser {
@@ -29,6 +31,19 @@ func ChangeUserToRdbUser(us []*db.User) []*rdb.RdbUser {
 			IsAdministrator: u.IsAdministrator,
 			FanPublic:       u.FanPublic,
 			SubPublic:       u.SubPublic,
+		})
+	}
+	return res
+}
+
+func ChangeDbPubNoticeToRPCPubNotice(pubs []*db.PubNotice) []*userdemo.PubNotice {
+	res := make([]*userdemo.PubNotice, 0)
+	for _, p := range pubs {
+		res = append(res, &userdemo.PubNotice{
+			ID:        int32(p.ID),
+			CreatedAt: p.CreatedAt.In(pack.Tz).Format(pack.TimeLayout),
+			UserName:  p.UserName,
+			Text:      p.Text,
 		})
 	}
 	return res
