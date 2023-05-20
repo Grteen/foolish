@@ -67,6 +67,8 @@ const (
 	RdbCommentFieldMaster       = "Master"
 	RdbCommentFieldReply        = "Reply"
 	RdbCommentFieldCreatedAt    = "CreatedAt"
+	RdbRegisterVerify           = "Verify="
+	RdbRegisterVerifyExpiration = 60
 
 	KafkaConsumerVersion  = "2.1.1"
 	KafkaErrorLogTopic    = "error_log_topic"

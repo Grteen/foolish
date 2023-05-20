@@ -13,3 +13,5 @@ cd /root/foolish/cmd/action
 ./build.sh
 cd /root/foolish/cmd/comment
 ./build.sh
+cd /root/foolish/cmd/smtp
+./build.sh

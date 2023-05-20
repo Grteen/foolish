@@ -25,3 +25,4 @@
 2023/04/20 08:39:21 /root/foolish/cmd/log/dal/kafka/log.go:45: 2023-04-20 08:39:21.326249569 +0000 UTC m=+0.007452098 /root/foolish/pkg/kafka/log_test.go:17: Hello World Again
 2023-04-20 08:43:59.274243092 +0000 UTC m=+0.003984443 /root/foolish/pkg/kafka/log_test.go:17: Hello World Again
 2023-04-21 04:31:56.750526187 +0000 UTC m=+0.007717143 /root/foolish/pkg/kafka/log_test.go:17: Hello World Again
+2023-05-20 06:13:38.51567733 +0000 UTC m=+104.880095497 /root/foolish/cmd/smtp/service/smtp.go:96: redis: nil

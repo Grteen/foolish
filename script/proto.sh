@@ -24,5 +24,9 @@ protoc --go_out=../grpc/commentdemo/ comment.proto
 
 protoc --go-grpc_out=../grpc/commentdemo/ comment.proto
 
+protoc --go_out=../grpc/msmtpdemo/ smtp.proto
+
+protoc --go-grpc_out=../grpc/msmtpdemo/ smtp.proto
+
 cd /root/foolish/script/bin
 ./remove_tag

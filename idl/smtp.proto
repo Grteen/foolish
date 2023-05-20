@@ -1,0 +1,30 @@
+syntax = "proto3";
+package msmtp;
+option go_package = ".;msmtpdemo";
+
+message Resp {
+    int64 statusCode = 1;
+    string statusMessage = 2;
+}
+
+message SendSmtpRequest {
+    string email = 1;
+}
+
+message SendSmtpResponse {
+    Resp resp = 1;
+}
+
+message QueryVerifyRequest {
+    string email = 1;
+}
+
+message QueryVerifyResponse {
+    Resp resp = 1;
+    string verify = 2;
+}
+
+service SmtpService {
+    rpc SendSmtp (SendSmtpRequest) returns (SendSmtpResponse){}
+    rpc QueryVerify (QueryVerifyRequest) returns (QueryVerifyResponse){}
+}

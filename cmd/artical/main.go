@@ -7,6 +7,8 @@ import (
 	"be/cmd/artical/rpc"
 	"be/grpc/articaldemo"
 	"net"
+	"net/http"
+	_ "net/http/pprof"
 
 	"google.golang.org/grpc"
 )
@@ -28,6 +30,12 @@ func main() {
 
 	articaldemo.RegisterArticalServiceServer(grpcServer, &handlers.ArticalServiceImpl{})
 
+	go func() {
+		err := http.ListenAndServe(":9090", nil)
+		if err != nil {
+			panic(err)
+		}
+	}()
 	err = grpcServer.Serve(listen)
 	if err != nil {
 		panic(err)
