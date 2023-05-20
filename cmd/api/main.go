@@ -20,6 +20,7 @@ func main() {
 	ginServer.Use(middleware.AccessMidWare)
 
 	ginServer.POST("/register", handlers.Register)
+	ginServer.GET("/verify", handlers.SendVerify)
 	ginServer.GET("/login", handlers.Login)
 	ginServer.DELETE("/login", middleware.AuthMidWare, handlers.DeLogin)
 	ginServer.GET("/userSelfName", handlers.QueryUserSelf)

@@ -6,4 +6,5 @@ cd /root/foolish/bin
 (./notify &)
 (./action &)
 (./comment &)
+(./smtp &)
 (./main > gin.log &)

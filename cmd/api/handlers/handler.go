@@ -12,6 +12,11 @@ type UserParma struct {
 	Name     string `form:"name"`
 	PassWord string `form:"password"`
 	Email    string `form:"email"`
+	Verify   string `form:"verify"`
+}
+
+type SendVerifyParma struct {
+	Email string `form:"email"`
 }
 
 type LoginParma struct {

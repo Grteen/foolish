@@ -32,6 +32,7 @@ const (
 	NoNotifyErrCode                       = 10023
 	NoActionErrCode                       = 10024
 	NoPubNoticeErrCode                    = 10025
+	WrongVerifyErrCode                    = 10026
 )
 
 type Errno struct {
@@ -91,4 +92,5 @@ var (
 	NoNotifyErr                       = NewErrNo(NoNotifyErrCode, "No such notify yet")
 	NoActionErr                       = NewErrNo(NoActionErrCode, "No such action yet")
 	NoPubNoticeErr                    = NewErrNo(NoPubNoticeErrCode, "No such PubNotice yet")
+	WrongVerifyErr                    = NewErrNo(WrongVerifyErrCode, "Wrong Verify Code")
 )

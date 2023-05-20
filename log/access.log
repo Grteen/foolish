@@ -13,3 +13,8 @@
 2023/04/20 08:44:23 /root/foolish/cmd/log/dal/kafka/log.go:132: terminating: via signal
 2023/04/20 08:44:23 /root/foolish/cmd/log/dal/kafka/log.go:132: terminating: via signal
 2023-04-21 04:31:56.750280015 +0000 UTC m=+0.007471071 /root/foolish/pkg/kafka/log_test.go:16: Hello World
+2023-05-20 06:12:43.51185132 +0000 UTC m=+49.876269387 /root/foolish/cmd/smtp/service/smtp.go:86: 2106633192@qq.com try to register
+2023/05/20 06:15:12 /root/foolish/cmd/log/dal/kafka/log.go:132: terminating: via signal
+2023/05/20 06:15:12 /root/foolish/cmd/log/dal/kafka/log.go:132: terminating: via signal
+2023-05-20 06:15:49.911008819 +0000 UTC m=+6.589827367 /root/foolish/cmd/smtp/service/smtp.go:88: 2106633192@qq.com try to register
+2023-05-20 06:18:07.950317977 +0000 UTC m=+7.079453024 /root/foolish/cmd/smtp/service/smtp.go:88: 2106633192@qq.com try to register

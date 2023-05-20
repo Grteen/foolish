@@ -10,8 +10,8 @@ import (
 
 func main() {
 	grep := `netstat -anp | grep `
-	ports := []string{"9877", "8080", "8081", "8082", "8083", "8084", "8085"}
-	execs := []string{"main", "user", "artical", "search", "notify", "action", "comment"}
+	ports := []string{"9877", "8080", "8081", "8082", "8083", "8084", "8085", "8086"}
+	execs := []string{"main", "user", "artical", "search", "notify", "action", "comment", "smtp"}
 
 	for t, i := range ports {
 		cmd := exec.Command("sh", "-c", grep+i)

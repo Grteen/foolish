@@ -11,3 +11,4 @@ cat ./pid/notify.pid | xargs kill -9
 cat ./pid/action.pid | xargs kill -9
 cat ./pid/comment.pid | xargs kill -9
 cat ./pid/main.pid | xargs kill -9
+cat ./pid/smtp.pid | xargs kill -9
